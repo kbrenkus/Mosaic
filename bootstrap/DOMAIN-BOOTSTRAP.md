@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.3
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.4
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -489,6 +489,12 @@ For large data files, apply the two-tier retrieval pattern:
 - **QUICK file** (session-level, loaded on first domain query): The 20% of data that answers 80% of questions. Index-level information — names, key attributes, cross-references.
 - **Full file** (on-demand, loaded when QUICK isn't sufficient): Complete data with all detail, history, and edge cases.
 
+**QUICK file design rules** (see MOSAIC-PRINCIPLES A-007):
+- **Routing header (§0):** Every QUICK file starts with a section 0 that teaches the agent what this domain covers, where to navigate for each question type, and when to escalate to the full file.
+- **Inclusion criteria:** Define what entities or content qualify for this QUICK file and where non-qualifying items route instead. Put these criteria in the §0 routing header. Without explicit boundaries, QUICK files grow unboundedly as entities are added.
+- **No operational state:** QUICK files condense knowledge, process, and curated views. Open items, version manifests, metrics, and volatile counts belong in the full reference file, not the QUICK.
+- **Attention gradient for large files:** Place summaries and high-signal content above detail tables. Agents read top-down — if the answer appears early, the agent stops reading (see MOSAIC-REASONING §4.7).
+
 **4.4 Entity-Instance Architecture**
 "Does this domain have N tracked entities that each need their own detailed file?"
 
@@ -511,7 +517,7 @@ Estimate file sizes for kernel candidates. Does it fit within available headroom
 
 **Completion criteria:**
 - [ ] Every artifact from Phase 3 assigned to kernel or retrieval
-- [ ] QUICK vs. full split defined for any large data files
+- [ ] QUICK vs. full split defined for any large data files (with inclusion criteria and §0 routing header)
 - [ ] Entity-instance architecture designed if applicable (template, tiering, loading pattern)
 - [ ] Extraction operations planned if splitting existing files
 - [ ] Kernel budget impact estimated and confirmed within headroom
@@ -526,8 +532,8 @@ Estimate file sizes for kernel candidates. Does it fit within available headroom
 > *Design principles for construction:* Atomic Multi-File Operations (A-008) — when a change touches multiple files (kernel + retrieval + router + manifest), all updates happen in the same session. Marker System as Construction Methodology (A-017) — use explicit markers (TODO, PLACEHOLDER, NEEDS-REVIEW) during construction so incomplete work is visible, not silently absent. See MOSAIC-PRINCIPLES section 3.2.
 
 **5.1 Domain Retrieval Files**
-- QUICK file: Session-level data, optimized for the most common queries
-- Full file: Complete data, available for escalation
+- QUICK file: Session-level data, optimized for the most common queries. Include §0 routing header with inclusion criteria, section index, and escalation rules. No operational state — only knowledge, process, and curated views.
+- Full file: Complete data, available for escalation. For files exceeding ~20 KB, apply attention gradient: summaries and high-signal content above detail tables (see MOSAIC-REASONING §4.7).
 - Follow existing naming conventions ({ORG}-{DOMAIN}-QUICK.md for index files)
 
 **5.2 Kernel Reasoning File (if needed)**
@@ -750,5 +756,6 @@ The Freedom track depends on a domain expert who may never have externalized the
 | Version | Date | Change |
 |---------|------|--------|
 | v0.1 | 2026-02-15 | Initial protocol design. Reverse-engineered from two completed domain anatomies. |
+| v0.4 | 2026-02-24 | Expanded §4.3 QUICK split with design rules (inclusion criteria, §0 routing header, no operational state, attention gradient). Updated §5.1 with construction guidance. Completion criteria updated. |
 | v0.3 | 2026-02-23 | Principles codification: added 5 design principle checkpoints at key decision points (Phase 3 §3.1, Phase 4 §4.1, Phase 5, Phase 7, Section 6) referencing MOSAIC-PRINCIPLES catalog. Principles invoked: A-009, A-010, A-011, U-001, A-008, A-017, A-014, U-013. |
 | v0.2 | 2026-02-16 | Retrospective validation applied. Level 0: added O-6 (Strategic Context), O-7 (AI/Automation), O-8 (Invisible Entity Scan), O-R (Emergence Retrospective); modified O-2 (integration gaps), O-3 (classification depth), O-4 (epistemological norms), O-5 (authority types). Level 1: added F1-1 agent accessibility, F1-2 reasoning failures, F2-5 (universe mapping), E1-3 (knowledge landscape), E2-7 (negative-space design), E2-8 (philosophical stance), E2-9 (temporal dimension); added Phase 3.5 (Domain Design Brief) and Phase 3.4 (anti-pattern register); added Phase 4.4 (entity-instance architecture), 4.5 (extraction operations); added Phase 5.3 (entity-instance files); expanded Phase 6 with 6.4 (coverage gap detection) and 6.5 (authoritative sources); strengthened Phase 7.3 (formal steward validation). Added iteration note to architecture overview. Updated validation section with scores and gap/fix tables. |

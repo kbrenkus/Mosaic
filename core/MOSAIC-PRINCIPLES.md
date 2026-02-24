@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.0
+**Version:** 1.1
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -282,11 +282,13 @@ How to construct and evolve Mosaic knowledge architecture.
 
 Two-tier retrieval pattern: a routing header (section 0) for domain entry, followed by numbered sections for targeted data. The routing header tells the agent what this domain covers and where to navigate — it's the table of contents the agent reads first.
 
-QUICK files are subsets or condensations of fuller reference files. The subset vs. condensed distinction determines escalation behavior: subsets point to the full file for additional detail; condensations stand alone.
+QUICK files are subsets or condensations of fuller reference files. The subset vs. condensed distinction determines escalation behavior: subsets point to the full file for additional detail; condensations stand alone. QUICK files condense knowledge, process, and curated views — they should NOT carry operational state (open items, version manifests, metrics) or volatile counts that drift from source.
 
-- **Evidence:** All 7 domain QUICK files use section 0 routing headers. Agent retrieves `get_section("filename", "0")` on domain entry instead of loading the whole file. This pattern emerged from observing that agents need routing context before they can make targeted retrieval decisions.
-- **Test:** Can a new agent entering this domain read the routing header and know (a) what questions this domain answers, (b) where to navigate for each question type, and (c) when to escalate to the full file?
-- **Anti-pattern:** QUICK files that are wholesale copies of the full file's first section. QUICK files without routing headers. QUICK files that accumulate lookup data beyond their budget justification.
+Every QUICK file should define **inclusion criteria**: what entities or content qualify for inclusion, and where non-qualifying items route instead. The routing header (§0) is the natural home for these criteria. When a domain covers multiple entity populations at different depths (e.g., active relationships vs. broader market), separate QUICK files with distinct inclusion criteria prevent unbounded growth and give the agent clear routing boundaries.
+
+- **Evidence:** All 7 domain QUICK files use section 0 routing headers. Agent retrieves `get_section("filename", "0")` on domain entry instead of loading the whole file. This pattern emerged from observing that agents need routing context before they can make targeted retrieval decisions. The inclusion criteria pattern was discovered when a client QUICK file grew to cover both active relationships and market intelligence — separating them into distinct QUICK files with explicit admission rules restored routing clarity and prevented unbounded growth.
+- **Test:** Can a new agent entering this domain read the routing header and know (a) what questions this domain answers, (b) where to navigate for each question type, (c) when to escalate to the full file, and (d) what qualifies for inclusion here vs. what routes elsewhere?
+- **Anti-pattern:** QUICK files that are wholesale copies of the full file's first section. QUICK files without routing headers. QUICK files that accumulate lookup data beyond their budget justification. QUICK files without inclusion criteria that grow unboundedly as entities are added. QUICK files carrying operational state (open items, metrics, version manifests) that belongs in the full reference file.
 - **Activates during:** Build (domain construction), maintenance (QUICK file audits)
 
 ---
@@ -535,7 +537,7 @@ All 31 named principles with one-line definitions. For full entries with evidenc
 | A-004 | Confidence Gating | Source trust + change type together determine automation level. | 3.1 |
 | A-005 | Four-Layer Sync Problem | Source, full file, QUICK file, and manifest each go stale independently. | 3.1 |
 | A-006 | Tuning Methodology | Five detection channels, six best practices, diagnose-before-prescribing. | 3.3 |
-| A-007 | QUICK File Architecture | Two-tier retrieval: routing header for domain entry, sections for targeted data. | 3.2 |
+| A-007 | QUICK File Architecture | Two-tier retrieval with routing header, inclusion criteria, and no operational state. | 3.2 |
 | A-008 | Atomic Multi-File Operations | Multi-file changes succeed together or not at all. | 3.2 |
 | A-009 | Progressive Entity Promotion | Entities graduate: invisible to attribute to entity to domain. | 3.2 |
 | A-010 | Absorption over Creation | Prefer absorbing content into existing files over creating new ones. | 3.2 |

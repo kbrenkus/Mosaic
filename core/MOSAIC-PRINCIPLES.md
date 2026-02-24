@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.1
+**Version:** 1.2
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -370,6 +370,25 @@ Typed gaps ([MCP-TBD], [USER-INPUT-TBD], [PROCESS-TBD]) are first-class construc
 - **Anti-pattern:** Leaving gaps unmarked ("we'll fill this in later" without a marker). Using a single generic marker type for all gaps. Treating markers as defects rather than construction methodology.
 - **Activates during:** Build (Phase 5 artifact construction), maintenance (marker resolution)
 
+**A-018 Narrative Qualification Test**
+
+Prose in kernel files must pass five tests to earn its budget. Narrative that fails multiple tests is the highest-priority candidate for condensation to pointers or removal. The five tests synthesize kernel epistemology (MOSAIC-REASONING section 6.1), ambient context (section 6.2), and interception (section 6.3) into a narrative-specific rubric:
+
+1. **Epistemological type** — Is this dispositional (shapes how the agent thinks) or hermeneutical (shapes how the agent interprets)? If yes, it earns budget. If it's ontological (what exists) or navigational (where to go) dressed as prose, it doesn't.
+2. **Derivability** — Can the agent learn this from other loaded files, live systems, or structured data already in the kernel? If the same information is in another kernel file, the narrative creates interception (U-012), not reinforcement.
+3. **Ambient necessity** — Does the agent need this before it knows it needs it? Content that shapes reasoning posture works by being present. Content that describes facts works just as well retrieved on-demand.
+4. **Staleness risk** — Is this about facts that change? Static prose about dynamic facts is a future lie. Unlike tables, which pipelines can regenerate, stale narrative has no detection or correction mechanism.
+5. **Landscape vs. curriculum** — Does this teach a reasoning pattern (curriculum), or describe the current state of the world (landscape)? Landscape descriptions go stale and can be derived. Curriculum compounds — it makes every future answer better.
+
+The most common failure pattern: a behaviors file that was written as the "tell the agent everything" file before the system decomposed into specialized files. It accumulates duplicated retrieval protocol, system lists, escalation reasoning, and counting rules from other kernel files — creating interception where the agent finds shallow copies and stops before reaching canonical sources.
+
+- **Evidence:** Narrative audit (Session 33) of six kernel files. IP-CLAUDE-BEHAVIORS contained ~1.7 KB of duplicated content from IP-DOMAIN-ROUTER, MOSAIC-REASONING, IP-INDEX, IP-A2A-QUICK, and IP-TAXONOMY-QUICK. IP-TAXONOMY-QUICK passed cleanly — its narrative was almost entirely hermeneutical (teaching reasoning patterns). MOSAIC-REASONING passed cleanly — pure curriculum throughout. The distinction was not file size but narrative quality: files with hermeneutical/dispositional narrative earned budget; files with ontological/navigational prose dressed as narrative did not.
+- **Test:** For each prose paragraph in a kernel file, apply the five tests. Score: earns budget (3+ pass), marginal (2 pass), candidate for condensation (0-1 pass). The harshest filter: narrative that is ontological, derivable, non-ambient, stale-prone, and landscape-descriptive is the lowest-value content in the kernel.
+- **Anti-pattern:** Grandfathering narrative because it was written early. Leaving "helpful context" paragraphs that duplicate content from other kernel files. Treating interception elimination as less important than byte savings — the reasoning quality improvement from reaching canonical sources exceeds the budget recovery.
+- **Activates during:** Build (content authoring), maintenance (budget audits, narrative review), Session 1-type behavioral rewrites
+
+---
+
 ### 3.3 Multi-Agent Design
 
 Principles for systems with multiple agents or agent types.
@@ -497,16 +516,16 @@ When do principles activate, and through what mechanism?
 | **New instance bootstrap** | All Level 1 + Level 2 | DOMAIN-BOOTSTRAP protocol references at each phase |
 | **New domain build** | A-007, A-008, A-009, A-010, A-011, A-014, A-015, A-017, U-001 | DOMAIN-BOOTSTRAP phase checkpoints |
 | **Tuning session** | A-006, U-006, U-007, U-008, U-009, U-013, U-014 | Tuning methodology (A-006) |
-| **Maintenance session** | A-005, A-008, U-010, U-011 | Maintenance protocols reference this catalog |
+| **Maintenance session** | A-005, A-008, A-018, U-010, U-011 | Maintenance protocols reference this catalog |
 | **Architecture decision** | U-001, U-004, A-010, A-011, A-012, A-013 | Architecture roadmap references this catalog |
 | **Plan mode** | U-005, U-010, A-008, A-014 | CLAUDE.md plan mode rules |
-| **File editing** | U-011, U-012, A-008, A-013 | CLAUDE.md session protocol |
+| **File editing** | U-011, U-012, A-008, A-013, A-018 | CLAUDE.md session protocol |
 
 ---
 
 ## 7. Quick Reference Index
 
-All 31 named principles with one-line definitions. For full entries with evidence, tests, and anti-patterns, see the section references.
+All 32 named principles with one-line definitions. For full entries with evidence, tests, and anti-patterns, see the section references.
 
 ### Level 1: Universal Agent Principles
 
@@ -548,6 +567,7 @@ All 31 named principles with one-line definitions. For full entries with evidenc
 | A-015 | Build Playbook as Phased Pipeline | Skeleton to Discovery to Enrichment to MCP to QUICK. | 3.2 |
 | A-016 | Worked Examples with Anti-Patterns | Show agents both the correct path and the incorrect path. | 3.3 |
 | A-017 | Marker System as Construction Methodology | Typed gaps are first-class construction artifacts, not defects. | 3.2 |
+| A-018 | Narrative Qualification Test | Prose earns kernel budget through five tests: epistemological type, derivability, ambient necessity, staleness risk, landscape vs. curriculum. | 3.2 |
 
 ---
 

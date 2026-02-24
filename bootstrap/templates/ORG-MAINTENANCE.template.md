@@ -150,14 +150,8 @@ Three upload targets, plus two paste targets:
 ## §7 Quick File Regeneration
 
 <!-- Define the process for regenerating QUICK files from full files.
-
-     DESIGN RULE (MOSAIC-PRINCIPLES A-007): QUICK files condense knowledge,
-     process, and curated views. They should NOT carry:
-     - Operational state (open items, version manifests, metrics)
-     - Comprehensive copies of full-file content
-     - Volatile counts or sizes that drift from source
-     State belongs in the full file; QUICK files teach patterns and
-     provide routing. -->
+     For QUICK file architecture principles (what earns QUICK budget vs.
+     what belongs in the full file), see MOSAIC-PRINCIPLES A-007. -->
 
 ---
 

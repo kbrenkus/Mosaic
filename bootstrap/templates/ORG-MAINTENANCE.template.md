@@ -63,7 +63,18 @@ This is the single source of truth for file currency. Every time a reference fil
 | MOSAIC-REASONING.md | {VER} | {DATE} | ~45 KB | Current | No (always loaded — shared reasoning kernel) |
 <!-- Add rows as domain files are created -->
 
-### §2.2 Supporting Artifacts
+### §2.2 Quick File Manifest
+
+<!-- Track QUICK files with their source file, version, and size.
+     QUICK files condense knowledge, process, and curated views from their
+     source files. They are NOT operational state dumps or comprehensive
+     copies. See MOSAIC-PRINCIPLES A-007 (QUICK File Architecture). -->
+
+| Quick File | Source File | Source Version | Quick Version | Size | Notes |
+|------------|------------ |----------------|---------------|------|-------|
+<!-- Add rows as QUICK files are created -->
+
+### §2.3 Supporting Artifacts
 
 <!-- Track non-kernel files: profiles, directories, test plans, etc. -->
 
@@ -105,6 +116,11 @@ This is the single source of truth for file currency. Every time a reference fil
 
 **Total kernel budget used:** {N} KB / ~200 KB
 
+<!-- DESIGN RULE (MOSAIC-PRINCIPLES U-011): Never hardcode counts or sizes
+     in narrative text. Use "count = [source]" references in tables. Sizes
+     in the budget tracker above are the ONE canonical location for file
+     sizes — don't duplicate them in DOMAIN-ROUTER or other files. -->
+
 ### §5F Upload Procedure
 
 Three upload targets, plus two paste targets:
@@ -133,13 +149,25 @@ Three upload targets, plus two paste targets:
 
 ## §7 Quick File Regeneration
 
-<!-- Define the process for regenerating QUICK files from full files -->
+<!-- Define the process for regenerating QUICK files from full files.
+
+     DESIGN RULE (MOSAIC-PRINCIPLES A-007): QUICK files condense knowledge,
+     process, and curated views. They should NOT carry:
+     - Operational state (open items, version manifests, metrics)
+     - Comprehensive copies of full-file content
+     - Volatile counts or sizes that drift from source
+     State belongs in the full file; QUICK files teach patterns and
+     provide routing. -->
 
 ---
 
 ## §8 Build Playbook
 
-<!-- Reference DOMAIN-BOOTSTRAP.md for domain builds -->
+<!-- Reference DOMAIN-BOOTSTRAP.md for domain builds.
+     For the full catalog of design principles governing builds, see
+     MOSAIC-PRINCIPLES. Key principles for this phase: A-007 (QUICK File
+     Architecture), A-008 (Atomic Multi-File Operations), A-009 (Progressive
+     Entity Promotion), U-011 (Volatile Data in Stable Text Creates Drift). -->
 
 For new domain construction, follow DOMAIN-BOOTSTRAP.md. This section covers {ORG}-specific build conventions.
 

@@ -52,6 +52,10 @@ Reference files are a **curated starting point, not an exhaustive inventory.** Y
 
 -->
 
+## Structured Output Formats
+
+For inter-agent format templates (Activity Snapshot, Coverage Assessment, etc.), see {ORG}-A2A-QUICK. Format definitions belong in the agent coordination protocol so all agents share the same structure. Define formats there during domain builds, not in behavior files.
+
 ## Working Protocols
 
 ### Analysis & Intelligence Mode

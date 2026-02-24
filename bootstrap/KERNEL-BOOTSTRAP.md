@@ -1,4 +1,4 @@
-# KERNEL-BOOTSTRAP v1.0
+# KERNEL-BOOTSTRAP v1.1
 
 > **Purpose:** A step-by-step guide for deploying a new Mosaic knowledge architecture instance for an organization. This covers everything from initial setup through first-domain operational readiness.
 >
@@ -263,7 +263,19 @@ $agentConfig = Join-Path $AgentDir "agent\platform-config\{ORG}-COPILOT-PLATFORM
 $claudeProject = Join-Path $AgentDir "agent\platform-config\{ORG}-CLAUDE-PLATFORM-CONFIG.md"
 ```
 
-### 3.5 Write CLAUDE.md (Instance Project Rules)
+### 3.5 Design Pitfalls to Avoid
+
+These patterns were discovered empirically and codified in MOSAIC-PRINCIPLES. They save significant rework:
+
+- **No volatile data in stable text (U-011).** Never hardcode counts, sizes, or dates in narrative prose — they drift immediately. Use "count = rows in [table]" references. File sizes live in MAINTENANCE §2.1 only.
+- **No operational state in QUICK files (A-007).** QUICK files condense knowledge, process, and curated views. Open items, version manifests, metrics, and other state that changes frequently belong in the full reference file, not the QUICK.
+- **Format definitions in A2A protocol, not behavior files.** When multiple agents consume the same output format (Activity Snapshot, Coverage Assessment, etc.), define it once in the A2A protocol file. Behavior files get pointers + behavioral triggers.
+- **No triple-coverage (U-012 Interception).** If content appears in the kernel, a QUICK file, AND a full file, the agent finds the closest copy and stops. Keep definitions in one canonical place; use pointers elsewhere.
+- **Kernel earns its budget (§6.1 Kernel Epistemology).** Every line in the kernel must shape reasoning (dispositional/hermeneutical). Navigational content (lists, inventories, lookup tables) belongs in retrieval files.
+
+For the full catalog: MOSAIC-PRINCIPLES.
+
+### 3.6 Write CLAUDE.md (Instance Project Rules)
 
 Create `CLAUDE.md` at the instance root. This governs Claude Code's behavior when working in your instance. Key sections:
 
@@ -281,7 +293,7 @@ Use the existing CLAUDE.md from an established Mosaic instance as a reference fo
 
 ## 4. Phase 3: First Domain Bootstrap
 
-With infrastructure in place and the kernel scaffolded, bootstrap your first domain using DOMAIN-BOOTSTRAP.md (Levels 1-3).
+With infrastructure in place and the kernel scaffolded, bootstrap your first domain using DOMAIN-BOOTSTRAP.md (Levels 1-3). Keep MOSAIC-PRINCIPLES open as a build companion — it encodes the lessons from previous deployments.
 
 **Choose your first domain wisely.** Pick a domain that:
 - Has a willing, engaged steward
@@ -371,4 +383,5 @@ The test: *Does this file teach a pattern the agent needs on every query, or pro
 
 | Version | Date | Change |
 |---------|------|--------|
+| v1.1 | 2026-02-24 | Added §3.5 Design Pitfalls (empirical anti-patterns from first deployment), MOSAIC-PRINCIPLES reference in Phase 3. |
 | v1.0 | 2026-02-23 | Initial version. Covers infrastructure setup, kernel construction, first domain bootstrap, and operational readiness. |

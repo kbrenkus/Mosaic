@@ -21,6 +21,8 @@ For retrieval architecture reasoning (Core + Retrieval pattern, 4-question proto
 - **Kernel answers (no retrieval):** {List query types answerable from kernel files alone}
 - **Requires retrieval:** {List query types requiring domain file retrieval}
 
+**File sizes:** See {ORG}-MAINTENANCE §2.1/§2.2 for current file sizes. Large files (>50 KB) have attention gradients — retrieve specific sections, not whole files.
+
 **Hub domain:** {Identify the central operational hub domain, if any — the domain other domains reference most.}
 
 ---
@@ -41,9 +43,9 @@ For retrieval architecture reasoning (Core + Retrieval pattern, 4-question proto
 
 **On-demand files:**
 
-| File | Blob Name | Size | Content |
-|------|-----------|------|---------|
-| {ORG}-{DOMAIN} | {ORG}-{DOMAIN}.md | ~{N} KB | {Description of full file content} |
+| File | Blob Name | Content |
+|------|-----------|---------|
+| {ORG}-{DOMAIN} | {ORG}-{DOMAIN}.md | {Description of full file content} |
 
 **Kernel note:** {What reasoning is in the kernel vs. what data is in retrieval for this domain}
 
@@ -53,7 +55,12 @@ For retrieval architecture reasoning (Core + Retrieval pattern, 4-question proto
 
 <!-- Copy the domain section template above for each domain.
      Domains are added as they're bootstrapped via DOMAIN-BOOTSTRAP.md.
-     The first domain entry comes from Phase 3 of KERNEL-BOOTSTRAP.md. -->
+     The first domain entry comes from Phase 3 of KERNEL-BOOTSTRAP.md.
+
+     DESIGN RULE: Never hardcode counts or sizes in Content descriptions.
+     Use "count = rows in [table]" or "count = [source metric]" so the
+     router stays accurate as data changes. File sizes live in MAINTENANCE
+     §2.1/§2.2, not here. See MOSAIC-PRINCIPLES U-011 (Volatile Data). -->
 
 ## Changelog
 

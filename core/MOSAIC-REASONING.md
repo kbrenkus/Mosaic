@@ -1,7 +1,7 @@
 # MOSAIC-REASONING.md
 ## Shared Reasoning Kernel
 
-**Version:** 1.3
+**Version:** 1.4
 **Created:** 2026-02-20
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -14,6 +14,8 @@ This file contains reasoning frameworks that are company-agnostic — they teach
 **How instances use this file:** Load alongside instance-specific files (INDEX, BEHAVIORS, A2A-QUICK, TAXONOMY-QUICK, DOMAIN-ROUTER). This file provides the reasoning; instance files provide the data, system recipes, and organizational context.
 
 **Versioned independently.** Reasoning upgrades (v1.0 → v1.1) improve every instance that loads the new version. Instance files are never touched during reasoning upgrades.
+
+**Related:** For the full catalog of named design principles with evidence, tests, anti-patterns, and governance methodology, see MOSAIC-PRINCIPLES. This file contains the ambient subset (section 6 frameworks and section 7 dispositions); MOSAIC-PRINCIPLES contains the complete catalog of 31+ principles across all levels.
 
 ---
 
@@ -471,21 +473,7 @@ Content in these middle layers earns kernel budget only when BOTH conditions are
 - If an MCP tool or retrieval query can provide the same data on demand, the static copy doesn't earn kernel budget. A cached HubSpot owner ID table is redundant when a search_owners tool exists. A wholesale copy of a client directory is redundant when the full file is retrievable.
 - If the data cannot be retrieved dynamically (no tool, no full file, no API), the static copy may earn budget by necessity — but flag it for migration when retrieval becomes available.
 
-**Layer 4 subcategories in practice:**
-
-| Subcategory | Example | Earns QUICK budget? |
-|---|---|---|
-| Entity indexes that teach reasoning patterns | Lifecycle state definitions, entity type classifications, sovereignty codes | Yes — it's reasoning wearing entity-index clothing |
-| Entity indexes that are pure lookup | Stage ID tables, owner ID mappings, personnel lists | No — retrieval or MCP tool |
-| Entity indexes that are wholesale copies of fuller data | 100-row client directory duplicating a full file's §1 | No — interception problem (§6.3), replace with pointer |
-
-**Layer 5 subcategories in practice:**
-
-| Subcategory | Example | Earns QUICK budget? |
-|---|---|---|
-| Process topology that teaches patterns | Approval authority workflows, cross-system recipes, handoff sequences | Yes — procedural reasoning, consumed on every relevant query |
-| Structural topology (organizational data) | Org chart hierarchy, team membership lists, inter-team dependencies | No — ontological data for the full file |
-| Authority scope (hybrid) | Operating group governance, decision escalation paths | Depends — if it's consumed for routing decisions, it earns budget as routing-adjacent topology; if it's organizational reference, it belongs in retrieval |
+For subcategory tables and detailed placement guidance per layer (which subcategories earn QUICK budget and which don't), see MOSAIC-PRINCIPLES section 3.2.
 
 **Why this matters:** When a QUICK file accumulates content from the lower end of these gradients (roster data in a routing file, lookup tables alongside reasoning patterns), two problems emerge. First, the QUICK file grows beyond its budget justification — it's consuming kernel space with content that doesn't shape reasoning. Second, the duplicated content intercepts lookups (per §6.3) — an agent finds the partial roster in the QUICK file and stops before reaching the complete roster in the full file. Clean layer separation prevents both problems.
 
@@ -493,7 +481,7 @@ Content in these middle layers earns kernel budget only when BOTH conditions are
 
 ## 7. Meta-Principles
 
-These principles emerged from iterative tuning across real agent deployments. When existing directives don't cover a situation, reason from these.
+These epistemic dispositions shape reasoning on every conversation. They emerged from iterative tuning across real agent deployments. When existing directives don't cover a situation, reason from these. For the full catalog of 31+ named design principles with evidence, tests, anti-patterns, and governance, see MOSAIC-PRINCIPLES.
 
 | Principle | In Practice |
 |-----------|-------------|
@@ -501,11 +489,8 @@ These principles emerged from iterative tuning across real agent deployments. Wh
 | **Curriculum, not database** | Reference files teach patterns for reasoning, not just store facts. Naming conventions teach the *pattern* so agents can evaluate names they've never seen. Taxonomies provide *frameworks* for things that don't exist yet. |
 | **Uncertainty is first-class information** | Don't paper over what you don't know — mark it. Markers, confidence tags, and freshness annotations make gaps actionable. |
 | **Precise diagnosis over broad optimization** | When something isn't working, measure at the individual query level, change one thing, re-measure. Targeted edits outperform broad rewrites. |
-| **Each agent makes the others smarter** | Search agents find better because reference files tell them where to look. Reasoning agents query better because reference files provide IDs and patterns. Editing agents edit better because the other agents provide validated findings. |
-| **Agents maintain layers; humans interpret** | Automated population of public data, structured prompting for system data, human analysis for strategic insight. |
 | **Answer first, improve second** | Answer the user's question. Then note gaps, flag findings, recommend improvements. System maintenance never delays the user's answer. |
-| **Implicit knowledge is invisible knowledge** | When the system only knows something as an attribute of other entities, it can retrieve facts but cannot reason about the thing itself. The test: Can the system answer "tell me about X" through reasoning, or does it require knowing which file to look in? |
-| **Emergence needs legible substrate** | When composite concepts depend on multiple components, every component must be legible to the system. If one is invisible, the composite reasoning is silently capped — no error, just a ceiling. |
+| **Implicit knowledge is invisible knowledge** | When the system only knows something as an attribute of other entities, it can retrieve facts but cannot reason about the thing itself. The test: Can the system answer "tell me about X" through reasoning, or does it require knowing which file to look in? When composite concepts depend on multiple components, every component must be legible — if one is invisible, the composite reasoning is silently capped. |
 | **The agent's experience of its context is design data** | The texture of the kernel — not just its content — affects reasoning quality. When an agent reports friction, treat it as design input: not authoritative (agents can be wrong about what's load-bearing), but not dismissible (the system doing the reasoning is the closest observer of its own cognitive environment). |
 
 ---

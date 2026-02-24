@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.2
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.3
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -398,6 +398,8 @@ Combine the entity inventory (F2-1) with the expert's working taxonomy (E2-3) to
 
 *Test:* Can you classify a new entity the expert hasn't seen before using this ontology? If yes, you've captured the pattern. If you need to ask the expert, you've only captured the instances.
 
+> *Design principle — Progressive Entity Promotion (A-009):* Assess which entities are invisible (not yet represented), which are attributes (scattered mentions in other entities' files), and which are ready for first-class reasoning. The entity ontology you build here determines what the system can reason about vs. what it can only retrieve facts about. See MOSAIC-PRINCIPLES section 3.2.
+
 **3.2 Reasoning Frameworks**
 Distill the expert's evaluation patterns (E2-1, E2-2), diagnostic patterns (E2-5), tacit knowledge (E2-6), and philosophical stance (E2-8) into teachable frameworks:
 - Decision trees or evaluation criteria
@@ -473,6 +475,8 @@ Reasoning frameworks from Phase 3 that the agent needs for general query handlin
 - Classification taxonomies that the agent uses to interpret any question in this domain
 - Cross-domain bridge definitions
 
+> *Design principles for this phase:* Absorption over Creation (A-010) — reuse existing frameworks before inventing new ones. Query-Pattern Boundaries for Splits (A-011) — split files along how agents ask questions, not how humans organize data. Context Budget as Constraint (U-001) — every byte of kernel budget has an opportunity cost; earn placement with reasoning value, not data volume. See MOSAIC-PRINCIPLES sections 2.1 and 3.2.
+
 **4.2 Retrieval Candidates (Dynamic)**
 Data substrates from Phase 2F that are looked up per-query:
 - Entity inventories (people, systems, clients, contracts, etc.)
@@ -518,6 +522,8 @@ Estimate file sizes for kernel candidates. Does it fit within available headroom
 ### Phase 5: Artifact Construction
 
 > *Goal: Build the actual files that make this domain operational.*
+
+> *Design principles for construction:* Atomic Multi-File Operations (A-008) — when a change touches multiple files (kernel + retrieval + router + manifest), all updates happen in the same session. Marker System as Construction Methodology (A-017) — use explicit markers (TODO, PLACEHOLDER, NEEDS-REVIEW) during construction so incomplete work is visible, not silently absent. See MOSAIC-PRINCIPLES section 3.2.
 
 **5.1 Domain Retrieval Files**
 - QUICK file: Session-level data, optimized for the most common queries
@@ -608,6 +614,8 @@ For domains that draw on external data, curate a catalog of trusted sources:
 ### Phase 7: Validation
 
 > *Goal: Prove the domain works and hasn't broken anything.*
+
+> *Design principle — Phased Risk Sequencing (A-014):* Prove the pattern at incrementally higher risk. Start with the simplest queries and known-good scenarios before testing edge cases and cross-domain interactions. If the easy cases fail, the hard cases will too — and you'll debug faster with simple examples. See MOSAIC-PRINCIPLES section 3.2.
 
 **7.1 Benchmark Design**
 Write 8-10 test queries spanning:
@@ -733,6 +741,8 @@ The Freedom track depends on a domain expert who may never have externalized the
 
 **Expect iteration.** The first pass captures 60-70% of the reasoning. The second pass (reviewing draft artifacts) surfaces "Oh, I forgot to mention..." and "Actually, that's not quite right because..." Plan for at least two review cycles with the steward.
 
+> *Design principle — Empirical Discovery over A Priori Design (U-013):* The most important lessons cannot be predicted. The first build teaches what the protocol cannot encode. Every completed domain will surface principles, shortcuts, and failure modes that no protocol anticipated. Capture these discoveries — they are the raw material for methodology improvement. See MOSAIC-PRINCIPLES section 2.3.
+
 ---
 
 ## 7. Changelog
@@ -740,4 +750,5 @@ The Freedom track depends on a domain expert who may never have externalized the
 | Version | Date | Change |
 |---------|------|--------|
 | v0.1 | 2026-02-15 | Initial protocol design. Reverse-engineered from two completed domain anatomies. |
+| v0.3 | 2026-02-23 | Principles codification: added 5 design principle checkpoints at key decision points (Phase 3 §3.1, Phase 4 §4.1, Phase 5, Phase 7, Section 6) referencing MOSAIC-PRINCIPLES catalog. Principles invoked: A-009, A-010, A-011, U-001, A-008, A-017, A-014, U-013. |
 | v0.2 | 2026-02-16 | Retrospective validation applied. Level 0: added O-6 (Strategic Context), O-7 (AI/Automation), O-8 (Invisible Entity Scan), O-R (Emergence Retrospective); modified O-2 (integration gaps), O-3 (classification depth), O-4 (epistemological norms), O-5 (authority types). Level 1: added F1-1 agent accessibility, F1-2 reasoning failures, F2-5 (universe mapping), E1-3 (knowledge landscape), E2-7 (negative-space design), E2-8 (philosophical stance), E2-9 (temporal dimension); added Phase 3.5 (Domain Design Brief) and Phase 3.4 (anti-pattern register); added Phase 4.4 (entity-instance architecture), 4.5 (extraction operations); added Phase 5.3 (entity-instance files); expanded Phase 6 with 6.4 (coverage gap detection) and 6.5 (authoritative sources); strengthened Phase 7.3 (formal steward validation). Added iteration note to architecture overview. Updated validation section with scores and gap/fix tables. |

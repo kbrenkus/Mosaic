@@ -1,0 +1,9 @@
+# Mosaic shared repo gitignore
+
+# Claude Code working files (session-specific, instance-only)
+memory/
+
+# IDE and tool directories
+.vs/
+.cursor/
+.claude/

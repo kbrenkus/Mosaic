@@ -1,0 +1,267 @@
+#!/usr/bin/env python3
+"""
+Phase 3.5 Pipeline: Enrichment Queue Generation
+
+Scans entity-instance files (profiles) for completeness gaps,
+classifies them into enrichment tracks, and generates:
+1. Prioritized CSV with gap counts per entity
+2. Ready-to-paste enrichment prompts for Claude.ai sessions
+
+Architecture reference: MOSAIC-OPERATIONS Section 4.3 (Enrichment Queue)
+
+CUSTOMIZATION GUIDE:
+  1. Update PROFILES_DIR to point to your entity profiles
+  2. Update GAP_MARKERS with your instance's gap marker patterns
+  3. Update LIFECYCLE_TIERS with your lifecycle-to-tier mapping
+  4. Implement generate_enrichment_prompt() for your domain
+  5. Update TRACK_THRESHOLD if 12 isn't right for your context
+
+Usage:
+  python generate_enrichment_queue.py
+"""
+
+import csv
+import re
+from datetime import date
+from pathlib import Path
+from collections import Counter
+
+# --- Path Configuration ---
+PIPELINE_DIR = Path(__file__).resolve().parent
+MOSAIC_DIR = PIPELINE_DIR.parent
+
+# --- File Configuration (CUSTOMIZE THESE) ---
+PROFILES_DIR = MOSAIC_DIR / "clients" / "profiles"
+OUTPUT_DIR = PIPELINE_DIR / "run-logs"
+
+# Gap markers to scan for in profile files
+# CUSTOMIZE: Add your instance-specific gap markers
+GAP_MARKERS = {
+    'MCP-TBD': re.compile(r'\[MCP-TBD\]'),       # Data retrievable via MCP tools
+    'BD-TBD': re.compile(r'\[BD-TBD\]'),           # Requires human/relationship knowledge
+    'USER-INPUT-TBD': re.compile(r'\[USER-INPUT-TBD\]'),  # Needs user input
+}
+
+# Track classification threshold
+# Entities with more than this many MCP-TBD gaps go to Track 2 (Claude Code MCP)
+TRACK_THRESHOLD = 12
+
+# Lifecycle-to-tier mapping (determines coverage expectations)
+# CUSTOMIZE: Map your lifecycle states to expected coverage tiers
+LIFECYCLE_TIERS = {
+    'active': {'expected_coverage': 80, 'priority': 1},
+    'engaged': {'expected_coverage': 60, 'priority': 2},
+    'prospect': {'expected_coverage': 30, 'priority': 3},
+    'inactive': {'expected_coverage': 0, 'priority': 4},
+}
+
+
+def scan_profile(filepath):
+    """Scan a single profile file for gap markers.
+
+    Returns a dict with:
+    - filename, entity_name
+    - marker counts (MCP-TBD, BD-TBD, etc.)
+    - total gaps
+    - lifecycle (extracted from file if present)
+    """
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    counts = {}
+    for marker_name, pattern in GAP_MARKERS.items():
+        matches = pattern.findall(content)
+        counts[marker_name] = len(matches)
+
+    # CUSTOMIZE: Extract lifecycle from your profile format
+    # Example: Look for "Lifecycle: Active-MSO" in the file
+    lifecycle = 'unknown'
+    lifecycle_match = re.search(r'(?:Lifecycle|Status):\s*(\S+)', content, re.IGNORECASE)
+    if lifecycle_match:
+        lifecycle = lifecycle_match.group(1).lower()
+
+    # Extract entity name from filename
+    # CUSTOMIZE: Adapt to your naming convention
+    entity_name = filepath.stem
+    # Strip prefix if present (e.g., "{ORG}-CLIENT-EntityName" -> "EntityName")
+    entity_name = re.sub(r'^[A-Z]+-CLIENT-', '', entity_name)
+
+    return {
+        'filename': filepath.name,
+        'entity_name': entity_name,
+        'lifecycle': lifecycle,
+        'markers': counts,
+        'total_gaps': sum(counts.values()),
+        'mcp_tbd': counts.get('MCP-TBD', 0),
+        'bd_tbd': counts.get('BD-TBD', 0),
+    }
+
+
+def classify_track(profile_data):
+    """Classify an entity into an enrichment track.
+
+    Track 2: >TRACK_THRESHOLD MCP-TBD gaps -> Claude Code MCP enrichment
+    Track 1: <=TRACK_THRESHOLD MCP-TBD gaps -> Claude.ai web research
+    BD-only: Only BD-TBD gaps remain -> human relationship knowledge needed
+    """
+    mcp_gaps = profile_data['mcp_tbd']
+    bd_gaps = profile_data['bd_tbd']
+
+    if mcp_gaps > TRACK_THRESHOLD:
+        return 'Track 2 (Claude Code MCP)'
+    elif mcp_gaps > 0:
+        return 'Track 1 (Claude.ai web)'
+    elif bd_gaps > 0:
+        return 'BD-only'
+    else:
+        return 'Complete'
+
+
+def scan_for_missing_profiles(overlay_path=None):
+    """Identify entities in the overlay that have no profile file.
+
+    CUSTOMIZE: Point to your overlay or entity directory to find
+    entities that should have profiles but don't.
+    """
+    missing = []
+    # Example:
+    # import yaml
+    # overlay = yaml.safe_load(open(overlay_path))
+    # existing = {f.stem for f in PROFILES_DIR.glob("*.md")}
+    # for entity_key in overlay:
+    #     expected_filename = f"{ORG}-CLIENT-{entity_key}"
+    #     if expected_filename not in existing:
+    #         missing.append(entity_key)
+    return missing
+
+
+def generate_enrichment_prompt(profile_data):
+    """Generate a ready-to-paste enrichment prompt for a single entity.
+
+    CUSTOMIZE: Adapt the prompt template for your domain and data sources.
+
+    The prompt should direct the Claude.ai agent to:
+    1. Research specific gaps using authoritative sources
+    2. Emit findings as YAML delta batch (not inline edits)
+    3. Post deltas to the appropriate queue section
+    """
+    entity = profile_data['entity_name']
+    gaps = profile_data['total_gaps']
+
+    # CUSTOMIZE: Build domain-specific enrichment prompt
+    prompt = f"""## Enrichment: {entity}
+
+**Profile:** {profile_data['filename']}
+**Lifecycle:** {profile_data['lifecycle']}
+**Gaps:** {gaps} total ({profile_data['mcp_tbd']} MCP-TBD, {profile_data['bd_tbd']} BD-TBD)
+
+**Instructions:**
+1. Retrieve the profile: `get_section("{profile_data['filename'].replace('.md', '')}", "1")`
+2. For each [MCP-TBD] marker, research using authoritative sources
+3. Present findings as a YAML delta batch (see {{ORG}}-A2A-QUICK Section 4.2 for schema)
+4. Post each delta to the Data Corrections section of the task tracking project
+
+**Do NOT edit the profile inline.** Emit all findings as structured deltas for the maintenance workflow to process.
+"""
+    return prompt
+
+
+def main():
+    today = date.today().isoformat()
+    print(f"Enrichment Queue Generation - {today}")
+    print("=" * 50)
+
+    # Scan all profiles
+    if not PROFILES_DIR.exists():
+        print(f"WARNING: Profiles directory not found: {PROFILES_DIR}")
+        print("Create entity profiles before running the enrichment queue.")
+        return
+
+    profile_files = list(PROFILES_DIR.glob("*.md"))
+    # Exclude template files
+    profile_files = [f for f in profile_files if 'template' not in f.name.lower()]
+
+    if not profile_files:
+        print("No profile files found. Enrichment queue is empty.")
+        return
+
+    print(f"Scanning {len(profile_files)} profiles...")
+    results = []
+    for filepath in sorted(profile_files):
+        data = scan_profile(filepath)
+        data['track'] = classify_track(data)
+        results.append(data)
+
+    # Check for missing profiles
+    missing = scan_for_missing_profiles()
+
+    # Sort by priority: lifecycle tier, then gap count descending
+    def sort_key(r):
+        tier_info = LIFECYCLE_TIERS.get(r['lifecycle'], {'priority': 99})
+        return (tier_info['priority'], -r['total_gaps'])
+
+    results.sort(key=sort_key)
+
+    # Summary statistics
+    total_gaps = sum(r['total_gaps'] for r in results)
+    track_counts = Counter(r['track'] for r in results)
+
+    print(f"\nResults:")
+    print(f"  Total profiles scanned: {len(results)}")
+    print(f"  Total gaps: {total_gaps}")
+    print(f"  Track 2 (Claude Code MCP): {track_counts.get('Track 2 (Claude Code MCP)', 0)}")
+    print(f"  Track 1 (Claude.ai web): {track_counts.get('Track 1 (Claude.ai web)', 0)}")
+    print(f"  BD-only: {track_counts.get('BD-only', 0)}")
+    print(f"  Complete: {track_counts.get('Complete', 0)}")
+    print(f"  Missing profiles: {len(missing)}")
+
+    # Write CSV
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    csv_path = OUTPUT_DIR / f"enrichment-queue-{today}.csv"
+
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            'Entity', 'Lifecycle', 'Track', 'MCP-TBD', 'BD-TBD',
+            'Total Gaps', 'Profile File'
+        ])
+        for r in results:
+            if r['track'] != 'Complete':
+                writer.writerow([
+                    r['entity_name'], r['lifecycle'], r['track'],
+                    r['mcp_tbd'], r['bd_tbd'], r['total_gaps'],
+                    r['filename']
+                ])
+        # Add missing profiles
+        for entity in missing:
+            writer.writerow([entity, 'unknown', 'Missing Profile', '', '', '', ''])
+
+    print(f"\n  CSV: {csv_path}")
+
+    # Write enrichment prompts
+    prompts_path = OUTPUT_DIR / f"enrichment-prompts-{today}.md"
+    enrichable = [r for r in results if r['track'] in [
+        'Track 1 (Claude.ai web)', 'Track 2 (Claude Code MCP)'
+    ]]
+
+    with open(prompts_path, 'w', encoding='utf-8') as f:
+        f.write(f"# Enrichment Prompts - {today}\n\n")
+        f.write(f"Generated: {today}\n")
+        f.write(f"Enrichable profiles: {len(enrichable)}\n\n")
+        f.write("---\n\n")
+
+        for r in enrichable:
+            f.write(generate_enrichment_prompt(r))
+            f.write("\n---\n\n")
+
+    print(f"  Prompts: {prompts_path}")
+
+    # Print top recommendation
+    if enrichable:
+        top = enrichable[0]
+        print(f"\n  #1 Recommendation: {top['entity_name']}")
+        print(f"     Lifecycle: {top['lifecycle']}, Gaps: {top['total_gaps']}, Track: {top['track']}")
+
+
+if __name__ == "__main__":
+    main()

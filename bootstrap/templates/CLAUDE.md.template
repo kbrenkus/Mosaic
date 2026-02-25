@@ -1,0 +1,219 @@
+# {Organization Name} — Instance Project Rules
+
+## Artifact Distribution
+
+Three upload targets for agent files, plus two paste targets for platform config:
+
+| Target | Files | Format | Method |
+|--------|-------|--------|--------|
+| Claude.ai project knowledge | 6 kernel .md files | .md | Manual upload |
+| Copilot agent knowledge | Same 6 kernel files | .txt (generated) | Manual upload |
+| Azure Blob (MCP retrieval) | All retrieval .md files | .md | Auto-synced by script |
+| Claude.ai project instructions | Extracted from {ORG}-CLAUDE-PLATFORM-CONFIG.md | .txt | Paste into UI |
+| Copilot Studio instructions | Extracted from {ORG}-COPILOT-PLATFORM-CONFIG.md | .txt | Paste into UI |
+
+The 6 kernel files are: 5 shared (MOSAIC-REASONING, {ORG}-INDEX, {ORG}-TAXONOMY-QUICK, {ORG}-A2A-QUICK, {ORG}-DOMAIN-ROUTER) + 1 agent-specific ({ORG}-CLAUDE-BEHAVIORS for Claude, {ORG}-COPILOT-BEHAVIORS for Copilot). .txt copies for Copilot are generated artifacts in Upload/ only.
+
+**End of every session:**
+- Run prepare_upload.ps1 to stage files and sync blob: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare_upload.ps1`
+- Use `-SkipBlob` flag when Azure CLI is not available: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare_upload.ps1 -SkipBlob`
+- Remind the user to upload staged files per the checklist in {ORG}-MAINTENANCE §5F.
+
+## MCP Server — `get_section` Tool
+
+The Azure Function exposes `get_section(file_name, section_ref)` as a Claude.ai custom connector. It reads `.md` files directly from Azure Blob Storage.
+
+**Three hygiene rules:**
+
+1. **Editing existing files** — no extra steps. `prepare_upload.ps1` syncs to blob automatically.
+2. **Adding a new file to `reference/`** — no extra steps. The blob sync glob picks it up.
+3. **Adding a file outside `reference/` that needs `get_section` access** — add it to the blob sync glob in `prepare_upload.ps1`, then run `scripts/upload_to_blob.ps1` once to seed it.
+
+## File Organization
+
+```
+{org}-instance/
+├── MOSAIC-REASONING.md               (shared reasoning kernel -- copy from Mosaic/core/)
+├── {ORG}-INDEX.md                    (entry point)
+├── CLAUDE.md                         (this file -- project rules)
+├── kernel/                           ({ORG}-DOMAIN-ROUTER, QUICK files, CLAUDE-BEHAVIORS)
+├── reference/                        (full reference files -> blob)
+├── agent/                            (COPILOT-BEHAVIORS, A2A-PROTOCOL)
+│   └── platform-config/              (platform deployment configs)
+├── clients/                          (if applicable)
+│   ├── profiles/                     (entity-instance files -> blob)
+│   └── intelligence/                 (discovery briefs, directories -> blob)
+├── maintenance/
+│   └── insights/                     (federated learning loop artifacts)
+├── pipeline/                         (data freshness pipeline scripts + config)
+│   ├── overlays/                     (curated human-judgment YAML)
+│   ├── inputs/                       (.gitignored -- Phase 1 JSON snapshots)
+│   └── run-logs/                     (.gitignored -- run summaries, enrichment queues)
+├── scripts/                          (prepare_upload.ps1, utilities)
+├── testing/                          (test plans + results/)
+├── source-documents/                 (.gitkeep -- intake folder, gitignored)
+├── archive/                          (.gitkeep -- historical files, gitignored)
+├── upload/                           (ephemeral staging, gitignored)
+└── memory/                           (Claude Code working files, gitignored)
+```
+
+**`source-documents/` is the intake folder.** The user drops external files here for Claude Code to read when integrating data. Files here are inputs, not outputs. Clean up after integration.
+
+## Cross-Reference Convention
+
+- Cross-references between .md files use **base filenames without extension or path** (e.g., "see {ORG}-TEAMS").
+- Keep .md in: manifest markers, file paths, changelog entries, table cells naming files.
+- Strip .md from: narrative cross-references.
+
+## Date Format Standard
+
+- **All dates with year+month+day** -> `YYYY-MM-DD` (ISO 8601).
+- **All dates with year+month only** -> `YYYY-MM`.
+- **Month names as scheduling labels** -> keep natural language.
+
+## Kernel Architecture & Budget
+
+After editing any file loaded into Claude.ai project knowledge or Copilot Studio agent config, update {ORG}-MAINTENANCE §5E budget table.
+
+- Claude.ai: ~200 KB limit across project knowledge files
+- Copilot Studio: 8,000 char limit for agent config text
+
+**Kernel architecture principles.** See MOSAIC-REASONING §6 for kernel epistemology, ambient context, and interception. See MOSAIC-PRINCIPLES for the full catalog of design principles.
+
+## Shared Reasoning Kernel
+
+MOSAIC-REASONING.md is the **shared reasoning kernel** -- company-agnostic frameworks distributable across all Mosaic instances.
+
+**Rules:**
+- **Never add company-specific data** to MOSAIC-REASONING.md.
+- **Versioned independently.** Version bumps still get a changelog entry in {ORG}-MAINTENANCE.
+- **Instance files reference shared reasoning with pointers**, not duplicated content.
+- **Prefer editing MOSAIC-REASONING** over adding reasoning to {ORG}-specific files when the content is company-agnostic.
+
+## Pipeline Operations
+
+The pipeline (`pipeline/` directory) runs in phases. See MOSAIC-OPERATIONS §4 for the architecture pattern.
+
+**Running the pipeline (Phase 1 -> 2 -> 3.5):**
+
+When the user says "run pipeline", "run maintenance", or Step 2a of §10.1 is reached:
+
+1. **Phase 1 -- MCP Data Acquisition** (Claude Code):
+   - Load MCP tools (deferred -- must load before calling)
+   - Query live systems for current data
+   - Write JSON snapshots to `pipeline/inputs/YYYY-MM-DD.json`
+   - JSON schema: each file wraps array in a named object (e.g., `{"deals": [...]}`)
+   <!-- CUSTOMIZE: Document your specific MCP calls here:
+        - Which systems to query
+        - Which properties/fields to request
+        - Which filters to apply (exclude closed, etc.)
+        - What workspace/project IDs to use -->
+
+2. **Phase 2 -- Transformation** (Python):
+   `python pipeline/generate-domain-quick.py --date YYYY-MM-DD`
+
+3. **Phase 3.5 -- Enrichment Queue** (Python):
+   `python pipeline/generate_enrichment_queue.py`
+
+4. **Present run summary digest** -- read `pipeline/run-logs/run-summary-YYYY-MM-DD.md` and present:
+   - Headline stats: entities matched, records matched, delta count
+   - Action items only: unmatched records, overlay changes, batch CSV count
+   - **Enrichment recommendation:** #1 candidate from queue + ask: "Enrich now, pick a different one, or skip?"
+   - Do NOT dump the full run summary into the conversation
+
+Then proceed to Phase 3 post-processing. If MCP tools fail to load, report the failure and offer to continue with existing snapshots.
+
+**Phase 3 -- Post-processing (after run summary review):**
+1. If batch update CSV was generated, present organized by priority. Recommend batch execution in source system.
+2. Mark consumed delta tasks complete in task tracking tool.
+3. Run `prepare_upload.ps1`.
+
+## Git Workflow
+
+**Session start:**
+- `git pull` before any work. Claude Code checks and reminds.
+
+**Session end:**
+- After running `prepare_upload.ps1`, stage changes: `git add` specific files.
+- Commit with a descriptive message. Push to remote.
+
+**Safety rules:**
+- **Never force push.** If git complains, stop and troubleshoot.
+- **Merge conflicts:** Claude Code helps resolve. Never force through.
+
+## Session Protocol
+
+**Session start:**
+1. CLAUDE.md is auto-loaded. Check MEMORY.md for current context.
+2. `git pull` to sync latest changes.
+3. If resuming prior work, check the task list and recent file timestamps.
+4. If the user says "run maintenance" or "run monthly sync", start with the pipeline, then proceed through §10.1 steps.
+
+**During a session:**
+- When editing reference files, bump the version number in the file's header. **Every version bump is a 3-part atomic operation:** (1) increment header version, (2) update {ORG}-MAINTENANCE §2.1/§2.2 manifest row, (3) add changelog entry.
+- **Manifest discipline:** Always update the manifest in the same edit session as the version bump. This is the #1 source of system drift.
+- **File structure discipline:** When creating, renaming, or moving files, update: `scripts/prepare_upload.ps1`, {ORG}-MAINTENANCE §5F, and {ORG}-INDEX §Related Reference Files.
+- **No static counts in prose.** Never hardcode counts in narrative text. Reference the source: "count = rows in [table]."
+- Present analysis and wait for user direction before editing files.
+
+**Session end:**
+- Run prepare_upload.ps1.
+- Remind user to upload staged files per {ORG}-MAINTENANCE §5F checklist.
+- Stage, commit, and push changes to git.
+
+## Analysis Checkpoint Rule
+
+When multi-turn analysis produces refined conclusions, write a brief to `memory/` before starting edits. This applies to maintenance items, new features, architecture decisions, behavioral tuning, or any work where the reasoning took significant effort.
+
+**Brief format** (file name = topic, e.g., `memory/rec-006-implementation.md`):
+- **What to do** -- specific edits, insertion points, affected files
+- **What NOT to do** -- rejected approaches and why
+- **Key decisions** -- reasoning that took multiple turns to reach
+- **Status** -- what's done, what's next
+
+**Plan mode persistence (mandatory).** After a plan is approved in plan mode, the FIRST action is to write the approved plan to `memory/` as an implementation brief. Do not begin implementation until the brief is written.
+
+Clean up briefs for completed items at session end.
+
+## Plan Validation Requirement
+
+Every plan that modifies reference files, restructures content, or changes agent behavior must include a validation design as part of the plan.
+
+**What the validation plan must include:**
+1. **Pre-test queries** (3-5) -- run BEFORE implementation, scored against rubric
+2. **Scoring rubric** -- dimensions with point scales, defined during planning
+3. **Post-test queries** -- run AFTER implementation, same rubric
+4. **Acceptance criteria** -- what constitutes passing (e.g., "no regression, +2 minimum on depth")
+5. **Conversation budget** -- max queries per test conversation
+
+See MOSAIC-OPERATIONS §7 for the full testing architecture.
+
+## Sensitivity Rule
+
+- **Never put sensitive identifiers** (tax IDs, account numbers, etc.) in CLAUDE.md, memory files, or QUICK files.
+- Define sensitivity tiers in {ORG}-CLAUDE-BEHAVIORS and {ORG}-COPILOT-BEHAVIORS.
+
+## Behavioral Parity Check
+
+When adding or modifying a behavioral directive in any agent behavior file, analyze whether the same directive applies to the other agent. If yes, add to both. If no, document why it's agent-specific.
+
+## Agent Behavior Regression Rule
+
+After editing any agent behavior file, run a smoke test before closing the session:
+- Pick 3 queries from the test plan (1 easy, 1 medium, 1 hard) relevant to the changed behavior
+- Run them in the appropriate agent platform
+- If any query regresses, investigate before finalizing
+
+## Memory Management
+
+- **MEMORY.md** is always loaded into the system prompt -- keep it under 150 lines.
+- Use separate topic files in `memory/` for detailed notes. Link from MEMORY.md.
+- **Delete superseded items** from MEMORY.md.
+- **Don't track file versions in MEMORY.md** -- authoritative versions are in {ORG}-MAINTENANCE §2.1.
+- **`memory/` vs `archive/` boundary:** `memory/` is for active briefs with pending work. When complete, delete or move to `archive/`.
+
+## PowerShell Coding Rules
+
+- **No em dashes or non-ASCII characters** in .ps1 files -- even in comments.
+- Avoid `($var text)` patterns in double-quoted strings.
+- Use `-f` format operator or string concatenation for complex output strings.

@@ -79,6 +79,46 @@ Each knowledge domain follows a layered pattern:
 
 Layers 1-3 tend toward the kernel (they shape reasoning). Layers 4-6 tend toward retrieval (they provide data). The boundaries are gradients, not walls.
 
+## Learning Loop Architecture
+
+Beyond answering questions, Mosaic instances *learn* through four loops that detect drift, accumulate observations, and process corrections. For the full specification, see `core/MOSAIC-OPERATIONS.md`.
+
+```
+Loop 1: Data Freshness
+  Agent detects stale/wrong data -> [DELTA], [GAP], [STRUCT], [STALE]
+  -> Data Corrections queue -> Pipeline batch processing
+
+Loop 2: Reasoning Improvement
+  Agent notices patterns, better methods -> [PATTERN], [RECIPE], [ONTOLOGY], [CAUSAL]
+  -> Intelligence Queue -> Human review during maintenance
+
+Loop 3: Substrate Expansion
+  Agent encounters recurring query class with no domain -> [DOMAIN]
+  -> Intelligence Queue -> Domain proposal (3-occurrence threshold)
+
+Loop 4: Self-Knowledge
+  Agent observes its own reasoning tendencies -> [META]
+  -> Intelligence Queue -> Benchmark validation -> Behavioral tuning
+```
+
+**The key insight:** Agents already detect these signals during normal work. The innovation is mapping existing signal detection to structured output (YAML deltas) that persists across conversations and gets processed in batch during maintenance cycles.
+
+### Pipeline Pattern
+
+The data freshness pipeline bridges MCP-accessible live systems and deterministic file transformation:
+
+```
+Phase 1: MCP Acquisition     (Claude Code queries live systems -> JSON snapshots)
+      |
+Phase 2: Transformation      (Python reads snapshots + curated overlay -> regenerated sections)
+      |
+Phase 3.5: Enrichment Queue  (Python scans profiles for gaps -> prioritized CSV + prompts)
+      |
+Phase 3: Post-Processing     (Review, batch CSV, delta completion, upload)
+```
+
+The **overlay pattern** is the foundation layer: a curated YAML file containing human-judgment fields (lifecycle state, tier, strategic flags) that no system query can determine. The pipeline merges overlay data with live system data to produce reference file sections.
+
 ## Kernel Epistemology
 
 Each kernel file serves a different epistemological function:

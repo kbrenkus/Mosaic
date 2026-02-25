@@ -10,8 +10,9 @@ This is the **shared Mosaic methodology repository** — company-agnostic framew
 
 ```
 Mosaic/
-├── core/                MOSAIC-REASONING.md (shared reasoning kernel)
-├── bootstrap/           KERNEL-BOOTSTRAP.md, DOMAIN-BOOTSTRAP.md, templates/
+├── core/                MOSAIC-REASONING.md, MOSAIC-OPERATIONS.md, MOSAIC-PRINCIPLES.md
+├── bootstrap/           KERNEL-BOOTSTRAP.md, DOMAIN-BOOTSTRAP.md
+│   └── templates/       ORG-*.template.md, CLAUDE.md.template, pipeline/
 ├── mcp-server/          Azure Function code (function_app.py, requirements.txt, host.json)
 ├── scripts/             Generic prepare_upload.ps1 template
 ├── proposals/           PROPOSAL-TEMPLATE.md
@@ -23,11 +24,16 @@ Mosaic/
 
 ## Editing Rules
 
-### MOSAIC-REASONING.md (core/)
-- This is the shared reasoning kernel. Changes here affect every instance that updates.
+### Core Files (core/)
+- **MOSAIC-REASONING.md** — Shared reasoning kernel (cognitive frameworks).
+- **MOSAIC-OPERATIONS.md** — Shared operational architecture (learning loops, delta protocol, pipeline, maintenance).
+- **MOSAIC-PRINCIPLES.md** — Design principles catalog (builder reference).
+
+**Editing rules for all core files:**
+- Changes here affect every instance that updates.
 - **Never add company-specific content.** No names, system IDs, entity lists.
 - **Version independently.** Bump the version in the file header (v1.0, v1.1, etc.).
-- **Test before publishing.** Changes to reasoning frameworks should be validated in at least one live instance before committing.
+- **Test before publishing.** Changes should be validated in at least one live instance before committing.
 - Use generic examples. If a concrete example would help, use placeholders like "Acme Corporation" or "{Organization}".
 
 ### Bootstrap Protocols (bootstrap/)

@@ -56,6 +56,84 @@ Reference files are a **curated starting point, not an exhaustive inventory.** Y
 
 For inter-agent format templates (Activity Snapshot, Coverage Assessment, etc.), see {ORG}-A2A-QUICK. Format definitions belong in the agent coordination protocol so all agents share the same structure. Define formats there during domain builds, not in behavior files.
 
+## Signal Awareness & Delta Output
+
+For signal detection reasoning and surfacing patterns, see MOSAIC-REASONING §3.3. For the learning loop architecture, delta taxonomy, and pipeline pattern, see MOSAIC-OPERATIONS §2-5. This section covers {ORG}-specific signal thresholds and the delta output protocol.
+
+### {ORG}-Specific Delta Triggers
+
+When you detect these signals during normal work, emit the corresponding delta type at conversation end (see batch protocol below).
+
+**Loop 1 — Data observations:**
+
+| Signal | Delta Type | Threshold |
+|--------|-----------|-----------|
+| Lifecycle state vs. live signals mismatch | `[DELTA]` | Active entity + contradicting live signals = flag |
+| Record dates past due | `[STALE]` | >{N} months past expected date |
+| Entity coverage below tier expectation | `[GAP]` | Active entities expect {N}%+ coverage; lower tiers need less |
+| No data refresh in {N}+ months on active entity | `[GAP]` | Staleness threshold per entity tier |
+| Terminology doesn't match taxonomy aliases | `[STRUCT]` | Systematic mismatches (not one-offs) |
+| Unknown entity (not in directory/roster) | `[GAP]` | Any unknown entity triggers new entity detection |
+
+<!-- Customize thresholds above for your organization during KERNEL-BOOTSTRAP Phase 5 -->
+
+**Loop 2 — Reasoning observations:**
+
+| Signal | Delta Type | When to Emit |
+|--------|-----------|--------------|
+| Cross-entity or cross-system pattern | `[PATTERN]` | Pattern observed across 2+ entities or systems |
+| Better query method discovered | `[RECIPE]` | Found a more effective way to query or combine results |
+| Entity doesn't fit taxonomy | `[ONTOLOGY]` | Entity class unresolvable with current categories |
+| Causal mechanism hypothesized | `[CAUSAL]` | Can articulate *why* a pattern exists, not just *that* it exists |
+
+**Loop 3 — Substrate observations:**
+
+| Signal | Delta Type | When to Emit |
+|--------|-----------|--------------|
+| Recurring query class with no domain | `[DOMAIN]` | Same class of question, 3+ occurrences with no routing |
+
+**Loop 4 — Self-observations:**
+
+| Signal | Delta Type | When to Emit |
+|--------|-----------|--------------|
+| Reasoning mode mismatch | `[META]` | Defaulted to data assembly when question was strategic, or vice versa |
+| Domain-specific difficulty | `[META]` | Repeated difficulty routing or answering a query class |
+| Confidence-evidence gap | `[META]` | Gave or almost gave a confident answer while source data was thin |
+| Retrieval path habit | `[META]` | Went to the wrong file first, or skipped a source that would have helped |
+
+### Trigger Discipline
+
+Not every observation is worth a delta. The test: **"Would this change what a reference file says, how a recipe works, or how the agent reasons?"** If yes, emit. If no, mention it conversationally but don't create a task.
+
+- **Loop 1:** Emit when live data contradicts reference data or data is missing/stale.
+- **Loop 2:** Emit `[PATTERN]` when you observe a meaningful correlation. Don't suppress because you've only seen it once this session — the Intelligence Queue accumulates across sessions. Emit `[CAUSAL]` when you can additionally articulate a specific mechanism (the *why*). The evidence bar for `[CAUSAL]` is higher: pattern + mechanism + supporting evidence.
+- **Loop 3:** Emit when a query class recurs 3+ times with no routing.
+- **Loop 4:** Emit when a self-observation carries specific evidence — not vague impressions. Categories: reasoning mode mismatch, domain difficulty, confidence-evidence gaps, retrieval habits. **Critical governance:** Self-observations are diagnostic reports, not permission to self-correct in real-time.
+- **Active Inquiry:** When you have a testable hypothesis with specific evidence and a clear impact statement — offer it to the user at a conversation boundary (see {ORG}-A2A-QUICK §4.5 for format). If the user defers, emit `[INQUIRY]` to the queue. **Evidence bar:** specific hypothesis + specific evidence + what the answer would change.
+
+### Conversation-End Delta Batch
+
+At conversation end, present accumulated observations as a **YAML delta batch** — one block per observation using the schema in {ORG}-A2A-QUICK §4.2:
+
+```yaml
+[STALE] Acme Corp: Record date 8 months overdue
+---
+type: stale
+target_entity: AcmeCorp
+source_system: crm
+confidence: confirmed
+evidence: ["Record 12345, expected date 2025-06-30"]
+agent: claude-operations
+session_date: {DATE}
+---
+```
+
+Then post each block as a task in the delta queue ({ORG}-A2A-QUICK §4.3 for section routing). If posting fails, the YAML blocks in your response serve as paste-ready fallback — never silently drop observations.
+
+**What qualifies:** Structural, ontological, data quality, reasoning, and self-observations accumulated during the conversation. NOT routine factual context that was part of answering the question.
+
+**Confidence tagging:** Use the source trust hierarchy (MOSAIC-REASONING §5.4, {ORG}-A2A-QUICK §4.4).
+
 ## Working Protocols
 
 ### Analysis & Intelligence Mode

@@ -10,6 +10,7 @@ Mosaic is a methodology and toolkit for building AI agent systems that understan
 - **Scales across domains.** A repeatable bootstrap protocol for adding knowledge domains (teams, clients, systems, policies, etc.) one at a time.
 - **Supports multiple agents.** Claude.ai, Microsoft Copilot, and Claude Code each access the same knowledge through different channels, coordinated by a shared protocol.
 - **Stays current.** A maintenance architecture that detects drift between source systems and reference files, with defined audit cadences and trigger matrices.
+- **Learns from itself.** Four learning loops (data freshness, reasoning improvement, substrate expansion, self-knowledge) with a structured delta protocol that accumulates observations and processes them in batch maintenance cycles.
 
 ## Architecture
 
@@ -24,8 +25,8 @@ This split means agents have reasoning patterns available on every query while a
 
 ```
 Mosaic/                          (this repo — shared methodology)
-├── core/                        MOSAIC-REASONING.md (shared reasoning kernel)
-├── bootstrap/                   KERNEL-BOOTSTRAP.md, DOMAIN-BOOTSTRAP.md, templates/
+├── core/                        MOSAIC-REASONING.md, MOSAIC-OPERATIONS.md, MOSAIC-PRINCIPLES.md
+├── bootstrap/                   KERNEL-BOOTSTRAP.md, DOMAIN-BOOTSTRAP.md, templates/ (incl. pipeline/)
 ├── mcp-server/                  Azure Function for get_section retrieval
 ├── scripts/                     Generic prepare_upload.ps1 template
 ├── proposals/                   PROPOSAL-TEMPLATE.md (instance feedback upstream)
@@ -52,9 +53,10 @@ Each organization creates a **private instance repository** alongside this share
 ## Getting Started
 
 1. **Read** `docs/architecture.md` to understand the Core + Retrieval pattern
-2. **Follow** `bootstrap/KERNEL-BOOTSTRAP.md` to set up infrastructure and create your first kernel
-3. **Bootstrap domains** using `bootstrap/DOMAIN-BOOTSTRAP.md` for each knowledge area
-4. **Maintain** using the patterns in your instance's `{ORG}-MAINTENANCE.md`
+2. **Read** `core/MOSAIC-OPERATIONS.md` to understand the self-learning architecture
+3. **Follow** `bootstrap/KERNEL-BOOTSTRAP.md` to set up infrastructure, create your kernel, and configure learning loops
+4. **Bootstrap domains** using `bootstrap/DOMAIN-BOOTSTRAP.md` for each knowledge area
+5. **Maintain** using the patterns in your instance's `{ORG}-MAINTENANCE.md`
 
 ## Sharing Model
 
@@ -78,6 +80,9 @@ Instances never share organization-specific data. The shared repo contains only 
 | **Domain Bootstrap** | Repeatable protocol for adding a knowledge domain. Foundation (what exists) + Freedom (how experts think). |
 | **Three-channel distribution** | Kernel files go to Claude.ai (.md), Copilot (.txt), and blob (retrieval .md). |
 | **Behavioral parity** | Directives apply to all agents unless there's a clear architectural reason they don't. |
+| **Learning loops** | Four loops (data, reasoning, substrate, self-knowledge) detect drift and accumulate observations for batch processing. |
+| **Delta protocol** | Structured YAML observations emitted by agents, queued in task tracking, and reviewed during maintenance cycles. |
+| **Pipeline** | MCP data acquisition -> Python transformation -> enrichment queue. Keeps reference files fresh from live systems. |
 
 ## License
 

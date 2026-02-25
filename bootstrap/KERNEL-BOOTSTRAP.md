@@ -1,4 +1,4 @@
-# KERNEL-BOOTSTRAP v1.1
+# KERNEL-BOOTSTRAP v1.2
 
 > **Purpose:** A step-by-step guide for deploying a new Mosaic knowledge architecture instance for an organization. This covers everything from initial setup through first-domain operational readiness.
 >
@@ -32,6 +32,10 @@ A Mosaic instance consists of:
 ├── clients/                        (if applicable)
 │   ├── profiles/                   (entity-instance files)
 │   └── intelligence/               (discovery briefs, directories)
+├── pipeline/                       (data freshness pipeline — see Phase 5)
+│   ├── overlays/                   (curated human-judgment YAML)
+│   ├── inputs/                     (gitignored — Phase 1 JSON snapshots)
+│   └── run-logs/                   (gitignored — run summaries, enrichment queues)
 ├── scripts/                        (prepare_upload.ps1, utilities)
 ├── testing/                        (test plans + results/)
 ├── source-documents/               (external intake, gitignored)
@@ -320,7 +324,7 @@ After building the first domain:
 
 ---
 
-## 5. Phase 4: Operational Readiness
+## 5. Phase 4: Git & Session Workflow
 
 ### 5.1 Commit and Push
 
@@ -345,7 +349,140 @@ Use the domain map from Level 0 and strategic priorities to plan the next domain
 
 ---
 
-## 6. Reference: Three-Channel Distribution Model
+## 6. Phase 5: Learning Infrastructure Setup
+
+> *With the first domain operational, set up the self-learning machinery that keeps the system current and improves its reasoning over time. This phase activates the patterns described in MOSAIC-OPERATIONS.*
+>
+> **Prerequisite:** Phase 3 complete (at least one domain operational with files in blob and kernel uploaded). The learning infrastructure needs data to learn from.
+
+### 6.1 Set Up Task Tracking Project
+
+Create a project in your task management tool (e.g., Asana) with two sections:
+
+| Section | Purpose | Delta Types |
+|---------|---------|-------------|
+| **Data Corrections** | Loop 1 data freshness deltas | `[DELTA]`, `[GAP]`, `[STRUCT]`, `[STALE]` |
+| **Intelligence Queue** | Loop 2/3/4 reasoning & architecture deltas | `[PATTERN]`, `[RECIPE]`, `[ONTOLOGY]`, `[CAUSAL]`, `[DOMAIN]`, `[META]`, `[INQUIRY]` |
+
+Record the section GIDs/IDs in your instance's `{ORG}-A2A-QUICK.md` §4.3 (Queue Routing table).
+
+**Why two sections:** Data corrections are higher-volume and partially automatable. Intelligence observations are strategic and always require human judgment. Separating them prevents data noise from burying insights.
+
+### 6.2 Configure Delta Queue
+
+Update the delta queue references in your instance files:
+
+1. **{ORG}-A2A-QUICK §4.3** — Set section GIDs/IDs for Data Corrections and Intelligence Queue
+2. **{ORG}-CLAUDE-BEHAVIORS** — The Signal Awareness section references these sections for delta routing
+3. **{ORG}-COPILOT-BEHAVIORS** — Same references for Copilot
+
+**Task naming convention:** `[TYPE] Target: Description` (e.g., `[STALE] Acme Corp: Deal date 8 months overdue`)
+
+**Task body:** YAML front matter using the schema in {ORG}-A2A-QUICK §4.2.
+
+### 6.3 Set Up Pipeline Directory
+
+```bash
+cd {org}-instance
+
+# Copy pipeline templates
+cp -r Mosaic/bootstrap/templates/pipeline/ pipeline/
+
+# Rename template files
+mv pipeline/generate-domain-quick.py.template pipeline/generate-{domain}-quick.py
+mv pipeline/generate_enrichment_queue.py.template pipeline/generate_enrichment_queue.py
+
+# Create gitignored directories
+mkdir -p pipeline/inputs pipeline/run-logs
+echo "*" > pipeline/inputs/.gitignore
+echo "!.gitignore" >> pipeline/inputs/.gitignore
+echo "*" > pipeline/run-logs/.gitignore
+echo "!.gitignore" >> pipeline/run-logs/.gitignore
+```
+
+**Configure the pipeline for your instance:**
+
+1. **Overlay YAML** — Create `pipeline/overlays/{ORG}-{DOMAIN}-OVERLAY.yaml` with your entity list (see `pipeline/overlays/README.md` for schema)
+2. **Lookup tables** — Create stage mapping and owner mapping YAML files for your CRM/system
+3. **Pipeline script** — Customize `generate-{domain}-quick.py`:
+   - Update file paths and overlay references
+   - Implement `load_overlay()` and `load_lookup_tables()`
+   - Implement `match_entities()` with your entity-matching logic
+   - Implement `generate_quick_section()` with your section format
+4. **Enrichment queue** — Customize `generate_enrichment_queue.py`:
+   - Update `PROFILES_DIR` path
+   - Update `GAP_MARKERS` with your instance's gap marker patterns
+   - Update `LIFECYCLE_TIERS` mapping
+5. **CLAUDE.md** — Add your specific Phase 1 MCP calls to the Pipeline Operations section
+
+### 6.4 Configure Maintenance Cycle
+
+In `{ORG}-MAINTENANCE.md`:
+
+1. **§4 Monthly Audit Protocol** — Customize the audit prompts for your connected systems
+2. **§9 Trigger Matrix** — Add organization-specific trigger events
+3. **§10 Full Sync Workflow** — Set your cycle frequency (monthly default) and customize steps for your agent/system configuration
+
+**Cycle frequency decision:**
+- **Monthly** (default) — good starting point for most instances
+- **Biweekly** — for data-heavy instances with many live system connections
+- **6 weeks** — for stable instances with slow-changing data
+
+### 6.5 Wire Signal Awareness
+
+Review the signal trigger tables in your behavior files and customize thresholds:
+
+1. **{ORG}-CLAUDE-BEHAVIORS** — Loop 1 thresholds (staleness periods, coverage percentages) should match your organizational expectations
+2. **{ORG}-COPILOT-BEHAVIORS** — Same thresholds adapted for M365-scoped detection
+3. **Both files** — Verify trigger discipline rules make sense for your domain complexity
+
+**Start conservative:** Set thresholds loose (emit fewer deltas) and tighten as you learn what signal quality looks like for your instance. The queue accumulates — better to start clean than noisy.
+
+### 6.6 Set Up Memory Management
+
+```bash
+# Create MEMORY.md template
+cat > memory/MEMORY.md << 'EOF'
+# {Organization Name} -- Claude Code Memory
+
+## Active Work
+<!-- Current session context, task status, pending items -->
+
+## Key Patterns
+### File Locations
+- Instance repo: {path to instance repo}
+- Shared Mosaic repo: {path to shared repo}
+
+## Completed (reference only)
+<!-- Move items here when work is done -->
+EOF
+```
+
+**Memory conventions:**
+- **MEMORY.md** — Always loaded, under 150 lines. Current status + key patterns.
+- **memory/*.md** — Topic files for detailed briefs. Named by topic, not date.
+- **archive/** — Completed briefs, retired scripts. Read-only historical reference.
+- The `memory/` directory is gitignored. Only the instance owner sees it.
+
+### 6.7 Validate Learning Infrastructure
+
+Run through each piece to verify it works:
+
+1. **Delta queue test:** Manually create a test task in each section using the YAML schema. Verify it appears correctly in your task tracking tool.
+2. **Pipeline test:** Run the pipeline with sample data (even if just 2-3 test records). Verify:
+   - Phase 1 JSON snapshots write correctly
+   - Phase 2 script runs without errors (even with placeholder logic)
+   - Phase 3.5 enrichment queue generates a CSV
+3. **Signal awareness test:** In a Claude.ai conversation, verify the agent mentions signal detection at conversation end (even if no deltas are emitted, the behavior should be present).
+4. **Memory test:** Verify MEMORY.md loads in Claude Code sessions.
+
+**Expected timeline:** 1-2 sessions to fully configure. The pipeline will be functional after entity matching and section generation are implemented.
+
+---
+
+## 7. Reference: Three-Channel Distribution Model
+
+> *Understanding where files go is essential for maintaining the system.*
 
 Understanding where files go is essential for maintaining the system:
 
@@ -363,7 +500,7 @@ The test: *Does this file teach a pattern the agent needs on every query, or pro
 
 ---
 
-## 7. Reference: Naming Conventions
+## 8. Reference: Naming Conventions
 
 | Pattern | Example | Purpose |
 |---------|---------|---------|
@@ -379,9 +516,10 @@ The test: *Does this file teach a pattern the agent needs on every query, or pro
 
 ---
 
-## 8. Changelog
+## 9. Changelog
 
 | Version | Date | Change |
 |---------|------|--------|
+| v1.2 | 2026-02-25 | Added Phase 5: Learning Infrastructure Setup (delta queue, pipeline, signal awareness, memory management). Renumbered Phase 4 to "Git & Session Workflow." Added pipeline/ to directory tree. MOSAIC-OPERATIONS reference throughout. |
 | v1.1 | 2026-02-24 | Added §3.5 Design Pitfalls (empirical anti-patterns from first deployment), MOSAIC-PRINCIPLES reference in Phase 3. |
 | v1.0 | 2026-02-23 | Initial version. Covers infrastructure setup, kernel construction, first domain bootstrap, and operational readiness. |

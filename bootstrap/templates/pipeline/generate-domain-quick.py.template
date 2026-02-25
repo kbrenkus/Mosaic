@@ -1,0 +1,337 @@
+#!/usr/bin/env python3
+"""
+Phase 2 Pipeline: Domain QUICK File Transformation
+
+Reads Phase 1 JSON snapshots + curated overlay YAML + lookup tables,
+merges them into a regenerated QUICK file section, and produces a run
+summary + batch update CSV.
+
+Architecture reference: MOSAIC-OPERATIONS Section 4 (Pipeline Architecture)
+
+CUSTOMIZATION GUIDE:
+  1. Update OVERLAY_FILE to point to your domain overlay YAML
+  2. Update QUICK_FILE to point to your target QUICK file
+  3. Implement load_lookup_tables() with your stage/owner/status mappings
+  4. Implement match_entities() with your entity-matching logic
+  5. Implement generate_quick_section() with your section format
+  6. Implement detect_issues() with your data quality rules
+
+Usage:
+  python generate-domain-quick.py --date 2026-03-15
+"""
+
+import argparse
+import json
+import csv
+import re
+from datetime import datetime, date
+from pathlib import Path
+
+# --- Path Configuration ---
+# Scripts resolve paths relative to the pipeline directory
+PIPELINE_DIR = Path(__file__).resolve().parent
+MOSAIC_DIR = PIPELINE_DIR.parent  # Instance root
+
+# --- File Configuration (CUSTOMIZE THESE) ---
+OVERLAY_FILE = PIPELINE_DIR / "overlays" / "{ORG}-{DOMAIN}-OVERLAY.yaml"
+QUICK_FILE = MOSAIC_DIR / "reference" / "{ORG}-{DOMAIN}-QUICK.md"
+# Lookup tables (stage mapping, owner mapping, etc.)
+STAGE_MAPPING_FILE = PIPELINE_DIR / "stage_mapping.yaml"
+OWNER_MAPPING_FILE = PIPELINE_DIR / "owner_mapping.yaml"
+
+
+def load_overlay():
+    """Load the curated overlay YAML.
+
+    The overlay contains human-judgment fields: lifecycle state,
+    tier, display names, strategic flags, relationships.
+    These are the foundation layer that live data merges onto.
+    """
+    # CUSTOMIZE: Replace with your YAML loading logic
+    # import yaml
+    # with open(OVERLAY_FILE, 'r', encoding='utf-8') as f:
+    #     return yaml.safe_load(f)
+    raise NotImplementedError("Implement overlay loading for your domain")
+
+
+def load_snapshot(filename):
+    """Load a Phase 1 JSON snapshot from pipeline/inputs/.
+
+    JSON schema: {"deals": [...]} or {"teams": [...]} etc.
+    The wrapping object makes files self-documenting.
+    """
+    filepath = PIPELINE_DIR / "inputs" / filename
+    with open(filepath, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def load_lookup_tables():
+    """Load stage mapping, owner mapping, and other lookup tables.
+
+    CUSTOMIZE: These map raw system values to canonical display names.
+    Example: HubSpot stage ID 'qualifiedtobuy' -> 'New Opportunity'
+    """
+    # import yaml
+    # stages = yaml.safe_load(open(STAGE_MAPPING_FILE))
+    # owners = yaml.safe_load(open(OWNER_MAPPING_FILE))
+    # return {'stages': stages, 'owners': owners}
+    raise NotImplementedError("Implement lookup table loading")
+
+
+def normalize_name(name):
+    """Normalize entity names for matching.
+
+    Handles common discrepancies: smart quotes, extra whitespace,
+    encoding artifacts (mojibake), case differences.
+    """
+    if not name:
+        return ""
+    # Replace smart quotes and common mojibake patterns
+    name = name.replace("\u2019", "'").replace("\u2018", "'")
+    name = name.replace("\u201c", '"').replace("\u201d", '"')
+    # Collapse whitespace
+    name = re.sub(r'\s+', ' ', name.strip())
+    return name
+
+
+def match_entities(overlay, snapshots, lookups):
+    """Match live system data to overlay entries.
+
+    CUSTOMIZE: Implement your entity-matching logic.
+
+    Returns a list of matched entities, each containing:
+    - overlay data (lifecycle, tier, flags)
+    - live system data (deals, activity, dates)
+    - match status (matched, unmatched-overlay, unmatched-live)
+    """
+    matched = []
+    unmatched_live = []
+    unmatched_overlay = []
+
+    # Example matching pattern:
+    # for entity_key, entity_data in overlay.items():
+    #     display_name = normalize_name(entity_data.get('display_name', ''))
+    #     live_records = [r for r in snapshots.get('deals', [])
+    #                     if normalize_name(r.get('name', '')).startswith(display_name)]
+    #     if live_records:
+    #         matched.append({
+    #             'key': entity_key,
+    #             'overlay': entity_data,
+    #             'live': live_records,
+    #         })
+    #     else:
+    #         unmatched_overlay.append(entity_key)
+
+    raise NotImplementedError("Implement entity matching for your domain")
+
+
+def generate_quick_section(matched_entities, lookups):
+    """Generate the regenerated QUICK file section content.
+
+    CUSTOMIZE: Format the merged data into your QUICK file section.
+
+    This function regenerates a specific section (e.g., Section 1 data table)
+    while preserving the routing header (Section 0) and any manually-curated
+    sections that follow.
+    """
+    lines = []
+    # Example: Generate a markdown table
+    # lines.append("| Entity | Lifecycle | Stage | Owner | Value | Last Activity |")
+    # lines.append("|--------|-----------|-------|-------|-------|---------------|")
+    # for entity in matched_entities:
+    #     lines.append(f"| {entity['overlay']['display_name']} | ... |")
+
+    raise NotImplementedError("Implement section generation for your domain")
+
+
+def detect_issues(matched_entities, lookups):
+    """Detect data quality issues for the batch update CSV.
+
+    CUSTOMIZE: Define your data quality rules.
+
+    Returns a list of issues, each containing:
+    - action (Update, Create, Delete)
+    - record_id, record_name, property, current_value, new_value
+    - category (e.g., 'Owner Reassignment', 'Name Fix', 'Stage Correction')
+    - notes (explanation)
+    """
+    issues = []
+    # Example: Detect inactive owners
+    # for entity in matched_entities:
+    #     for record in entity.get('live', []):
+    #         owner_id = record.get('owner_id')
+    #         if owner_id in lookups.get('inactive_owners', []):
+    #             issues.append({
+    #                 'action': 'Update',
+    #                 'record_id': record['id'],
+    #                 'record_name': record['name'],
+    #                 'property': 'owner',
+    #                 'current_value': owner_id,
+    #                 'new_value': lookups['owner_reassignment'].get(owner_id, 'TBD'),
+    #                 'category': 'Owner Reassignment',
+    #                 'notes': 'Owner no longer active',
+    #             })
+    return issues
+
+
+def write_quick_section(content, quick_file_path, section_number="1"):
+    """Write the regenerated section into the QUICK file.
+
+    Preserves all content before and after the target section.
+    Only replaces the content between ## {section_number} and the next ## header.
+    """
+    with open(quick_file_path, 'r', encoding='utf-8') as f:
+        full_content = f.read()
+
+    # Find the section boundaries
+    section_pattern = rf'^## {re.escape(section_number)}\s'
+    next_section_pattern = r'^## \d'
+
+    lines = full_content.split('\n')
+    start_idx = None
+    end_idx = len(lines)
+
+    for i, line in enumerate(lines):
+        if re.match(section_pattern, line) and start_idx is None:
+            start_idx = i
+        elif re.match(next_section_pattern, line) and start_idx is not None:
+            end_idx = i
+            break
+
+    if start_idx is None:
+        print(f"WARNING: Section {section_number} not found in {quick_file_path}")
+        return
+
+    # Reconstruct the file with the new section content
+    new_lines = lines[:start_idx] + content.split('\n') + lines[end_idx:]
+    with open(quick_file_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(new_lines))
+
+
+def generate_run_summary(run_date, matched, unmatched_live, unmatched_overlay, issues):
+    """Write the run summary markdown to pipeline/run-logs/.
+
+    The run summary documents what happened during the pipeline run
+    for review during Phase 3 post-processing.
+    """
+    summary_path = PIPELINE_DIR / "run-logs" / f"run-summary-{run_date}.md"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(summary_path, 'w', encoding='utf-8') as f:
+        f.write(f"# Pipeline Run Summary - {run_date}\n\n")
+        f.write(f"**Run date:** {run_date}\n")
+        f.write(f"**Entities matched:** {len(matched)}\n")
+        f.write(f"**Unmatched (live data):** {len(unmatched_live)}\n")
+        f.write(f"**Unmatched (overlay):** {len(unmatched_overlay)}\n")
+        f.write(f"**Issues detected:** {len(issues)}\n\n")
+
+        if unmatched_live:
+            f.write("## Unmatched Live Records\n\n")
+            for item in unmatched_live:
+                f.write(f"- {item}\n")
+            f.write("\n")
+
+        if unmatched_overlay:
+            f.write("## Unmatched Overlay Entries\n\n")
+            for item in unmatched_overlay:
+                f.write(f"- {item}\n")
+            f.write("\n")
+
+        if issues:
+            f.write("## Data Quality Issues\n\n")
+            f.write("| Category | Record | Issue |\n")
+            f.write("|----------|--------|-------|\n")
+            for issue in issues:
+                f.write(f"| {issue['category']} | {issue['record_name']} | {issue['notes']} |\n")
+
+    return summary_path
+
+
+def generate_batch_csv(run_date, issues):
+    """Write the batch update CSV for pushing corrections to source systems."""
+    if not issues:
+        return None
+
+    csv_path = PIPELINE_DIR / "run-logs" / f"system-updates-{run_date}.csv"
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=[
+            'Action', 'Record ID', 'Record Name (current)',
+            'Property', 'Current Value', 'New Value',
+            'Category', 'Notes'
+        ])
+        writer.writeheader()
+        for issue in issues:
+            writer.writerow({
+                'Action': issue['action'],
+                'Record ID': issue['record_id'],
+                'Record Name (current)': issue['record_name'],
+                'Property': issue['property'],
+                'Current Value': issue['current_value'],
+                'New Value': issue['new_value'],
+                'Category': issue['category'],
+                'Notes': issue['notes'],
+            })
+
+    return csv_path
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Phase 2 Pipeline: Transform live data into QUICK file sections"
+    )
+    parser.add_argument(
+        '--date',
+        required=True,
+        help='Run date in YYYY-MM-DD format (matches Phase 1 snapshot filenames)'
+    )
+    args = parser.parse_args()
+    run_date = args.date
+
+    print(f"Pipeline Phase 2 - Run date: {run_date}")
+    print("=" * 50)
+
+    # Load data sources
+    print("Loading overlay...")
+    overlay = load_overlay()
+    print(f"  Loaded {len(overlay)} overlay entries")
+
+    print("Loading snapshots...")
+    # CUSTOMIZE: Update snapshot filenames for your system
+    # snapshots = {
+    #     'deals': load_snapshot(f"deals-{run_date}.json"),
+    #     'teams': load_snapshot(f"teams-{run_date}.json"),
+    # }
+
+    print("Loading lookup tables...")
+    lookups = load_lookup_tables()
+
+    # Match and transform
+    print("Matching entities...")
+    # matched, unmatched_live, unmatched_overlay = match_entities(overlay, snapshots, lookups)
+    # print(f"  Matched: {len(matched)}, Unmatched live: {len(unmatched_live)}, Unmatched overlay: {len(unmatched_overlay)}")
+
+    # Generate outputs
+    # print("Generating QUICK section...")
+    # section_content = generate_quick_section(matched, lookups)
+
+    # print("Detecting issues...")
+    # issues = detect_issues(matched, lookups)
+
+    # Write outputs
+    # write_quick_section(section_content, QUICK_FILE)
+    # summary_path = generate_run_summary(run_date, matched, unmatched_live, unmatched_overlay, issues)
+    # csv_path = generate_batch_csv(run_date, issues)
+
+    # print(f"\nOutputs:")
+    # print(f"  QUICK file updated: {QUICK_FILE}")
+    # print(f"  Run summary: {summary_path}")
+    # if csv_path:
+    #     print(f"  Batch CSV: {csv_path}")
+
+    print("\nDone. Uncomment the implementation sections above after customizing.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.5
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.6
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -765,18 +765,22 @@ Before constructing any domain files, establish what general AI can answer about
    - Confidence calibration (0-2): overconfident guessing → calibrated hedging
 3. Run queries in a fresh agent conversation (max 3 queries + 2 on-demand file retrievals per conversation to avoid context exhaustion)
 4. Score each query against the rubric and record as the pre-build baseline
+5. **Multi-agent baseline:** Run baselines across each agent that will consume the domain files (per Phase 6.7 multi-agent model). At minimum: the primary agent and any agent with native access to the domain's key data systems. Design agent-specific query sets:
+   - **Shared queries** (subset of the 5-8 primary queries) — run identically on both agents for direct cross-agent comparison. These reveal whether knowledge lives in the reference files (both agents score equally) or in live tool access (agent with native access scores higher).
+   - **Agent-native queries** (1-2 per secondary agent) — target the secondary agent's unique access strengths (e.g., enterprise search agent querying document repositories the primary agent can't access directly).
+   - Score each agent separately using the same rubric.
 
-These scores reveal the ceiling you're improving on. Without them, you cannot measure whether the domain build actually helped, hurt, or was neutral.
+These scores reveal the ceiling you're improving on. Without them, you cannot measure whether the domain build actually helped, hurt, or was neutral. Multi-agent baselines additionally reveal whether reference files are carrying knowledge vs. whether agents are relying on live system access — a critical distinction for file design.
 
 **7.2 Post-Build Comparison (Run AFTER Phase 5 + Phase 6)**
 After deploying domain artifacts and enrichment system:
 
-1. Run the SAME queries from 7.1 using the same rubric
+1. Run the SAME queries from 7.1 using the same rubric, on the SAME agents
 2. Add 2-3 new queries that specifically target the new domain's capabilities (these have no baseline — they test net-new functionality)
-3. Compare scores:
+3. Compare scores per agent:
    - No regressions allowed on pre-existing (non-domain) queries
    - Improvements expected on domain-specific queries
-4. Acceptance criteria: minimum +2 cumulative point improvement on domain-specific queries, zero regression on cross-domain queries
+4. Acceptance criteria: minimum +2 cumulative point improvement on domain-specific queries per agent, zero regression on cross-domain queries
 5. Record pre/post comparison in the instance's testing/ directory
 
 **7.3 Steward Validation**
@@ -787,14 +791,28 @@ This should be a formal review with documented feedback — not just an informal
 **7.4 Conversation Budget for Testing**
 Rule of thumb: max 3 queries + 2 on-demand file retrievals per test conversation. Beyond this, context pressure degrades response quality and invalidates the test.
 
-If testing 8 queries, split across 3 test conversations. Group queries by domain to stay within budget. Record which conversation tested which queries for reproducibility.
+If testing 8 queries, split across 3 test conversations. Group queries by domain to stay within budget. Record which conversation tested which queries for reproducibility. Multi-agent testing adds conversations proportionally — budget each agent's conversations independently.
 
 See MOSAIC-OPERATIONS §7 for the full testing and validation architecture.
 
+**7.5 Cross-Agent Parity Analysis**
+For shared queries run on multiple agents, compare scores to assess parity:
+
+1. **Record the delta** between agents on each shared query
+2. **Diagnose divergence** — when agents score differently on the same query, determine the cause:
+   - *Access gap:* one agent has native system access the other doesn't (structural, not fixable by files)
+   - *File gap:* the reference files don't encode knowledge that one agent discovers natively (fixable — the files should carry this knowledge)
+   - *Routing gap:* one agent fails to find the right file or section (fixable — router or section headers need improvement)
+   - *A2A gap:* the secondary agent doesn't correctly route questions outside its scope (fixable — A2A protocol needs tuning)
+3. **Post-build parity should improve** — reference files should narrow the gap between agents on shared queries. If the gap widens post-build, investigate whether the new files are only accessible to one agent.
+4. **Document parity findings** — these inform both file design (what knowledge must be encoded vs. discovered) and A2A protocol tuning.
+
 **Completion criteria:**
-- [ ] Pre-build baseline scored (before Phase 5 begins)
-- [ ] Post-build comparison shows no regressions on non-domain queries
-- [ ] At least +2 cumulative improvement on domain-specific queries
+- [ ] Pre-build baseline scored on primary agent (before Phase 5 begins)
+- [ ] Pre-build baseline scored on secondary agent(s) per Phase 6.7 model
+- [ ] Post-build comparison shows no regressions on non-domain queries (per agent)
+- [ ] At least +2 cumulative improvement on domain-specific queries (per agent)
+- [ ] Cross-agent parity analysis completed on shared queries
 - [ ] Steward formally reviews 3-5 responses and confirms quality
 - [ ] Phase 1F reasoning failures now resolved (success criteria met)
 - [ ] Pre/post results recorded in testing/ directory
@@ -932,6 +950,7 @@ The Freedom track depends on a domain expert who may never have externalized the
 | Version | Date | Change |
 |---------|------|--------|
 | v0.1 | 2026-02-15 | Initial protocol design. Reverse-engineered from two completed domain anatomies. |
+| v0.6 | 2026-02-26 | **Multi-agent validation.** Phase 7.1: added multi-agent baseline requirement — run baselines across all agents per Phase 6.7 model, with shared queries (cross-agent comparison) and agent-native queries (unique access strengths). Phase 7.2: post-build comparison now per-agent. New Phase 7.5: cross-agent parity analysis — diagnose divergence (access gap, file gap, routing gap, A2A gap), track parity improvement post-build. Completion criteria updated: secondary agent baseline, per-agent improvement, parity analysis. Phase 7.4: multi-agent conversation budget note. Discovered during Phase B (Marketing & Communications) bootstrap — organic Growth/Clients build tested both agents but the protocol didn't codify it. |
 | v0.5 | 2026-02-26 | Integrated 7 operational insights from first production deployment (Growth/Clients retroactive audit, 82% composite). **New subsections:** 4.5 Overlay Design, 4.6 Data Sensitivity Design, 6.0 Enrichment Operating System preamble, 6.6 Pipeline Specification, 6.7 Multi-Agent Execution Model, Phase 8 Retroactive Audit. **Strengthened:** Phase 1F (sensitivity in completion criteria), Phase 2F (cross-system identity iterative expectation, sensitivity in data quality), Phase 4.4 (source attribution dual-purpose pattern), Phase 5 (context compression discipline, template versioning, sensitivity markers), Phase 6.2 (identity mismatch trigger), Phase 7 (restructured: pre-build baseline before Phase 5, scoring rubric with dimensions, conversation budget, acceptance criteria). Updated Architecture Overview Level 3 description. MOSAIC-OPERATIONS cross-references throughout. |
 | v0.4 | 2026-02-24 | Expanded §4.3 QUICK split with design rules (inclusion criteria, §0 routing header, no operational state, attention gradient). Updated §5.1 with construction guidance. Completion criteria updated. |
 | v0.3 | 2026-02-23 | Principles codification: added 5 design principle checkpoints at key decision points (Phase 3 §3.1, Phase 4 §4.1, Phase 5, Phase 7, Section 6) referencing MOSAIC-PRINCIPLES catalog. Principles invoked: A-009, A-010, A-011, U-001, A-008, A-017, A-014, U-013. |

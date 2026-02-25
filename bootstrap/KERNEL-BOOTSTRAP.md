@@ -1,4 +1,4 @@
-# KERNEL-BOOTSTRAP v1.3
+# KERNEL-BOOTSTRAP v1.4
 
 > **Purpose:** A step-by-step guide for deploying a new Mosaic knowledge architecture instance for an organization. This covers everything from initial setup through first-domain operational readiness.
 >
@@ -323,6 +323,16 @@ Before uploading domain files, apply the File Optimization Rules from CLAUDE.md 
 
 This ensures new domains start lean. See MOSAIC-OPERATIONS §4.7 for the methodology-level rationale.
 
+**Why this matters at bootstrap time:** Files created during the initial build set the token budget baseline for the entire domain. Optimization applied later requires re-uploading to project knowledge, re-syncing to blob, re-testing for regressions, and updating manifests — a compression retrofit cycle that costs more than getting format right at construction.
+
+Key format decisions at construction time:
+- YAML for lookup/routing data (~57% fewer tokens than equivalent markdown tables)
+- Minified markdown tables for reasoning frameworks (no cell padding, minimal separators)
+- Telegraphic prose for procedural content (remove articles, conjunctions, filler where meaning is preserved)
+- Full prose for reasoning exposition, behavioral directives, and safety instructions
+
+See DOMAIN-BOOTSTRAP Phase 5 for construction-level compression guidance.
+
 ### 4.2 Upload and Test
 
 After building the first domain:
@@ -413,7 +423,13 @@ echo "!.gitignore" >> pipeline/run-logs/.gitignore
 
 **Configure the pipeline for your instance:**
 
-1. **Overlay YAML** — Create `pipeline/overlays/{ORG}-{DOMAIN}-OVERLAY.yaml` with your entity list (see `pipeline/overlays/README.md` for schema)
+1. **Overlay YAML** — Create `pipeline/overlays/{ORG}-{DOMAIN}-OVERLAY.yaml`. The overlay is the curated human-judgment layer: fields that represent strategic decisions (lifecycle, tier, classification) rather than system data. The pipeline merges live system data ONTO the overlay's curated judgments — overlay provides stability, live data provides currency.
+
+   Minimum schema: `canonical_name` (full official name), `lifecycle_state` (strategic relationship phase), `entity_type` (classification from domain taxonomy), `tier` (coverage depth priority).
+
+   Optional but commonly needed: `strategic_notes` (freeform human context), `verify` (list of fields with conflicting signals), cross-system identity overrides (`asana_team_gid`, etc. for entities that can't be matched by name), `name_aliases` (additional name variants for fuzzy matching against system records).
+
+   See MOSAIC-OPERATIONS §4.5 for the overlay pattern methodology. See overlays/README.md in the template directory for full schema documentation and examples.
 2. **Lookup tables** — Create stage mapping and owner mapping YAML files for your CRM/system
 3. **Pipeline script** — Customize `generate-{domain}-quick.py`:
    - Update file paths and overlay references
@@ -425,6 +441,20 @@ echo "!.gitignore" >> pipeline/run-logs/.gitignore
    - Update `GAP_MARKERS` with your instance's gap marker patterns
    - Update `LIFECYCLE_TIERS` mapping
 5. **CLAUDE.md** — Add your specific Phase 1 MCP calls to the Pipeline Operations section
+
+#### 6.3.1 Pipeline Design Lessons (from production deployments)
+
+Patterns validated through production use:
+
+**~78% of pipeline logic is universal.** The generate-domain-quick.py template's universal portions — overlay loading, JSON snapshot parsing, name normalization, section rewriting, run summary generation, batch CSV output — work across domains without modification. Domain-specific customizations concentrate in: lifecycle state ordering, entity-matching heuristics, junk-data filtering patterns, table column definitions, and profile path resolution. The 6 `CUSTOMIZE` functions in the template isolate these decision points.
+
+**Overlay schema should be generous.** Start with more fields than you think you need: canonical_name, lifecycle_state, tier, entity_type, strategic_notes, and verify flags as a minimum. Optional fields that consistently prove essential in production: cross-system GID overrides (for entities that can't be matched by name), name aliases (for fuzzy matching against system records with variant spellings), profile filename overrides (for entities whose short names don't map cleanly to file naming conventions).
+
+**Name normalization is critical.** Smart quotes (U+2019), encoding artifacts (mojibake: `\u00e2\u20ac\u2122`), case differences, leading/trailing whitespace, and punctuation variations (hyphens, apostrophes, periods) all appear in real MCP data. The template's `normalize_name()` function handles common cases; extend it for your domain's specific patterns. Test with real data early — name matching failures are the #1 source of "unmatched entity" false positives.
+
+**Enrichment queue threshold is a starting point.** The Track 1/Track 2 boundary (default: 12 gap markers) worked for a ~40-entity client domain. Adjust the threshold after your first production run: if most entities land in Track 2, the threshold is too low. If almost none do, it's too high. The goal is ~20-30% of entities in Track 2 per cycle.
+
+**Auto-delete previous run inputs.** Configure the pipeline to clean up the previous run's input files and enrichment outputs before writing new ones. This prevents confusion about which snapshot is current and avoids accumulating stale data in the pipeline directory.
 
 ### 6.4 Configure Maintenance Cycle
 
@@ -531,6 +561,7 @@ The test: *Does this file teach a pattern the agent needs on every query, or pro
 
 | Version | Date | Change |
 |---------|------|--------|
+| v1.4 | 2026-02-26 | Expanded Phase 5 pipeline setup: added §6.3.1 pipeline design lessons from production (78% universal logic, overlay schema, name normalization, enrichment threshold, auto-deletion). Expanded overlay YAML guidance in §6.3 (minimum + optional schema, MOSAIC-OPERATIONS cross-reference). Expanded §4.1 context compression rationale (bootstrap-time importance, key format decisions, cross-references). |
 | v1.3 | 2026-02-25 | Added §4.1 File Optimization checkpoint in Phase 3 — apply CLAUDE.md optimization rules before uploading domain files. |
 | v1.2 | 2026-02-25 | Added Phase 5: Learning Infrastructure Setup (delta queue, pipeline, signal awareness, memory management). Renumbered Phase 4 to "Git & Session Workflow." Added pipeline/ to directory tree. MOSAIC-OPERATIONS reference throughout. |
 | v1.1 | 2026-02-24 | Added §3.5 Design Pitfalls (empirical anti-patterns from first deployment), MOSAIC-PRINCIPLES reference in Phase 3. |

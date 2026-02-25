@@ -18,6 +18,29 @@ CUSTOMIZATION GUIDE:
 
 Usage:
   python generate-domain-quick.py --date 2026-03-15
+
+DESIGN PATTERNS:
+  - ~78% of this script is universal (overlay loading, JSON parsing, name
+    normalization, section rewriting, run summary, batch CSV). Domain-specific
+    logic concentrates in the 6 CUSTOMIZE functions below.
+  - The overlay YAML is the foundation layer -- pipeline merges live data ONTO
+    overlay judgments. The overlay provides stability; live data provides currency.
+    Never auto-edit the overlay from pipeline output.
+  - Source attribution markers ([MCP-TBD], [BD-TBD]) in entity-instance files
+    serve as completeness detection -- the enrichment queue counts them to
+    classify entities into enrichment tracks.
+  - JSON snapshots bridge MCP-accessible agents and deterministic Python scripts.
+    Agents query live systems and write JSON; this script reads JSON deterministically.
+  - Section rewriting preserves section 0 routing headers and manually-curated
+    sections. Only the data table section(s) are regenerated.
+
+MAINTENANCE PATTERNS:
+  - Delete previous run's input files before writing new ones (prevent stale data)
+  - Overlay changes trigger pipeline re-run to propagate new classifications
+  - Enrichment queue threshold (TRACK_THRESHOLD in enrichment script) should be
+    tuned after first production run -- aim for ~20-30% of entities in Track 2
+  - Run summary CSV (batch updates) accumulates corrections -- review before
+    pasting into CRM batch agent
 """
 
 import argparse

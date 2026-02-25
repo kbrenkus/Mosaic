@@ -18,6 +18,26 @@ CUSTOMIZATION GUIDE:
 
 Usage:
   python generate_enrichment_queue.py
+
+DESIGN PATTERNS:
+  - Gap markers serve dual purpose: provenance (where data comes from) +
+    completeness detection (how mature a profile is). The enrichment queue
+    counts these to classify entities into tracks.
+  - Track classification is a starting point. Default threshold of 12 MCP-TBD
+    gaps worked for a ~40-entity client domain. Adjust for your entity count
+    and gap density after the first production run.
+  - Track 2 (Claude Code MCP) = parallel system pulls in-session. High-value
+    but time-intensive. Best for entities approaching critical lifecycle
+    transitions or with strategic urgency.
+  - Track 1 (Claude.ai web) = user pastes generated prompt into Claude.ai.
+    Agent researches public data and emits delta observations to the delta
+    queue. Lower effort per entity, good for incremental enrichment.
+  - BD-only = gaps requiring human relationship knowledge. No automated path.
+    These surface in the queue so they're visible, not silently ignored.
+  - Missing Profile = entity exists in overlay but has no profile file. Create
+    from template if lifecycle state warrants full profile coverage.
+  - Stale detection: profiles not updated within STALE_DAYS get flagged. Stale
+    profiles with active lifecycle states are high-priority enrichment targets.
 """
 
 import csv

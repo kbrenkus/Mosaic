@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.4
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.5
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -29,8 +29,9 @@ Level 2: Architecture Design           "How should agents access this?"
     |                                      entity-instance architecture
     v
 Level 3: Enrichment Design             "How do we populate and maintain it?"
-                                        -> discovery prompts, coverage gap
-                                           detection, runtime behaviors,
+                                        -> pipeline specification, overlay design,
+                                           source attribution, coverage gap
+                                           detection, multi-agent execution model,
                                            maintenance cadence
 ```
 
@@ -241,6 +242,7 @@ Phase 2F: Data Mapping                    Phase 2E: Worldview Extraction
 - [ ] At least one "invisible entity" or scattered-knowledge pattern identified
 - [ ] Reasoning failures from the scatter documented (these become success criteria)
 - [ ] Data quality issues noted (inconsistent naming, stale data, system-of-record conflicts)
+- [ ] Data sensitivity tiers identified per source system (what data is public vs. internal vs. restricted?)
 
 ---
 
@@ -290,6 +292,8 @@ Phase 2F: Data Mapping                    Phase 2E: Worldview Extraction
 
 *You know you're done when:* You can tell someone "Entity X is called Y in System A, Z in System B" for every major entity type.
 
+*Iterative expectation:* Cross-system identity is a PERSISTENT maintenance concern, not a one-time discovery. Canonical names, fuzzy matching exceptions, and name variant tracking require ongoing refinement as entities are added, renamed, or merged in source systems. Design the identity mapping to be maintained: store canonical names in the overlay (Phase 4.5), document known variants and matching exceptions, and expect the pipeline to surface new mismatches on every run. Phase 6 should include identity refinement as a maintenance trigger (see 6.2).
+
 **Prompt F2-3: Data Flow**
 "How does data move between systems? When something changes in one system, does it update elsewhere? Are there manual handoffs? What breaks?"
 
@@ -299,6 +303,8 @@ Phase 2F: Data Mapping                    Phase 2E: Worldview Extraction
 "For each data source, how trustworthy is it? When was it last updated? What's known to be wrong or incomplete?"
 
 *What you're building:* The confidence map. Not all data is equal. A system of record that's actively maintained is more trustworthy than a spreadsheet from last year. This informs which sources to prioritize and what caveats to attach.
+
+*Also assess: what is the sensitivity level of each data source? Public data from government registries differs from internal engagement data from CRM systems. Sensitivity classification begins here and is formalized in Phase 4.6.*
 
 **Prompt F2-5: Market/Universe Mapping**
 "Is there a broader universe of entities beyond the ones we're currently tracking? For a client domain — what's the total addressable market? For a people domain — are there contractor or partner categories we're not tracking? For a compliance domain — are there regulations we should be monitoring?"
@@ -499,20 +505,68 @@ For large data files, apply the two-tier retrieval pattern:
 "Does this domain have N tracked entities that each need their own detailed file?"
 
 If yes, design:
-- **Template:** A structured document that defines what a complete entity-instance file looks like. Include fields, source attribution (where each field comes from), entity-type variants (if different entity types need different sections), and confidence tagging conventions.
+- **Template:** A structured document that defines what a complete entity-instance file looks like. Include fields, entity-type variants (if different entity types need different sections), and confidence tagging conventions. Source attribution markers (e.g., [MCP-TBD], [BD-TBD], [USER-INPUT-TBD]) serve dual purpose: (1) PROVENANCE — where data came from or where it must come from, and (2) COMPLETENESS DETECTION — gap markers that enrichment systems count to classify entities into enrichment tracks and measure profile maturity. Design source markers during template creation; the enrichment system (Phase 6) reads them programmatically to generate enrichment queues and track classification. See MOSAIC-OPERATIONS §4.3 for the enrichment queue architecture.
 - **Tiering model:** Not all entities need the same depth. Define tiers (e.g., T0 directory stub, T1 lightweight profile, T2 full profile) with explicit upgrade triggers.
 - **On-demand loading:** Entity-instance files are loaded when a user asks about a specific entity by name. They are never loaded as session-level data (too numerous). Design the naming convention and loading pattern.
 
 *When to use entity-instance architecture:* Domains with more than ~10-15 tracked entities that each need individual detail. Client domains, people directories, contract registries, compliance tracking — any domain where the system needs to answer "tell me about [specific entity]" with deep detail.
 
-**4.5 Extraction Operations**
+**4.5 Overlay Design**
+For domains with entity-instance architecture and pipeline automation, design the overlay — a curated YAML layer of human-judgment fields not derivable from live systems. The overlay is the architectural keystone: the pipeline merges live system data ONTO the overlay's curated judgments. The overlay provides stability (lifecycle, tier, display name); live data provides currency (deal stages, amounts, dates, activity).
+
+Common overlay fields:
+- Canonical display name (may differ from system records)
+- Lifecycle state (a strategic judgment, not a system field)
+- Tier assignment (determines coverage depth and enrichment priority)
+- Entity type/classification (from the domain's taxonomy)
+- Strategic flags and notes (freeform human context)
+- Cross-system identity overrides (explicit GIDs for entities that don't match by name)
+- Name aliases (additional name variants for fuzzy matching against system records)
+
+Design rules:
+- Overlays represent DECISIONS, not data. The pipeline reads the overlay but never auto-edits it.
+- One human owner per overlay. Changes are reviewed during maintenance cycles.
+- Schema should be documented: valid values for each enum field, which fields are required vs. optional, field definitions.
+- Overlay key = short entity name, used as the primary matching key against system records.
+- Start with more fields than you think you need. Production deployments consistently discover the need for optional fields (verify flags, name aliases, GID overrides).
+
+See MOSAIC-OPERATIONS §4.5 for the overlay pattern methodology.
+See pipeline template overlays/README.md for YAML schema reference.
+
+*Completion criteria for this subsection:*
+- [ ] Overlay YAML schema defined (fields, valid values, required vs. optional)
+- [ ] Initial overlay populated with known entities
+- [ ] Overlay owner assigned
+- [ ] Matching strategy documented (how overlay keys map to live system records)
+
+**4.6 Data Sensitivity Design**
+Sensitivity classification applies per-field, not per-file. A single entity-instance file may contain public information (governance structure, website), discovery-level data (health system details), internal operational data (engagement history, deal values), and synthesized strategic analysis — all in the same file.
+
+Design the sensitivity layers for this domain:
+- Define sensitivity tiers appropriate to this domain (e.g., PUBLIC, DISCOVERY, INTERNAL, SYNTHESIZED)
+- Assign tiers to entity template sections, not to whole files
+- Implement as HTML comment markers between sections (invisible when rendered, parseable by agents and pipeline scripts)
+- Connect sensitivity tiers to source attribution markers — a [BD-TBD] field in an INTERNAL section carries different handling rules than [MCP-TBD] in a PUBLIC section
+
+Sensitivity design informs:
+- **Enrichment agent assignment:** Which agents can access which sensitivity tiers? MCP-accessible public data vs. internal engagement data may require different agents.
+- **Display rules:** What to include in external-facing outputs vs. internal-only analysis.
+- **Data governance:** Sovereignty constraints, compliance rules, and access controls applied at the tier level, not the file level.
+
+*Completion criteria for this subsection:*
+- [ ] Sensitivity tiers defined for this domain
+- [ ] Tiers assigned to entity template sections (if entity-instance architecture)
+- [ ] Marker format chosen (HTML comments recommended for invisibility + parseability)
+- [ ] Source attribution markers connected to sensitivity tiers
+
+**4.7 Extraction Operations**
 If existing files contain a mix of reasoning and data (common in pre-domain architectures), plan the extraction:
 - Identify reasoning fragments embedded in data files
 - Assess reasoning density (what percentage of the file teaches patterns vs. stores facts?)
 - Plan the split: extract reasoning into a new kernel file, leave data in the file and move to retrieval
 - Verify no cross-references break during the split
 
-**4.6 Budget Check**
+**4.8 Budget Check**
 Estimate file sizes for kernel candidates. Does it fit within available headroom? If not, what reasoning can be condensed or what data can be moved to retrieval without losing reasoning capability?
 
 **Completion criteria:**
@@ -522,6 +576,8 @@ Estimate file sizes for kernel candidates. Does it fit within available headroom
 - [ ] Extraction operations planned if splitting existing files
 - [ ] Kernel budget impact estimated and confirmed within headroom
 - [ ] Routing triggers defined for this domain (what queries should activate retrieval)
+- [ ] Overlay schema designed if entity-instance architecture (fields, valid values, owner) — see 4.5
+- [ ] Data sensitivity tiers defined and assigned to template sections — see 4.6
 
 ---
 
@@ -530,6 +586,8 @@ Estimate file sizes for kernel candidates. Does it fit within available headroom
 > *Goal: Build the actual files that make this domain operational.*
 
 > *Design principles for construction:* Atomic Multi-File Operations (A-008) — when a change touches multiple files (kernel + retrieval + router + manifest), all updates happen in the same session. Marker System as Construction Methodology (A-017) — use explicit markers (TODO, PLACEHOLDER, NEEDS-REVIEW) during construction so incomplete work is visible, not silently absent. See MOSAIC-PRINCIPLES section 3.2.
+
+*Context compression discipline:* Apply file optimization rules to all constructed files from the start. YAML for lookup data (~57% fewer tokens than markdown tables), minified tables for reasoning frameworks (no cell padding, minimal separators), telegraphic prose for procedural content (remove articles and filler where meaning is preserved), full prose for reasoning exposition and behavioral directives. Files created during initial build set the token budget baseline — optimization applied later requires re-uploading and re-testing. Getting format right at construction avoids a compression retrofit cycle. See MOSAIC-OPERATIONS §4.7 for format selection methodology.
 
 **5.1 Domain Retrieval Files**
 - QUICK file: Session-level data, optimized for the most common queries. Include §0 routing header with inclusion criteria, section index, and escalation rules. No operational state — only knowledge, process, and curated views.
@@ -545,6 +603,10 @@ Estimate file sizes for kernel candidates. Does it fit within available headroom
 - Build the template first, then create instances for the highest-tier entities
 - Include source attribution markers so agents know which fields come from which source
 - Follow the tiering model — don't build full profiles for entities that only need directory stubs
+
+*Template versioning:* Entity-instance templates are v1.0 at initial construction. As the build reveals missing patterns (new entity type variants, additional fields, revised section structure), version the template and document what changed. Templates evolve — they are not fixed at Phase 5. Expect v1.1-v1.3 iterations during the first enrichment cycle as real data stress-tests the template design.
+
+Include sensitivity markers per section (see Phase 4.6) and source attribution markers per field (see Phase 4.4) in the template from the start. These markers are load-bearing infrastructure for the enrichment system (Phase 6).
 
 **5.4 Router Entries**
 - Add domain to {ORG}-DOMAIN-ROUTER with trigger keywords, file paths, and sizes
@@ -572,6 +634,18 @@ Estimate file sizes for kernel candidates. Does it fit within available headroom
 
 This is the **Level 3 (instance-specific)** layer — it's generated from everything you've learned, not pre-written. For data-heavy domains, this phase produces a complete enrichment operating system, not just a few prompts.
 
+**6.0 The Enrichment Operating System**
+Enrichment is not abstract planning — it produces a concrete operating system. Every domain gets a pipeline specification as a standard Phase 6 deliverable, even domains with modest data freshness needs. The pipeline is the mechanism through which the domain maintains itself and learns over time.
+
+The enrichment operating system has five components:
+1. **Pipeline specification** — automated data acquisition, transformation, and QUICK regeneration (see 6.6)
+2. **Overlay design** — curated human-judgment layer that anchors the pipeline (see Phase 4.5)
+3. **Source attribution system** — gap markers that drive completeness detection (see Phase 4.4)
+4. **Multi-agent execution model** — which agent handles which enrichment channel (see 6.7)
+5. **Maintenance cadence and triggers** — when and why the pipeline runs (see 6.2)
+
+For data-heavy domains (many tracked entities, multiple source systems, frequent changes), all five components are substantial. For lighter domains (few entities, stable data), the pipeline may be minimal (a single MCP query + overlay merge), but the specification still exists to enable self-learning from day one.
+
 **6.1 Initial Population Prompts**
 For each data source identified in Phase 2F, write a structured prompt that:
 - Specifies what system to query and what to extract
@@ -586,6 +660,7 @@ Define the events that should trigger a domain update:
 - New entities appearing
 - Lifecycle state transitions
 - Scheduled refresh cadence (monthly, quarterly, etc.)
+- Cross-system identity mismatches (new name variants, failed pipeline matches, entity renames in source systems)
 
 **6.3 Delta Prompts**
 Write lightweight prompts for incremental updates — checking what's changed since the last refresh rather than rebuilding from scratch.
@@ -606,6 +681,58 @@ For domains that draw on external data, curate a catalog of trusted sources:
 - Mapping to specific template fields (which fields in your entity template come from which source)
 - Update frequency (how often the source itself refreshes)
 
+**6.6 Pipeline Specification**
+Design the automated data freshness pipeline for this domain. The pipeline bridges MCP-accessible agents (which can query live systems) and deterministic scripts (which transform data reproducibly). Even minimal domains benefit from a pipeline specification — it codifies the refresh process so it can be repeated, delegated, and improved.
+
+**Phase 1 — MCP Data Acquisition:**
+- Which systems to query (CRM, project management, directory services, etc.)
+- Which MCP tools or APIs to call, with specific properties to extract
+- Which filters to apply (active records only, specific pipeline stages, date ranges)
+- JSON snapshot schema: `{"entities": [...]}` with one file per source system
+- Date-stamped filenames: `{source}-{YYYY-MM-DD}.json`
+
+**Phase 2 — Transformation:**
+- What the script reads: JSON snapshots + overlay YAML + lookup tables (stage IDs, owner IDs)
+- Entity matching: how snapshot records map to overlay entries (exact match, alias lookup, fuzzy)
+- What it produces: regenerated QUICK file sections + run summary + batch update CSV
+- Section rewriting: preserve §0 routing header and manually-curated sections; regenerate data sections only
+
+**Phase 3.5 — Enrichment Queue:**
+- Scan entity-instance files for completeness gaps (count source attribution markers)
+- Track classification: high-gap → Claude Code MCP (in-session), moderate-gap → Claude.ai web (prompt-based), low-gap → BD-only (human), missing profile → create from template
+- Threshold tuning: set initial boundary (e.g., 12 MCP-TBD markers), adjust after first production run
+- Generate enrichment prompts per entity for each track
+
+**Phase 3 — Post-Processing:**
+- Run summary review: match statistics, unmatched entities, detected issues
+- Batch update CSV processing (CRM corrections, terminology updates)
+- Delta task completion in project management system
+- Upload sync (blob, project knowledge)
+
+For detailed pipeline architecture: MOSAIC-OPERATIONS §4.
+For implementation templates: pipeline/ directory in bootstrap templates.
+
+**6.7 Multi-Agent Execution Model**
+Which agent handles which enrichment channel is a domain design decision, not an afterthought. Different agents have different capabilities (MCP access, enterprise search, web research, code execution), and the enrichment system should be designed to leverage each agent's strengths.
+
+Map each data source to its optimal executor:
+
+|Factor|MCP-Enabled Agent|Enterprise Search Agent|Code Execution Agent|Manual (Human)|
+|---|---|---|---|---|
+|CRM data (deals, contacts, companies)|Primary — direct API|Secondary — search only|Pipeline orchestration|Fallback|
+|Project management (tasks, teams)|Primary — direct API|No access|Pipeline orchestration|Fallback|
+|Email/calendar signals|No access (typically)|Primary — native search|N/A|N/A|
+|Document repositories|No access (typically)|Primary — search + read|N/A|Manual export|
+|Web research (public data)|Primary or dedicated session|N/A|Web search tools|N/A|
+|Relationship knowledge|N/A|N/A|N/A|Primary — human BD|
+
+Design decisions to document:
+- Which agent runs Phase 1 pipeline acquisition? (Usually the MCP-enabled agent)
+- Which agent(s) execute Track 1 and Track 2 enrichment?
+- Which channels require multi-agent coordination (data collected by one agent, integrated by another)?
+- What is the human-only boundary? (Relationship knowledge, strategic judgment, governance decisions)
+- How do agent outputs converge? (Delta queue, overlay updates, direct file edits)
+
 **Completion criteria:**
 - [ ] At least one initial population prompt per data source
 - [ ] Maintenance triggers defined and documented
@@ -614,41 +741,90 @@ For domains that draw on external data, curate a catalog of trusted sources:
 - [ ] Cadence calendar established
 - [ ] Coverage gap detection designed (thresholds, detection rules, agent behavior)
 - [ ] Authoritative sources cataloged (for domains with external data)
+- [ ] Pipeline specification documented (Phase 1 acquisition, Phase 2 transformation, Phase 3.5 enrichment queue, Phase 3 post-processing)
+- [ ] Multi-agent execution model designed (which agent handles which data source and enrichment track)
+- [ ] Pipeline integrated into instance CLAUDE.md or equivalent (Phase 1 MCP procedure, run instructions)
+- [ ] Overlay YAML seeded with initial entity list (if entity-instance architecture)
 
 ---
 
 ### Phase 7: Validation
 
-> *Goal: Prove the domain works and hasn't broken anything.*
+> *Goal: Prove the domain works and hasn't broken anything. Validation BEGINS before construction (Phase 5) with baseline measurement, then resumes after construction with comparative testing.*
 
 > *Design principle — Phased Risk Sequencing (A-014):* Prove the pattern at incrementally higher risk. Start with the simplest queries and known-good scenarios before testing edge cases and cross-domain interactions. If the easy cases fail, the hard cases will too — and you'll debug faster with simple examples. See MOSAIC-PRINCIPLES section 3.2.
 
-**7.1 Benchmark Design**
-Write 8-10 test queries spanning:
-- Simple lookups ("Who owns system X?")
-- Multi-step reasoning ("How would I evaluate a new [entity]?")
-- Cross-domain queries ("How does [this domain] affect [other domain]?")
-- Edge cases and known-tricky scenarios from the steward's experience
-- At least 2 queries that test the specific reasoning failures identified in Phase 1F
+**7.1 Pre-Build Baseline (Run BEFORE Phase 5)**
+Before constructing any domain files, establish what general AI can answer about this domain without specialized knowledge:
 
-**7.2 Before/After Testing**
-If modifying an existing system:
-1. Run benchmark queries BEFORE deploying the new domain
-2. Deploy the domain artifacts
-3. Run the SAME queries AFTER deployment
-4. Compare scores — no regressions allowed, improvements expected on domain-specific queries
+1. Design 5-8 test queries spanning: simple lookups, multi-step reasoning, cross-domain connections, edge cases, and the specific reasoning failures identified in Phase 1F
+2. Define a scoring rubric DURING PLANNING with dimensions and point scales:
+   - Accuracy (0-4): incorrect → correct with nuance
+   - Completeness (0-4): missing key information → comprehensive coverage
+   - Reasoning quality (0-4): no reasoning chain → expert-level analysis
+   - Confidence calibration (0-2): overconfident guessing → calibrated hedging
+3. Run queries in a fresh agent conversation (max 3 queries + 2 on-demand file retrievals per conversation to avoid context exhaustion)
+4. Score each query against the rubric and record as the pre-build baseline
+
+These scores reveal the ceiling you're improving on. Without them, you cannot measure whether the domain build actually helped, hurt, or was neutral.
+
+**7.2 Post-Build Comparison (Run AFTER Phase 5 + Phase 6)**
+After deploying domain artifacts and enrichment system:
+
+1. Run the SAME queries from 7.1 using the same rubric
+2. Add 2-3 new queries that specifically target the new domain's capabilities (these have no baseline — they test net-new functionality)
+3. Compare scores:
+   - No regressions allowed on pre-existing (non-domain) queries
+   - Improvements expected on domain-specific queries
+4. Acceptance criteria: minimum +2 cumulative point improvement on domain-specific queries, zero regression on cross-domain queries
+5. Record pre/post comparison in the instance's testing/ directory
 
 **7.3 Steward Validation**
 Have the domain steward review 3-5 query responses. Their test: "Would I be comfortable if a new team member used this answer to make a decision?"
 
-This should be a formal review with documented feedback, not just an informal "looks good." The steward's corrections become input for refinement.
+This should be a formal review with documented feedback — not just an informal "looks good." The steward's corrections become direct input for refinement. Common steward findings: missing nuance that only experts know, overconfident statements about uncertain areas, correct facts assembled into incorrect conclusions.
+
+**7.4 Conversation Budget for Testing**
+Rule of thumb: max 3 queries + 2 on-demand file retrievals per test conversation. Beyond this, context pressure degrades response quality and invalidates the test.
+
+If testing 8 queries, split across 3 test conversations. Group queries by domain to stay within budget. Record which conversation tested which queries for reproducibility.
+
+See MOSAIC-OPERATIONS §7 for the full testing and validation architecture.
 
 **Completion criteria:**
-- [ ] Benchmark queries written and scored
-- [ ] Before/after comparison shows no regressions
-- [ ] At least 2-point improvement on domain-specific queries
+- [ ] Pre-build baseline scored (before Phase 5 begins)
+- [ ] Post-build comparison shows no regressions on non-domain queries
+- [ ] At least +2 cumulative improvement on domain-specific queries
 - [ ] Steward formally reviews 3-5 responses and confirms quality
 - [ ] Phase 1F reasoning failures now resolved (success criteria met)
+- [ ] Pre/post results recorded in testing/ directory
+
+---
+
+### Phase 8: Retroactive Audit (Post-Deployment, Periodic)
+
+> *Goal: Improve completed domains by auditing them against the current protocol version.*
+
+As the protocol improves — incorporating lessons from each build — earlier domains may have gaps the protocol now addresses. Retroactive audits catch these gaps systematically rather than waiting for them to surface as failures.
+
+**Audit process:**
+1. **Score each protocol phase (1F through 7)** against the completed domain's actual artifacts. For each phase, ask: what percentage of the phase's deliverables exist? What's missing?
+2. **Identify gaps** — missing deliverables, undocumented decisions, implicit patterns that should be explicit, cross-domain bridges that exist functionally but aren't documented
+3. **Prioritize gaps by impact** — which missing deliverables would most improve the domain's operational quality? Prioritize gaps that affect reasoning quality over gaps that affect documentation completeness.
+4. **Generate improvement work items** — each gap becomes a maintenance backlog entry with specific edits, affected files, and acceptance criteria
+
+**Audit cadence:**
+- After major protocol version updates (new phases or substantially revised phases)
+- Quarterly for high-value domains (domains with active pipeline and frequent queries)
+- On-demand when domain quality issues are reported
+
+**Audit outputs:**
+- Phase-by-phase scorecard (percentage compliance per phase)
+- Prioritized gap list with specific improvement actions
+- Estimated effort per improvement
+- Composite score for tracking improvement over time
+
+*Not every domain needs every audit cycle.* Focus audit effort on domains with active users and operational pipelines. Dormant domains can wait.
 
 ---
 
@@ -756,6 +932,7 @@ The Freedom track depends on a domain expert who may never have externalized the
 | Version | Date | Change |
 |---------|------|--------|
 | v0.1 | 2026-02-15 | Initial protocol design. Reverse-engineered from two completed domain anatomies. |
+| v0.5 | 2026-02-26 | Integrated 7 operational insights from first production deployment (Growth/Clients retroactive audit, 82% composite). **New subsections:** 4.5 Overlay Design, 4.6 Data Sensitivity Design, 6.0 Enrichment Operating System preamble, 6.6 Pipeline Specification, 6.7 Multi-Agent Execution Model, Phase 8 Retroactive Audit. **Strengthened:** Phase 1F (sensitivity in completion criteria), Phase 2F (cross-system identity iterative expectation, sensitivity in data quality), Phase 4.4 (source attribution dual-purpose pattern), Phase 5 (context compression discipline, template versioning, sensitivity markers), Phase 6.2 (identity mismatch trigger), Phase 7 (restructured: pre-build baseline before Phase 5, scoring rubric with dimensions, conversation budget, acceptance criteria). Updated Architecture Overview Level 3 description. MOSAIC-OPERATIONS cross-references throughout. |
 | v0.4 | 2026-02-24 | Expanded §4.3 QUICK split with design rules (inclusion criteria, §0 routing header, no operational state, attention gradient). Updated §5.1 with construction guidance. Completion criteria updated. |
 | v0.3 | 2026-02-23 | Principles codification: added 5 design principle checkpoints at key decision points (Phase 3 §3.1, Phase 4 §4.1, Phase 5, Phase 7, Section 6) referencing MOSAIC-PRINCIPLES catalog. Principles invoked: A-009, A-010, A-011, U-001, A-008, A-017, A-014, U-013. |
 | v0.2 | 2026-02-16 | Retrospective validation applied. Level 0: added O-6 (Strategic Context), O-7 (AI/Automation), O-8 (Invisible Entity Scan), O-R (Emergence Retrospective); modified O-2 (integration gaps), O-3 (classification depth), O-4 (epistemological norms), O-5 (authority types). Level 1: added F1-1 agent accessibility, F1-2 reasoning failures, F2-5 (universe mapping), E1-3 (knowledge landscape), E2-7 (negative-space design), E2-8 (philosophical stance), E2-9 (temporal dimension); added Phase 3.5 (Domain Design Brief) and Phase 3.4 (anti-pattern register); added Phase 4.4 (entity-instance architecture), 4.5 (extraction operations); added Phase 5.3 (entity-instance files); expanded Phase 6 with 6.4 (coverage gap detection) and 6.5 (authoritative sources); strengthened Phase 7.3 (formal steward validation). Added iteration note to architecture overview. Updated validation section with scores and gap/fix tables. |

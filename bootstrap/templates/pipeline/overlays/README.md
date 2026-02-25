@@ -71,3 +71,29 @@ The overlay provides the **stable fields** (lifecycle, tier, display name). The 
 - Changes are reviewed during the maintenance cycle (Step 4E in §10)
 - Overlay edits trigger a pipeline re-run to propagate the change
 - The overlay is version-controlled in git alongside other instance files
+
+## Production Lessons
+
+### Schema Evolution
+
+Start with a generous schema. Production deployments consistently discover the need for optional fields that weren't anticipated during initial design:
+
+- `verify` (list of strings): Fields with conflicting signals needing human verification. Omit when clean; populate when discrepancies are detected between systems. Example: lifecycle shows "Active" in CRM but no recent communication in 8 months.
+- `deal_name_aliases` or `name_aliases` (list of strings): Additional name variants for fuzzy matching against system records. Handles "Acme Corp" vs "Acme Corporation" vs "ACME" mismatches that name normalization alone can't resolve.
+- `profile_filename` (string): Override auto-detected profile filename for entities whose short name doesn't map cleanly to file naming conventions (special characters, abbreviations, disambiguation).
+- Cross-system GID fields (e.g., `asana_team_gid`, `hubspot_company_id`): Explicit identity overrides for entities that cannot be matched by name alone. These bypass name matching entirely — essential for entities with very common names or names that differ significantly across systems.
+
+### Cross-System Identity
+
+The overlay's entity key (typically the short name) becomes the identity anchor across all systems. Name normalization in the pipeline handles common variations (case, whitespace, punctuation), but some entities require explicit mapping. Build this incrementally:
+
+1. First pipeline run surfaces unmatched entities in the run summary
+2. Investigate each: is it a name variant (add alias), a new entity (add to overlay), or junk data (add to exclusion filter)?
+3. Add aliases or GID overrides as mismatches appear
+4. Over time, the overlay's identity mapping becomes comprehensive
+
+Expect 3-5 iterations before match rates stabilize above 95%.
+
+### Overlay Size
+
+One entry per tracked entity. A production overlay with ~40 entities at ~10-12 lines each produces ~500 lines of YAML. YAML scales well to 200+ entries without performance concerns. For very large domains (500+ entities), consider splitting into sub-overlays by tier or category, loaded selectively by the pipeline.

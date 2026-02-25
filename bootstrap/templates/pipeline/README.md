@@ -85,3 +85,42 @@ Each instance customizes:
 - **Matching logic** — how to correlate live data entities with overlay entries
 - **Gap markers** — which markers indicate missing data in your profiles (MCP-TBD, BD-TBD, etc.)
 - **Enrichment prompts** — what questions to ask about each entity for Track 1/Track 2
+
+## Operational Lessons (from production deployments)
+
+### Universal vs. Domain-Specific Logic
+
+Pipeline scripts divide into universal infrastructure (~78%) and domain-specific customization (~22%):
+
+**Universal (carry forward to every domain):**
+- Overlay YAML loading and validation
+- JSON snapshot loading with date-stamped filenames
+- Name normalization (smart quotes, mojibake, whitespace, case)
+- Section rewriting (preserve §0 routing header, regenerate data sections only)
+- Run summary generation (match statistics, unmatched lists, issue table)
+- Batch update CSV generation (CRM/system correction format)
+- Enrichment queue scanning (gap marker counting, track classification)
+- Old file auto-deletion (previous run cleanup)
+
+**Domain-specific (customize per domain via the 6 CUSTOMIZE functions):**
+- Lifecycle state ordering and display rendering
+- Entity-matching heuristics (canonical name → system record correlation)
+- Junk data filtering patterns (test records, dummy entries, sandbox data)
+- Table column definitions and cell formatting
+- Profile directory path and naming conventions
+- Legacy term replacements (organization-specific terminology normalization)
+- Enrichment prompt templates (domain-specific research questions)
+
+### The Overlay as Foundation Layer
+
+The overlay YAML is the architectural keystone: the pipeline merges live system data ONTO the overlay's curated judgments. The overlay provides stability (lifecycle, tier, display name); live data provides currency (deal stages, amounts, dates, activity). This merge produces the regenerated QUICK file sections.
+
+The overlay represents DECISIONS (human judgment about entity classification, priority, and strategy), while JSON snapshots represent OBSERVATIONS (current system state from MCP queries). Neither alone is sufficient — the pipeline's job is to produce a coherent view from both.
+
+### Source Attribution as Detection System
+
+Gap markers ([MCP-TBD], [BD-TBD], [USER-INPUT-TBD]) in entity-instance files serve dual purpose:
+1. **Provenance** — where data should come from (which system, which agent, which human)
+2. **Completeness** — the enrichment queue counts these markers to classify entities into enrichment tracks and measure profile maturity
+
+Design gap markers during entity template creation (DOMAIN-BOOTSTRAP Phase 4.4). The enrichment queue script reads them programmatically — marker count drives track classification (Track 2 for high-gap entities, Track 1 for moderate-gap, BD-only for human-knowledge gaps).

@@ -1,124 +1,112 @@
-# {ORG}-MAINTENANCE.md
-## {Organization Name} — Maintenance, Synchronization & Build Playbook
-
-**Version:** 1.0
-**Created:** {DATE}
-**Last Verified:** {DATE}
-**Owner:** {Owner Name} / {Team}
-**Classification:** Internal — Agent Reference File
+# {ORG}-MAINTENANCE — Maintenance, Synchronization & Build Playbook
+**Version:** 1.0 | **Last Verified:** {DATE}
+Purpose: Governs reference file currency, drift detection/resolution, and new file builds for {Organization Name}.
 
 ---
 
 ## §1 About This File
 
-This file governs how reference files stay current, how agents detect and resolve drift between source systems and reference files, and how new reference files are built from scratch.
-
-**Primary audience:** Claude Code (builds/edits files), Claude.ai (reads via MCP for staleness detection), {Owner} (executes the irreducible manual steps).
+**Audience:** Claude Code (builds/edits), Claude.ai (MCP staleness detection), {Owner} (manual steps).
 
 ### The 4-Layer Sync Problem
 
-Reference files go stale because data changes in source systems but nothing triggers an update automatically. There are four layers where staleness can accumulate:
+Files go stale when source changes don't trigger updates:
 
-| Layer | What Goes Stale | Detection Method | Fix |
-|-------|----------------|------------------|-----|
-| **L1 — Source systems** | CRM deals close, teams change, personnel leave | Monthly MCP audit (§4) | Agent runs audit queries, reports delta |
-| **L2 — Full reference files** | {ORG}-* files in Azure Blob lag behind source | Trigger matrix (§9) + monthly audit | Claude Code edits files based on delta |
-| **L3 — Quick files** | {ORG}-*-QUICK files in project knowledge lag behind full files | Version manifest comparison (§3) | Claude Code regenerates, user uploads |
-| **L4 — Manifest itself** | This file's version table lags behind actual files | Self-check protocol (§3) | Update manifest after every file edit |
+|Layer|What Goes Stale|Detection|Fix|
+|---|---|---|---|
+|**L1 — Source systems**|CRM deals close, teams change, personnel leave|Monthly MCP audit (§4)|Audit queries, report delta|
+|**L2 — Full reference files**|{ORG}-* files lag behind source|Trigger matrix (§9) + audit|Edit files from delta|
+|**L3 — Quick files**|{ORG}-*-QUICK lag behind full files|Version manifest (§3)|Regenerate, user uploads|
+|**L4 — Manifest itself**|Version table lags behind files|Self-check (§3)|Update after every edit|
 
 ### Tool Capabilities & Constraints
 
-| Tool | Can Do | Cannot Do |
-|------|--------|-----------|
-| **Claude.ai** (via MCP) | Query live systems; retrieve reference file sections via `get_section`; compare manifest from loaded project knowledge | Edit files on disk; upload to project knowledge |
-| **Claude Code** | Read/write all files on disk; scan markers; regenerate quick files | Query live systems (no MCP); upload to project knowledge |
-| **User** | Upload files to project knowledge; approve changes; answer open questions | — |
+|Tool|Can Do|Cannot Do|
+|---|---|---|
+|**Claude.ai** (MCP)|Query live systems; `get_section`; compare manifest|Edit files; upload to knowledge|
+|**Claude Code**|Read/write files; scan markers; regenerate QUICKs|Query live systems; upload|
+|**User**|Upload to knowledge; approve; answer questions|—|
 
 ### When to Use This File
 
-| Situation | Start At |
-|-----------|----------|
-| "Run monthly maintenance" | §10 (full sync workflow) → §4 (audit) → §5 (Claude Code actions) |
-| "Are my reference files current?" | §3 (self-check protocol) |
-| "Regenerate quick files" | §7 (quick file regeneration) |
-| "Build a new reference file" | §8 (build playbook) |
-| "Something changed in the org" | §9 (trigger matrix) |
-| "Update the version manifest" | §2 (manifest table + protocol) |
+|Situation|Start At|
+|---|---|
+|"Run monthly maintenance"|§10 → §4 → §5|
+|"Are my reference files current?"|§3|
+|"Regenerate quick files"|§7|
+|"Build a new reference file"|§8|
+|"Something changed in the org"|§9|
+|"Update the version manifest"|§2|
 
 ---
 
 ## §2 Version Manifest
 
-This is the single source of truth for file currency. Every time a reference file is edited, its row here must be updated.
+Source of truth for file currency. Update after every edit.
 
 ### §2.1 Manifest Table
 
-| File | Version | Last Updated | Size | Status | Quick File? |
-|------|---------|-------------|------|--------|-------------|
-| {ORG}-INDEX.md | 1.0 | {DATE} | {N} KB | Initial | No (always loaded) |
-| {ORG}-DOMAIN-ROUTER.md | 1.0 | {DATE} | {N} KB | Initial | No (always loaded) |
-| {ORG}-TAXONOMY-QUICK.md | — | — | — | Pending first domain | No (always loaded) |
-| {ORG}-A2A-QUICK.md | — | — | — | Pending multi-agent setup | No (always loaded) |
-| {ORG}-CLAUDE-BEHAVIORS.md | 1.0 | {DATE} | {N} KB | Initial | No (Claude.ai only) |
-| MOSAIC-REASONING.md | {VER} | {DATE} | ~45 KB | Current | No (always loaded — shared reasoning kernel) |
+|File|Version|Last Updated|Size|Status|Quick File?|
+|---|---|---|---|---|---|
+|{ORG}-INDEX.md|1.0|{DATE}|{N} KB|Initial|No (loaded)|
+|{ORG}-DOMAIN-ROUTER.md|1.0|{DATE}|{N} KB|Initial|No (loaded)|
+|{ORG}-TAXONOMY-QUICK.md|—|—|—|Pending|No (loaded)|
+|{ORG}-A2A-QUICK.md|—|—|—|Pending|No (loaded)|
+|{ORG}-CLAUDE-BEHAVIORS.md|1.0|{DATE}|{N} KB|Initial|No (Claude.ai)|
+|MOSAIC-REASONING.md|{VER}|{DATE}|~45 KB|Current|No (shared kernel)|
 <!-- Add rows as domain files are created -->
 
 ### §2.2 Quick File Manifest
 
-<!-- Track QUICK files with their source file, version, and size.
-     QUICK files condense knowledge, process, and curated views from their
-     source files. They are NOT operational state dumps or comprehensive
-     copies. See MOSAIC-PRINCIPLES A-007 (QUICK File Architecture). -->
+<!-- QUICK files condense knowledge/process/curated views, not state dumps. See A-007. -->
 
-| Quick File | Source File | Source Version | Quick Version | Size | Notes |
-|------------|------------ |----------------|---------------|------|-------|
+|Quick File|Source File|Source Ver|Quick Ver|Size|Notes|
+|---|---|---|---|---|---|
 <!-- Add rows as QUICK files are created -->
 
 ### §2.3 Supporting Artifacts
 
-<!-- Track non-kernel files: profiles, directories, test plans, etc. -->
+<!-- Non-kernel files: profiles, directories, test plans -->
 
-| File | Version | Last Updated | Size | Notes |
-|------|---------|-------------|------|-------|
+|File|Version|Last Updated|Size|Notes|
+|---|---|---|---|---|
 <!-- Add rows as artifacts are created -->
 
 ---
 
 ## §3 Self-Check Protocol
 
-Claude.ai runs this at the start of each maintenance cycle to detect version drift.
+Claude.ai runs at maintenance cycle start to detect version drift.
 
 **Self-check prompt** (paste into Claude.ai):
 > "Compare the version numbers in your loaded project knowledge files against the manifest in {ORG}-MAINTENANCE §2.1 (retrieve via `get_section`). Report any files where the loaded version differs from the manifest version, or where files listed in the manifest are not loaded."
 
-**Expected output:** A table showing loaded vs. manifest versions, with flags for any mismatches.
+**Expected output:** Loaded vs. manifest versions table with mismatch flags.
 
-**What triggers a mismatch:** QUICK files were regenerated but not re-uploaded, or full files were edited but the manifest wasn't updated. Both indicate the 4-layer sync problem is active.
+**Mismatch causes:** QUICKs regenerated but not uploaded, or files edited without manifest update.
 
 ---
 
 ## §4 Monthly Audit Protocol
 
-The audit detects drift between source systems and reference files using MCP queries. Each audit runs in a separate Claude.ai conversation to stay within context budget.
-
-For the learning loop architecture that processes audit findings, see MOSAIC-OPERATIONS §2 and §6.
+Detects source-to-reference drift via MCP. Each audit in separate Claude.ai conversation (context budget). Learning loop architecture: MOSAIC-OPERATIONS §2/§6.
 
 ### §4.1 CRM / Primary System Audit
 
-**Paste this prompt into Claude.ai:**
+**Paste into Claude.ai:**
 > "Run a CRM data freshness audit. For each entity tracked in {ORG}-{DOMAIN}-QUICK:
 > 1. Query the CRM for current status (stage, owner, dates)
 > 2. Compare against reference file values
 > 3. Report deltas using the YAML schema in {ORG}-A2A-QUICK §4.2
 > Focus on: closed/won entities still marked active, owner changes, stage progressions, stale dates."
 
-<!-- Customize the prompt for your primary CRM system (HubSpot, Salesforce, etc.) -->
+<!-- Customize for your CRM (HubSpot, Salesforce, etc.) -->
 
-**Output:** Delta report with `[DELTA]`, `[STALE]`, `[GAP]`, and `[STRUCT]` observations ready for the maintenance workflow.
+**Output:** `[DELTA]`, `[STALE]`, `[GAP]`, `[STRUCT]` observations.
 
 ### §4.2 Task/Project Management Audit
 
-**Paste this prompt into Claude.ai:**
+**Paste into Claude.ai:**
 > "Run a task management audit. Check:
 > 1. Team/project structure changes since last audit
 > 2. New teams or projects not in reference files
@@ -126,24 +114,19 @@ For the learning loop architecture that processes audit findings, see MOSAIC-OPE
 > 4. Cross-reference GIDs/IDs against {ORG}-{DOMAIN} files
 > Report deltas using the YAML schema in {ORG}-A2A-QUICK §4.2."
 
-<!-- Customize for your task management tool (Asana, Jira, Linear, etc.) -->
+<!-- Customize for your task tool (Asana, Jira, Linear, etc.) -->
 
 ### §4.3 Personnel & Systems Audit
 
-**Paste this prompt into Claude.ai (or M365 Copilot for M365-specific checks):**
+**Paste into Claude.ai (or M365 Copilot):**
 > "Run a personnel and systems audit. Check:
 > 1. New hires / departures since last audit (M365 directory comparison)
 > 2. Title/role changes
-> 3. New applications or sites in the M365 environment
+> 3. New applications or sites in M365 environment
 > 4. Compare against {ORG}-TEAMS and {ORG}-SYSTEMS reference files
 > Report deltas using the YAML schema."
 
-<!-- Additional audit prompts can be added as domains grow:
-     §4.4 Document/Content Audit (quarterly)
-     §4.5 Terminology Consistency (quarterly)
-     §4.6 System Consistency (quarterly — Claude Code)
-     §4.7 Memory & Rules Hygiene (quarterly — Claude Code)
--->
+<!-- Additional: §4.4 Content (quarterly), §4.5 Terminology, §4.6 System Consistency, §4.7 Memory Hygiene -->
 
 ---
 
@@ -151,137 +134,121 @@ For the learning loop architecture that processes audit findings, see MOSAIC-OPE
 
 ### §5A Recommendations Log
 
-<!-- Track open maintenance recommendations -->
+<!-- Open maintenance recommendations -->
 
-| ID | Date | Category | Description | Status |
-|----|------|----------|-------------|--------|
+|ID|Date|Category|Description|Status|
+|---|---|---|---|---|
 <!-- Recommendations added as discovered -->
 
 ### §5E Budget Tracker
 
-| File | In Project Knowledge? | In Blob? | In Copilot Knowledge? | Size |
-|------|----------------------|----------|----------------------|------|
-| MOSAIC-REASONING.md | Yes | No | Yes (.txt) | ~45 KB |
-| {ORG}-INDEX.md | Yes | No | Yes (.txt) | {N} KB |
+|File|Proj Knowledge?|Blob?|Copilot?|Size|
+|---|---|---|---|---|
+|MOSAIC-REASONING.md|Yes|No|Yes (.txt)|~45 KB|
+|{ORG}-INDEX.md|Yes|No|Yes (.txt)|{N} KB|
 <!-- Add all kernel and retrieval files -->
 
-**Total kernel budget used:** {N} KB / ~200 KB
+**Total kernel budget:** {N} KB / ~200 KB
 
-<!-- DESIGN RULE (MOSAIC-PRINCIPLES U-011): Never hardcode counts or sizes
-     in narrative text. Use "count = [source]" references in tables. Sizes
-     in the budget tracker above are the ONE canonical location for file
-     sizes — don't duplicate them in DOMAIN-ROUTER or other files. -->
+<!-- DESIGN RULE (U-011): Sizes above are ONE canonical location. Don't duplicate in DOMAIN-ROUTER. -->
 
 ### §5F Upload Procedure
 
-Three upload targets, plus two paste targets:
+3 upload + 2 paste targets:
 
-| Target | Files | Format | Method |
-|--------|-------|--------|--------|
-| Claude.ai project knowledge | 6 kernel files | .md | Manual upload |
-| Copilot agent knowledge | Same 6 kernel files | .txt (generated) | Manual upload |
-| Azure Blob (MCP retrieval) | All retrieval files | .md | Auto-synced by prepare_upload.ps1 |
-| Claude.ai project instructions | From {ORG}-CLAUDE-PLATFORM-CONFIG.md | .txt | Paste into UI |
-| Copilot Studio instructions | From {ORG}-COPILOT-PLATFORM-CONFIG.md | .txt | Paste into UI |
+|Target|Files|Format|Method|
+|---|---|---|---|
+|Claude.ai knowledge|6 kernel files|.md|Manual upload|
+|Copilot knowledge|Same 6 kernel files|.txt|Manual upload|
+|Azure Blob (MCP)|All retrieval files|.md|prepare_upload.ps1|
+|Claude.ai instructions|{ORG}-CLAUDE-PLATFORM-CONFIG|.txt|Paste into UI|
+|Copilot instructions|{ORG}-COPILOT-PLATFORM-CONFIG|.txt|Paste into UI|
 
-**End-of-session checklist:**
-1. Run `prepare_upload.ps1` (stages files, syncs blob)
-2. Upload kernel files to Claude.ai and Copilot if changed
-3. Paste platform config if changed
-4. Commit and push to git
+**End-of-session:** (1) `prepare_upload.ps1` (2) Upload kernel if changed (3) Paste config if changed (4) Git commit+push
 
 ### §5G Tuning Register
 
-Track behavioral adjustments derived from `[META]` self-observations and benchmark validation. Each tuning entry links back to the originating delta and the benchmark evidence.
+Behavioral adjustments from `[META]` self-observations and benchmark validation.
 
-| ID | Date | Source Delta | Domain | Observation | Benchmark Score | Action Taken | Status |
-|----|------|-------------|--------|-------------|----------------|-------------|--------|
-<!-- TUN-001 entries added as META deltas are validated and acted upon -->
+|ID|Date|Source Delta|Domain|Observation|Score|Action|Status|
+|---|---|---|---|---|---|---|---|
+<!-- TUN-001 entries added as META deltas validated -->
 
-**Process:** `[META]` delta arrives → Step 4I review → check benchmark scores (§5G.4) → if confirmed, create TUN entry → draft behavioral directive edit → user approves → update behavior file + Behavioral Parity Check.
+**Process:** `[META]` → 4I review → benchmarks (§5G.4) → TUN entry → draft edit → approve → behavior file + Parity Check.
 
 ### §5G.4 Benchmark Scores
 
-<!-- Track domain-level benchmark scores over time.
-     Scores from the 20-25 query test plan, grouped by domain.
-     Update after each benchmark run. -->
+<!-- Domain scores from 20-25 query test plan. Update after each run. -->
 
-| Domain | Last Score | Date | Trend | Notes |
-|--------|-----------|------|-------|-------|
+|Domain|Last Score|Date|Trend|Notes|
+|---|---|---|---|---|
 <!-- Populated after first benchmark run -->
 
 ### §5H Pipeline Run Summary Template
 
-Each pipeline run produces a summary in `pipeline/run-logs/run-summary-YYYY-MM-DD.md`. Present the digest (not the full summary) to the user:
+Summary in `pipeline/run-logs/run-summary-YYYY-MM-DD.md`. Present digest only:
 
-**Digest format:**
-- **Headline stats:** entities matched, records matched, pipeline value, delta count
-- **Action items only:** unmatched records, overlay changes, batch update CSV count, enrichment queue highlights
-- **Enrichment recommendation:** #1 candidate (entity, lifecycle, gap count, track) + ask: "Enrich now, pick a different one, or skip?"
-- **Link to full details** in `pipeline/run-logs/`
+- **Headlines:** entities/records matched, pipeline value, delta count
+- **Actions:** unmatched records, overlay changes, batch CSV, enrichment highlights
+- **Enrichment:** #1 candidate + "Enrich now, pick different, or skip?"
+- **Details:** `pipeline/run-logs/`
 
 ---
 
 ## §6 System Architecture
 
-<!-- Document the file distribution architecture -->
+<!-- Document file distribution architecture -->
 
 ---
 
 ## §7 Quick File Regeneration
 
-<!-- Define the process for regenerating QUICK files from full files.
-     For QUICK file architecture principles (what earns QUICK budget vs.
-     what belongs in the full file), see MOSAIC-PRINCIPLES A-007. -->
+<!-- QUICK regeneration process. Architecture: MOSAIC-PRINCIPLES A-007. -->
 
 ---
 
 ## §8 Build Playbook
 
-<!-- Reference DOMAIN-BOOTSTRAP.md for domain builds.
-     For the full catalog of design principles governing builds, see
-     MOSAIC-PRINCIPLES. Key principles for this phase: A-007 (QUICK File
-     Architecture), A-008 (Atomic Multi-File Operations), A-009 (Progressive
-     Entity Promotion), U-011 (Volatile Data in Stable Text Creates Drift). -->
+<!-- Key principles: A-007, A-008, A-009, U-011. Full catalog: MOSAIC-PRINCIPLES. -->
 
-For new domain construction, follow DOMAIN-BOOTSTRAP.md. This section covers {ORG}-specific build conventions.
+New domain construction: follow DOMAIN-BOOTSTRAP.md. This section covers {ORG}-specific conventions.
 
 ---
 
 ## §9 Trigger Matrix
 
-Events that trigger file updates, organized by learning loop. For the loop architecture, see MOSAIC-OPERATIONS §2.
+Events triggering file updates by loop. Architecture: MOSAIC-OPERATIONS §2.
 
 ### Loop 1 — Data Events
 
-| Event | Delta Type | Affected Files | Action |
-|-------|-----------|---------------|--------|
-| New employee hired | `[DELTA]` | {ORG}-TEAMS, {ORG}-TEAMS-HRIS | Add to roster, update headcount |
-| Employee departed | `[DELTA]` | {ORG}-TEAMS, {ORG}-TEAMS-HRIS | Update status, check routing impact |
-| New client/entity signed | `[DELTA]` | {ORG}-CLIENTS, entity profile | Create profile, add to directory |
-| Record closed/completed | `[DELTA]` | Domain QUICK file | Update status in reference |
-| Record date past due | `[STALE]` | Entity profile, QUICK file | Flag for review |
-| Entity coverage below threshold | `[GAP]` | Entity profile | Queue enrichment |
-| Naming/format inconsistency | `[STRUCT]` | Affected reference files | Standardize naming |
+|Event|Delta Type|Affected Files|Action|
+|---|---|---|---|
+|Employee hired|`[DELTA]`|{ORG}-TEAMS, -HRIS|Add to roster|
+|Employee departed|`[DELTA]`|{ORG}-TEAMS, -HRIS|Update status, check routing|
+|Client/entity signed|`[DELTA]`|{ORG}-CLIENTS, profile|Create profile|
+|Record closed|`[DELTA]`|Domain QUICK|Update status|
+|Record date past due|`[STALE]`|Profile, QUICK|Flag for review|
+|Coverage below threshold|`[GAP]`|Profile|Queue enrichment|
+|Naming inconsistency|`[STRUCT]`|Affected files|Standardize|
 <!-- Add rows for org-specific data events -->
 
 ### Loop 2+ — Reasoning & Architecture Events
 
-| Event | Delta Type | Affected Files | Action |
-|-------|-----------|---------------|--------|
-| Cross-entity pattern confirmed | `[PATTERN]` | Domain reference or MOSAIC-REASONING | Draft reasoning update |
-| Better query method validated | `[RECIPE]` | {ORG}-A2A-QUICK §5 | Add/update recipe |
-| Entity doesn't fit taxonomy | `[ONTOLOGY]` | {ORG}-TAXONOMY | Draft taxonomy update |
-| Causal mechanism validated | `[CAUSAL]` | Target reference file | Document mechanism |
-| Query class needs new domain (3+) | `[DOMAIN]` | {ORG}-DOMAIN-ROUTER | Draft domain proposal |
-| Agent self-observation confirmed | `[META]` | Behavior files | Draft behavioral edit (parity) |
-| Inquiry answered | Varies | Depends on finding | Route to appropriate loop |
+|Event|Delta Type|Affected Files|Action|
+|---|---|---|---|
+|Pattern confirmed|`[PATTERN]`|Domain ref or MOSAIC-REASONING|Draft update|
+|Query method validated|`[RECIPE]`|{ORG}-A2A-QUICK §5|Add/update recipe|
+|Entity doesn't fit taxonomy|`[ONTOLOGY]`|{ORG}-TAXONOMY|Draft update|
+|Causal mechanism validated|`[CAUSAL]`|Target reference file|Document mechanism|
+|New domain needed (3+)|`[DOMAIN]`|{ORG}-DOMAIN-ROUTER|Draft proposal|
+|Self-observation confirmed|`[META]`|Behavior files|Draft edit (parity)|
+|Inquiry answered|Varies|Depends on finding|Route to loop|
 
 ---
 
 ## §10 Full Sync Workflow
 
-The minimum-manual-steps process for keeping everything current. For the maintenance cycle architecture, see MOSAIC-OPERATIONS §6.
+Minimum-manual-steps process. Architecture: MOSAIC-OPERATIONS §6.
 
 ### §10.1 Monthly Sync Cycle
 
@@ -367,8 +334,6 @@ Step 7: Verification
 
 ### §10.2 Maintenance Checklist
 
-Use this checklist to track progress through the monthly cycle:
-
 - [ ] Step 1: Self-check complete, staleness reported
 - [ ] Step 2a: Pipeline run complete, run summary reviewed
 - [ ] Step 2b: System audit complete
@@ -385,23 +350,16 @@ Use this checklist to track progress through the monthly cycle:
 
 ### §10.3 Emergency Sync Protocol
 
-For urgent changes that can't wait for the monthly cycle:
-
-1. Apply the change directly to affected reference files
-2. Update manifest (§2) — the 3-part atomic operation still applies
-3. Run `prepare_upload.ps1` to sync blob
-4. Upload affected kernel files if changed
-5. Add changelog entry
-6. The next monthly cycle will detect and reconcile any ripple effects
+For urgent changes that can't wait for monthly cycle: apply change to affected files, update manifest (§2, 3-part atomic op), run `prepare_upload.ps1`, upload kernel files if changed, add changelog entry. Next monthly cycle detects ripple effects.
 
 ---
 
 ## Consolidated Changelog
 
-All file changes across the instance are logged here. Individual files do NOT have their own changelogs.
+All changes logged here. Individual files have no changelogs.
 
-| Date | File | Version | Change |
-|------|------|---------|--------|
-| {DATE} | {ORG}-INDEX.md | 1.0 | Initial version from Level 0 organizational discovery. |
-| {DATE} | {ORG}-MAINTENANCE.md | 1.0 | Initial maintenance playbook. |
+|Date|File|Version|Change|
+|---|---|---|---|
+|{DATE}|{ORG}-INDEX.md|1.0|Initial from Level 0 discovery.|
+|{DATE}|{ORG}-MAINTENANCE.md|1.0|Initial playbook.|
 <!-- Add entries chronologically as changes are made -->

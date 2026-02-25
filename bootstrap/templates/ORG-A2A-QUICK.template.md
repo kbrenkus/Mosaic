@@ -1,66 +1,55 @@
-# {ORG}-A2A-QUICK.md
-## {Organization Name} — Agent Coordination Protocol Summary
-
-**Version:** 1.0
-**Last Updated:** {DATE}
-**Purpose:** Operational protocol summary for multi-agent coordination. Loaded as kernel file in all agent sessions.
-
+# {ORG}-A2A-QUICK — Agent Coordination Protocol Summary
+**Version:** 1.0 | **Updated:** {DATE} | Kernel QUICK file. Source: {ORG}-A2A-PROTOCOL.md.
 <!-- MANIFEST MARKER: Source={ORG}-A2A-PROTOCOL.md, Version=1.0, Updated={DATE} -->
 
 ---
 
 ## §0 Routing Header
 
-**What this file covers:** Agent capabilities, delegation rules, format templates, delta output protocol, and system query patterns.
-
-**When to escalate to full protocol:** {ORG}-A2A-PROTOCOL has the complete coordination architecture, delegation reasoning, and cross-system correlation methodology. Escalate when:
-- Building new cross-agent workflows
-- Diagnosing delegation failures
-- Designing new format templates
-
-**File scope:** This is a kernel QUICK file — always loaded, always available. It condenses the operational essentials from {ORG}-A2A-PROTOCOL.
+**Covers:** Agent capabilities, delegation, format templates, delta protocol, system query patterns.
+**Escalate to {ORG}-A2A-PROTOCOL** for new workflows, delegation failures, or format template design.
+**Scope:** Kernel QUICK — always loaded. Condenses {ORG}-A2A-PROTOCOL.
 
 ---
 
 ## §1 Agent Capability Matrix
 
-| Capability | Claude.ai | Claude Code | M365 Copilot |
-|-----------|-----------|-------------|--------------|
-| **Reference files** | Read via `get_section` (MCP) | Read/write on disk | Read from agent knowledge |
-| **CRM data** | Query via MCP | No direct access | No direct access |
-| **Task management** | Query via MCP | No direct access | No direct access |
-| **M365 ecosystem** | Query via MCP | No direct access | Native access (Outlook, SharePoint, Teams, Calendar) |
-| **Web search** | Yes (tool) | Yes (tool) | Limited (Bing) |
-| **File editing** | No | Yes | No |
-| **Signal detection** | Yes (all loops) | Yes (Loop 1 via pipeline) | Yes (M365-scoped) |
-| **Delta emission** | Yes (queue + YAML) | Yes (queue + YAML) | Yes (Teams channel + structured) |
+|Capability|Claude.ai|Claude Code|M365 Copilot|
+|---|---|---|---|
+|**Reference files**|`get_section` MCP|Read/write disk|Agent knowledge|
+|**CRM data**|MCP|No|No|
+|**Task management**|MCP|No|No|
+|**M365 ecosystem**|MCP|No|Native (Outlook, SP, Teams, Cal)|
+|**Web search**|Yes|Yes|Limited (Bing)|
+|**File editing**|No|Yes|No|
+|**Signal detection**|All loops|Loop 1 (pipeline)|M365-scoped|
+|**Delta emission**|Queue + YAML|Queue + YAML|Teams channel + structured|
 
 ### Tool Capability Constraints
 
-<!-- Document which MCP tools are available per agent context.
-     This varies by instance — update during KERNEL-BOOTSTRAP Phase 5. -->
+<!-- Update per instance during KERNEL-BOOTSTRAP Phase 5. -->
 
-| Tool | Claude.ai | Claude Code | Copilot |
-|------|-----------|-------------|---------|
-| `get_section` (reference retrieval) | Yes | No | No |
-| CRM MCP | Yes | Yes (if configured) | No |
-| Task management MCP | Yes | Yes (if configured) | No |
-| Graph/M365 MCP | Yes | No | Native |
+|Tool|Claude.ai|Claude Code|Copilot|
+|---|---|---|---|
+|`get_section` (reference retrieval)|Yes|No|No|
+|CRM MCP|Yes|Yes (if configured)|No|
+|Task management MCP|Yes|Yes (if configured)|No|
+|Graph/M365 MCP|Yes|No|Native|
 
 ---
 
 ## §2 Routing & Delegation
 
-**Default routing:** Most questions go to the agent the user is already talking to. Delegate only when another agent has unique access or capability.
+Delegate only when another agent has unique access or capability.
 
-| Scenario | Best Agent | Why |
-|----------|-----------|-----|
-| Questions about org structure, strategy, clients | Claude.ai | Full reference file access + analytical reasoning |
-| File edits, pipeline runs, batch operations | Claude Code | File system access + scripting |
-| Email/calendar/document questions | Copilot | Native M365 access |
-| Cross-system correlation | Claude.ai + Copilot | Each queries their accessible systems, user bridges results |
+|Scenario|Best Agent|Why|
+|---|---|---|
+|Org structure, strategy, clients|Claude.ai|Full reference access + reasoning|
+|File edits, pipeline, batch ops|Claude Code|File system + scripting|
+|Email/calendar/documents|Copilot|Native M365 access|
+|Cross-system correlation|Claude.ai + Copilot|Each queries own systems, user bridges|
 
-**The manual bridge:** When insights from one agent context need to reach another, the user copies the output. This is an irreducible manual step — no API connects agent sessions. Design workflows that minimize bridge frequency.
+**Manual bridge:** User copies output between agents. No API connects sessions — minimize bridge frequency.
 
 ---
 
@@ -68,7 +57,7 @@
 
 ### Activity Snapshot
 
-A structured footer appended to client-specific answers. Agents produce these passively during normal work — they accumulate over time and feed into maintenance cycle Step 4E.
+Structured footer on client answers. Produced passively; feeds Step 4E.
 
 ```markdown
 ---
@@ -83,7 +72,7 @@ A structured footer appended to client-specific answers. Agents produce these pa
 
 ### Coverage Assessment
 
-Used during enrichment to evaluate entity-instance file completeness:
+Evaluates entity-instance file completeness during enrichment:
 
 ```markdown
 ---
@@ -102,27 +91,27 @@ Used during enrichment to evaluate entity-instance file completeness:
 
 ## §4 Delta Output Protocol
 
-For the learning loop architecture and design rationale, see MOSAIC-OPERATIONS §2-5. This section provides the operational reference that agents use during conversations.
+Learning loop architecture: MOSAIC-OPERATIONS §2-5. Operational reference below.
 
 ### §4.1 Delta Type Reference
 
-| Type | Loop | Queue Section | When to Emit |
-|------|------|---------------|-------------|
-| `[DELTA]` | 1 | Data Corrections | Reference file value contradicts live system |
-| `[GAP]` | 1 | Data Corrections | Data missing; below tier coverage expectation |
-| `[STRUCT]` | 1 | Data Corrections | Naming/format mismatch (systematic, not one-off) |
-| `[STALE]` | 1 | Data Corrections | Data past freshness threshold |
-| `[PATTERN]` | 2 | Intelligence Queue | Cross-entity/system correlation observed |
-| `[RECIPE]` | 2 | Intelligence Queue | Better query method discovered |
-| `[ONTOLOGY]` | 2 | Intelligence Queue | Entity doesn't fit taxonomy |
-| `[CAUSAL]` | 2 | Intelligence Queue | Mechanism hypothesis for a pattern |
-| `[DOMAIN]` | 3 | Intelligence Queue | Recurring query class, no routing (3+ occurrences) |
-| `[META]` | 4 | Intelligence Queue | Agent self-observation with specific evidence |
-| `[INQUIRY]` | — | Intelligence Queue | Testable hypothesis for user validation |
+|Type|Loop|Queue Section|When to Emit|
+|---|---|---|---|
+|`[DELTA]`|1|Data Corrections|Ref value contradicts live system|
+|`[GAP]`|1|Data Corrections|Missing data; below coverage expectation|
+|`[STRUCT]`|1|Data Corrections|Naming/format mismatch (systematic)|
+|`[STALE]`|1|Data Corrections|Past freshness threshold|
+|`[PATTERN]`|2|Intelligence Queue|Cross-entity/system correlation|
+|`[RECIPE]`|2|Intelligence Queue|Better query method found|
+|`[ONTOLOGY]`|2|Intelligence Queue|Entity doesn't fit taxonomy|
+|`[CAUSAL]`|2|Intelligence Queue|Mechanism hypothesis for pattern|
+|`[DOMAIN]`|3|Intelligence Queue|Recurring query class, no routing (3+)|
+|`[META]`|4|Intelligence Queue|Agent self-observation with evidence|
+|`[INQUIRY]`|—|Intelligence Queue|Testable hypothesis for user|
 
 ### §4.2 YAML Schema
 
-Present each observation using this schema (canonical definition: MOSAIC-OPERATIONS §3.2):
+Schema per observation (canonical: MOSAIC-OPERATIONS §3.2):
 
 ```yaml
 [TYPE] Target: Brief description
@@ -148,44 +137,41 @@ session_date: YYYY-MM-DD
 
 <!-- Update these GIDs during KERNEL-BOOTSTRAP Phase 5 -->
 
-| Section | GID | Contains |
-|---------|-----|----------|
-| Data Corrections | {GID} | Loop 1: `[DELTA]`, `[GAP]`, `[STRUCT]`, `[STALE]` |
-| Intelligence Queue | {GID} | Loop 2/3/4 + Inquiry: all other types |
+|Section|GID|Contains|
+|---|---|---|
+|Data Corrections|{GID}|Loop 1: `[DELTA]`, `[GAP]`, `[STRUCT]`, `[STALE]`|
+|Intelligence Queue|{GID}|Loop 2/3/4 + Inquiry: all other types|
 
-**Task name:** `[TYPE] Target: Description`
-**Task body:** The YAML front matter above.
+**Task name:** `[TYPE] Target: Description` | **Body:** YAML above.
 
 ### §4.4 Confidence Tiers
 
-| Tier | Source Trust | Loop 1 | Loop 2+ |
-|------|-------------|--------|---------|
-| **confirmed** | T1-T2 (internal systems, government) | Pipeline may auto-apply | Human review |
-| **likely** | T3 (institutional sources) | Human approval required | Human review |
-| **unverified** | T4 (web, inference) | Flag for investigation | Human review |
+|Tier|Source Trust|Loop 1|Loop 2+|
+|---|---|---|---|
+|**confirmed**|T1-T2 (internal, govt)|Auto-apply eligible|Human review|
+|**likely**|T3 (institutional)|Human approval required|Human review|
+|**unverified**|T4 (web, inference)|Flag for investigation|Human review|
 
-For the full source trust hierarchy, see MOSAIC-REASONING §5.4.
+Full source trust hierarchy: MOSAIC-REASONING §5.4.
 
 ### §4.5 Active Inquiry Format
 
-When offering a hypothesis to the user, use this 4-part structure:
+4-part structure for hypotheses:
 
-1. **Hypothesis:** What you believe might be true
-2. **Evidence:** What data supports it (this session or accumulated)
-3. **Question:** The specific thing you want to know
-4. **Impact:** What changes in your reasoning if confirmed or denied
+1. **Hypothesis:** What might be true
+2. **Evidence:** Supporting data (this session or accumulated)
+3. **Question:** What you want to know
+4. **Impact:** What changes if confirmed or denied
 
-**Conversational discipline:** Offer at natural boundaries — after completing the user's task, at conversation end, or when a surprising pattern emerges. Never interrupt task execution.
+**Discipline:** Offer at natural boundaries only (task complete, conversation end, surprising pattern). Never interrupt task execution.
 
 ---
 
 ## §5 System Query Patterns
 
-<!-- Discovered recipes are added here as the system learns.
-     Each recipe documents: what to query, in what order, what to expect.
-     Populated organically through [RECIPE] deltas during maintenance cycles. -->
+<!-- Populated via [RECIPE] deltas during maintenance cycles. -->
 
-*No recipes documented yet. This section populates as the system discovers effective query patterns.*
+*No recipes yet. Populates via [RECIPE] deltas.*
 
 ---
 
@@ -193,6 +179,6 @@ When offering a hypothesis to the user, use this 4-part structure:
 
 <!-- All changes tracked in {ORG}-MAINTENANCE consolidated changelog. -->
 
-| Version | Date | Change |
-|---------|------|--------|
-| 1.0 | {DATE} | Initial version from KERNEL-BOOTSTRAP Phase 2 + Phase 5. |
+|Version|Date|Change|
+|---|---|---|
+|1.0|{DATE}|Initial version from KERNEL-BOOTSTRAP Phase 2 + Phase 5.|

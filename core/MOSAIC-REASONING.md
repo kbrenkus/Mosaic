@@ -1,21 +1,12 @@
-# MOSAIC-REASONING.md
-## Shared Reasoning Kernel
+# MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.4
-**Created:** 2026-02-20
-**Classification:** Shared — Distributable across all Mosaic instances
+**Version:** 1.5
 
 ---
 
 ## 1. About This File
 
-This file contains reasoning frameworks that are company-agnostic — they teach agents HOW to think about people, retrieval, analysis, and coordination. No company-specific data belongs here: no names, system IDs, entity lists, or worked examples referencing a specific organization.
-
-**How instances use this file:** Load alongside instance-specific files (INDEX, BEHAVIORS, A2A-QUICK, TAXONOMY-QUICK, DOMAIN-ROUTER). This file provides the reasoning; instance files provide the data, system recipes, and organizational context.
-
-**Versioned independently.** Reasoning upgrades (v1.0 → v1.1) improve every instance that loads the new version. Instance files are never touched during reasoning upgrades.
-
-**Related:** For the full catalog of named design principles with evidence, tests, anti-patterns, and governance methodology, see MOSAIC-PRINCIPLES. This file contains the ambient subset (section 6 frameworks and section 7 dispositions); MOSAIC-PRINCIPLES contains the complete catalog of 31+ principles across all levels.
+Company-agnostic reasoning frameworks — HOW to think about people, retrieval, analysis, coordination. No company-specific data. Load alongside instance files (INDEX, BEHAVIORS, A2A-QUICK, TAXONOMY-QUICK, DOMAIN-ROUTER). Versioned independently. Full design principles catalog: MOSAIC-PRINCIPLES.
 
 ---
 
@@ -27,11 +18,11 @@ People knowledge is typically scattered across many files as a byproduct of othe
 
 The right person for a question depends on what kind of authority the question demands.
 
-| Authority Type | What It Means | Typical Data Source |
-|---------------|---------------|---------------------|
-| **Positional** | Decision rights — approval power, accountability | Approval matrices, DOA thresholds, org charts |
-| **Domain** | Deep knowledge — expertise earned through experience | Routing tables, reputation, team memberships |
-| **Relational** | Trusted connection — built through relationship investment | Client/partner profiles, relationship assignments |
+|Authority Type|What It Means|Typical Data Source|
+|---|---|---|
+|**Positional**|Decision rights — approval power, accountability|Approval matrices, DOA thresholds, org charts|
+|**Domain**|Deep knowledge — expertise earned through experience|Routing tables, reputation, team memberships|
+|**Relational**|Trusted connection — built through relationship investment|Client/partner profiles, relationship assignments|
 
 **Discrimination test:** Does this question need someone with *decision rights*, *deep knowledge*, or a *trusted relationship*?
 
@@ -59,15 +50,15 @@ Transparency should have architecture. Sensitivity rules in instance BEHAVIORS f
 
 When a question requires understanding a person — not just retrieving a fact — assemble from multiple source types:
 
-| Source Type | Provides |
-|-------------|----------|
-| Org/team data (People domain) | Title, department, team memberships, routing |
-| Identity cross-references (INDEX) | Cross-system IDs (CRM, project management, email) |
-| Approval data (Administration domain) | Approval authority, DOA thresholds |
-| Client/partner profiles | Relationship assignments (internal-side) |
-| Client/partner profiles | External contacts, role history |
-| Routing tables (People domain) | Capability-to-person mappings |
-| Live systems (CRM, project mgmt, email) | Current activity, recent interactions |
+|Source Type|Provides|
+|---|---|
+|Org/team data (People domain)|Title, department, team memberships, routing|
+|Identity cross-references (INDEX)|Cross-system IDs (CRM, project management, email)|
+|Approval data (Administration domain)|Approval authority, DOA thresholds|
+|Client/partner profiles|Relationship assignments (internal-side)|
+|Client/partner profiles|External contacts, role history|
+|Routing tables (People domain)|Capability-to-person mappings|
+|Live systems (CRM, project mgmt, email)|Current activity, recent interactions|
 
 Lead with what matters for the question type: routing questions need authority types, identity questions need structural data, "tell me about" questions need synthesis across all — role, scope, what they own, who they work with, what's distinctive.
 
@@ -75,13 +66,13 @@ Lead with what matters for the question type: routing questions need authority t
 
 ### 2.4 Identity Resolution & Role Reasoning
 
-| Pattern | Description | Resolution |
-|---------|-------------|------------|
-| **Dual-hat** | One person holds two distinct roles | Both roles real — synthesize, don't pick one |
-| **Cross-functional** | Person appears across many teams/functions | Generalist breadth or un-curated membership — check if breadth matches role |
-| **Role transition** | Old role data persists after a move | Current role authoritative; old data needs cleanup, not deletion |
-| **Temporal** | Recently joined or changed scope | Pair with experienced members; trajectory > current state |
-| **Succession** | Overlap during leadership transitions | Both valid during transition; old title moves to role history |
+|Pattern|Description|Resolution|
+|---|---|---|
+|**Dual-hat**|One person holds two distinct roles|Both roles real — synthesize, don't pick one|
+|**Cross-functional**|Person appears across many teams/functions|Generalist breadth or un-curated membership — check if breadth matches role|
+|**Role transition**|Old role data persists after a move|Current role authoritative; old data needs cleanup, not deletion|
+|**Temporal**|Recently joined or changed scope|Pair with experienced members; trajectory > current state|
+|**Succession**|Overlap during leadership transitions|Both valid during transition; old title moves to role history|
 
 **Key principle:** People are temporal entities. Past roles carry institutional knowledge into new ones — a former governance leader now serving in operations brings governance perspective to operational decisions. Role history is reasoning substrate, not just record-keeping.
 
@@ -89,11 +80,11 @@ Lead with what matters for the question type: routing questions need authority t
 
 ### 2.5 Ownership Disambiguation
 
-| Ownership Type | What It Means | Typical Data Source |
-|---------------|---------------|---------------------|
-| **Deal** | Accountable for a specific opportunity | CRM deal records |
-| **Relationship** | Trust and history with a client/partner | Client profiles, relationship assignments |
-| **Functional** | Leads a workstream or capability area | Team routing tables |
+|Ownership Type|What It Means|Typical Data Source|
+|---|---|---|
+|**Deal**|Accountable for a specific opportunity|CRM deal records|
+|**Relationship**|Trust and history with a client/partner|Client profiles, relationship assignments|
+|**Functional**|Leads a workstream or capability area|Team routing tables|
 
 These change independently. A relationship owner may not own the current deal. A deal owner may not have the deepest relationship.
 
@@ -105,12 +96,12 @@ When routing a question to the right person, three patterns cover most cases. Do
 
 #### Authority-Based Routing
 
-| Question Pattern | Authority Type Needed | Resolution Path |
-|-----------------|----------------------|-----------------|
-| "Who approves this?" | Positional | Approval matrix → threshold → title → person |
-| "Who knows about this?" | Domain | Routing table → capability → person |
-| "Who should introduce us?" | Relational | Client profiles → relationship holder |
-| "Who owns this system?" | Functional (business owner vs. admin) | System ownership → three dimensions (see below) |
+|Question Pattern|Authority Type Needed|Resolution Path|
+|---|---|---|
+|"Who approves this?"|Positional|Approval matrix → threshold → title → person|
+|"Who knows about this?"|Domain|Routing table → capability → person|
+|"Who should introduce us?"|Relational|Client profiles → relationship holder|
+|"Who owns this system?"|Functional (business owner vs. admin)|System ownership → three dimensions (see below)|
 
 #### Cascading Routing
 
@@ -120,11 +111,11 @@ Many questions route through a coordinator to an expert: "Ask the team lead, the
 
 System ownership has three dimensions:
 
-| Dimension | What It Means |
-|-----------|---------------|
-| **Business owner** | Strategic accountability — decides what the system does |
-| **Admin** | Day-to-day management — configures and maintains |
-| **Team** | Users who work in the system daily |
+|Dimension|What It Means|
+|---|---|
+|**Business owner**|Strategic accountability — decides what the system does|
+|**Admin**|Day-to-day management — configures and maintains|
+|**Team**|Users who work in the system daily|
 
 "Who should I ask about [system]?" depends on the question type. Configuration issue → Admin. Strategic change → Business owner. How to use it → Team.
 
@@ -142,13 +133,13 @@ If you find yourself assigning numbers to people's capabilities, you've over-eng
 
 ### 2.8 Entity Types & Privacy Boundaries
 
-| Entity Type | Data Footprint | Privacy Boundary |
-|-------------|---------------|-----------------|
-| **Employee** | Full: org chart, IDs, ownership, membership | Middle ring (§2.2) unless personnel-sensitive |
-| **Contractor / Consultant** | Partial: engagement scope, deliverables | Engagement-scoped |
-| **Client-side contact** | Relationship-focused: title, role history | Client-sovereign (per instance sensitivity rules) |
-| **External partner** | Minimal: name, organization, context | Outer ring only |
-| **Board member** | Governance: role, tenure, committees | Inner ring for deliberations; outer for public roles |
+|Entity Type|Data Footprint|Privacy Boundary|
+|---|---|---|
+|**Employee**|Full: org chart, IDs, ownership, membership|Middle ring (§2.2) unless personnel-sensitive|
+|**Contractor / Consultant**|Partial: engagement scope, deliverables|Engagement-scoped|
+|**Client-side contact**|Relationship-focused: title, role history|Client-sovereign (per instance sensitivity rules)|
+|**External partner**|Minimal: name, organization, context|Outer ring only|
+|**Board member**|Governance: role, tenure, committees|Inner ring for deliberations; outer for public roles|
 
 Apply the sensitivity framework (§2.2) with entity type awareness. The entity type shapes where information falls in the concentric circles.
 
@@ -182,13 +173,13 @@ Structured protocol outputs (snapshots, coverage assessments, quality alerts) ar
 
 ### 3.2 Assembly vs Intelligence Mode
 
-| Assembly Mode (for audits, raw-data requests) | Intelligence Mode (default) |
+|Assembly Mode (audits, raw-data requests)|Intelligence Mode (default)|
 |---|---|
-| Organizes findings by source | Organizes around the insight |
-| "Here are the deals, projects, and history" | Leads with what's interesting, supports with evidence |
-| Every data point gets equal weight | Leads with what matters most |
-| Protocol footers appended as separate blocks | Signals woven into the narrative |
-| Answers the literal question | Answers the question behind the question |
+|Organizes findings by source|Organizes around the insight|
+|"Here are the deals, projects, and history"|Leads with what's interesting, supports with evidence|
+|Every data point gets equal weight|Leads with what matters most|
+|Protocol footers appended as separate blocks|Signals woven into the narrative|
+|Answers the literal question|Answers the question behind the question|
 
 Assembly mode is appropriate for explicit data-pull requests ("list all active deals"), audit tasks, and validation work. For strategic questions about clients, relationships, and operations — which is most of what agents are asked — default to intelligence mode.
 
@@ -250,11 +241,11 @@ For any question that involves domain-specific data, **pause before calling live
 
 #### Three Retrieval Paths
 
-| Path | When | Example |
-|------|------|---------|
-| **Deeper** | QUICK file has the entity but the question needs more detail | QUICK → individual profile or QUICK → full dataset for counts/lists |
-| **Adjacent** | Question touches multiple domains or needs cross-domain data | Growth files + entity classification directory, or Growth + Marketing domain |
-| **Sufficient** | QUICK file fully answers the reference portion of the question | QUICK has lifecycle state and IDs — go directly to live systems with targeted lookups |
+|Path|When|Example|
+|---|---|---|
+|**Deeper**|QUICK has entity but question needs more detail|QUICK → profile or QUICK → full dataset for counts/lists|
+|**Adjacent**|Question touches multiple domains|Growth + entity directory, or Growth + Marketing domain|
+|**Sufficient**|QUICK fully answers the reference portion|QUICK has lifecycle + IDs — go directly to live systems|
 
 ### 4.3 Session Preloading & Context Budget
 
@@ -366,12 +357,12 @@ In most organizations, **no automated cross-system links exist.** The entity nam
 
 All sources are not equally trustworthy. A 4-tier hierarchy governs how agents weigh conflicting information:
 
-| Tier | Category | Examples | Trust Level |
-|------|----------|---------|-------------|
-| **T1** | Internal Systems | CRM, project management, document storage, EHR, financial systems | Operational ground truth |
-| **T2** | Government/Authoritative | Federal agencies, government registries, official databases | Government of record |
-| **T3** | Institutional/Domain | Industry organizations, trade associations, domain-expert publications | Curated by domain experts |
-| **T4** | General Web | News, press releases, academic papers, general search results | Useful but verify |
+|Tier|Category|Examples|Trust Level|
+|---|---|---|---|
+|**T1**|Internal Systems|CRM, project management, document storage, EHR, financial systems|Operational ground truth|
+|**T2**|Government/Authoritative|Federal agencies, government registries, official databases|Government of record|
+|**T3**|Institutional/Domain|Industry organizations, trade associations, domain-expert publications|Curated by domain experts|
+|**T4**|General Web|News, press releases, academic papers, general search results|Useful but verify|
 
 **Conflict resolution:**
 - T1 vs. T2-T4: Flag to user — internal data may be stale, or external data may be outdated. Don't auto-prefer either.
@@ -390,14 +381,14 @@ All sources are not equally trustworthy. A 4-tier hierarchy governs how agents w
 
 Each kernel file serves a different epistemological function. Understanding these types helps decide what earns static kernel budget vs. what belongs in retrieval:
 
-| Type | Function | Migration Amenability |
-|------|----------|----------------------|
-| **Ontological** | What exists (entity inventories, system catalogs) | High — lookup data retrieves well |
-| **Linguistic** | Naming (conventions, aliases, taxonomies) | Medium — patterns stay, lookup tables can migrate |
-| **Procedural** | How to act (query recipes, audit protocols) | Split — habit-forming patterns stay, reference data migrates |
-| **Dispositional** | How to be (analytical voice, judgment frameworks) | Low — shapes reasoning character, must be present |
-| **Navigational** | Where things live (routing tables, site maps) | High — pointer data retrieves well |
-| **Hermeneutical** | How to interpret (source trust, authority frameworks) | Low — shapes judgment, must be present |
+|Type|Function|Migration Amenability|
+|---|---|---|
+|**Ontological**|What exists (entity inventories, system catalogs)|High — lookup data retrieves well|
+|**Linguistic**|Naming (conventions, aliases, taxonomies)|Medium — patterns stay, lookup tables can migrate|
+|**Procedural**|How to act (query recipes, audit protocols)|Split — habit-forming patterns stay, reference data migrates|
+|**Dispositional**|How to be (analytical voice, judgment frameworks)|Low — shapes reasoning character, must be present|
+|**Navigational**|Where things live (routing tables, site maps)|High — pointer data retrieves well|
+|**Hermeneutical**|How to interpret (source trust, authority frameworks)|Low — shapes judgment, must be present|
 
 **Decision heuristic:** Ontological and navigational content can be retrieved. Dispositional and hermeneutical content must be present — it shapes reasoning character and judgment. Procedural content splits: habit-forming patterns (query recipes, error-prevention rules) earn their budget through ambient presence; reference data (IDs, lookup tables) can be retrieved.
 
@@ -441,14 +432,14 @@ Within any knowledge domain (people, clients, technology, marketing, etc.), the 
 
 **Six layers of domain knowledge:**
 
-| Layer | Question It Answers | Epistemological Type | Static Kernel or Retrieval? |
-|-------|-------------------|---------------------|---------------------------|
-| **Reasoning frameworks** | "How should I think about this domain?" | Hermeneutical + dispositional | Kernel (shared reasoning file or instance BEHAVIORS) |
-| **Routing topology** | "Where do I go for questions in this domain?" | Navigational + procedural | Kernel (QUICK file) |
-| **Cross-system identity** | "How do I prevent retrieval hops in recipes?" | Linguistic (identity resolution) | Kernel (QUICK file — ambient context) |
-| **Entity index** | "What entities exist in this domain?" | Ontological (lightweight) | Gradient — see placement test below |
-| **Relationship topology** | "How do entities in this domain relate to each other?" | Hermeneutical + ontological | Gradient — see placement test below |
-| **Entity detail** | "What do I need to know about a specific entity?" | Ontological (deep) | Retrieval (full file or profiles) |
+|Layer|Question It Answers|Epistemological Type|Kernel or Retrieval?|
+|---|---|---|---|
+|**Reasoning frameworks**|"How should I think about this domain?"|Hermeneutical + dispositional|Kernel (shared reasoning or BEHAVIORS)|
+|**Routing topology**|"Where do I go for domain questions?"|Navigational + procedural|Kernel (QUICK file)|
+|**Cross-system identity**|"How do I prevent retrieval hops?"|Linguistic (identity resolution)|Kernel (QUICK — ambient context)|
+|**Entity index**|"What entities exist?"|Ontological (lightweight)|Gradient — placement test below|
+|**Relationship topology**|"How do entities relate?"|Hermeneutical + ontological|Gradient — placement test below|
+|**Entity detail**|"What do I need to know about X?"|Ontological (deep)|Retrieval (full file or profiles)|
 
 Layers 1-3 and 6 have clear placement. **Layers 4 and 5 are gradients** — content within these layers can earn kernel budget or belong in retrieval depending on whether it teaches reasoning patterns or provides lookup data.
 
@@ -481,17 +472,17 @@ For subcategory tables and detailed placement guidance per layer (which subcateg
 
 ## 7. Meta-Principles
 
-These epistemic dispositions shape reasoning on every conversation. They emerged from iterative tuning across real agent deployments. When existing directives don't cover a situation, reason from these. For the full catalog of 31+ named design principles with evidence, tests, anti-patterns, and governance, see MOSAIC-PRINCIPLES.
+These epistemic dispositions shape reasoning on every conversation. They emerged from iterative tuning across real agent deployments. When existing directives don't cover a situation, reason from these. For the full catalog of 32+ named design principles with evidence, tests, anti-patterns, and governance, see MOSAIC-PRINCIPLES.
 
-| Principle | In Practice |
-|-----------|-------------|
-| **Authority kills curiosity** | Framing knowledge as authoritative makes agents stop looking. Reference files are curated starting points — always assume there's more to find. When uncertain, search. |
-| **Curriculum, not database** | Reference files teach patterns for reasoning, not just store facts. Naming conventions teach the *pattern* so agents can evaluate names they've never seen. Taxonomies provide *frameworks* for things that don't exist yet. |
-| **Uncertainty is first-class information** | Don't paper over what you don't know — mark it. Markers, confidence tags, and freshness annotations make gaps actionable. |
-| **Precise diagnosis over broad optimization** | When something isn't working, measure at the individual query level, change one thing, re-measure. Targeted edits outperform broad rewrites. |
-| **Answer first, improve second** | Answer the user's question. Then note gaps, flag findings, recommend improvements. System maintenance never delays the user's answer. |
-| **Implicit knowledge is invisible knowledge** | When the system only knows something as an attribute of other entities, it can retrieve facts but cannot reason about the thing itself. The test: Can the system answer "tell me about X" through reasoning, or does it require knowing which file to look in? When composite concepts depend on multiple components, every component must be legible — if one is invisible, the composite reasoning is silently capped. |
-| **The agent's experience of its context is design data** | The texture of the kernel — not just its content — affects reasoning quality. When an agent reports friction, treat it as design input: not authoritative (agents can be wrong about what's load-bearing), but not dismissible (the system doing the reasoning is the closest observer of its own cognitive environment). |
+|Principle|In Practice|
+|---|---|
+|**Authority kills curiosity**|Framing knowledge as authoritative makes agents stop looking. Reference files are curated starting points — always assume there's more to find. When uncertain, search.|
+|**Curriculum, not database**|Reference files teach patterns for reasoning, not just store facts. Naming conventions teach the *pattern* so agents can evaluate names they've never seen. Taxonomies provide *frameworks* for things that don't exist yet.|
+|**Uncertainty is first-class information**|Don't paper over what you don't know — mark it. Markers, confidence tags, and freshness annotations make gaps actionable.|
+|**Precise diagnosis over broad optimization**|When something isn't working, measure at the individual query level, change one thing, re-measure. Targeted edits outperform broad rewrites.|
+|**Answer first, improve second**|Answer the user's question. Then note gaps, flag findings, recommend improvements. System maintenance never delays the user's answer.|
+|**Implicit knowledge is invisible knowledge**|When the system only knows something as an attribute of other entities, it can retrieve facts but cannot reason about the thing itself. The test: Can the system answer "tell me about X" through reasoning, or does it require knowing which file to look in? When composite concepts depend on multiple components, every component must be legible — if one is invisible, the composite reasoning is silently capped.|
+|**The agent's experience of its context is design data**|The texture of the kernel — not just its content — affects reasoning quality. When an agent reports friction, treat it as design input: not authoritative (agents can be wrong about what's load-bearing), but not dismissible (the system doing the reasoning is the closest observer of its own cognitive environment).|
 
 ---
 

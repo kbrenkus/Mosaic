@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.5
+**Version:** 1.6
 
 ---
 
@@ -318,6 +318,10 @@ On-demand files retrieved mid-conversation compete for context space with the st
 - Attention gradient: Will the target content be found? (Content ordering within the loaded file.)
 
 **When a file exceeds ~40 KB,** split it along query-pattern boundaries: different files for different question types. The agent then retrieves only the file relevant to the current query, keeping context load manageable. Design the split points during domain build, not as a post-hoc fix.
+
+### 4.9 Format Affects Token Consumption
+
+File format choice affects how much context budget a file consumes. YAML uses ~57% fewer tokens than equivalent markdown tables for structured lookup data. Telegraphic prose (removing articles and filler from procedural content) reduces token count 10-15% with no comprehension loss. These savings compound across kernel + retrieval files. Operational format rules: MOSAIC-OPERATIONS §4.7. The key distinction: lookup data (→ YAML) vs. reasoning frameworks (→ minified markdown tables, where visual structure aids comprehension).
 
 ---
 

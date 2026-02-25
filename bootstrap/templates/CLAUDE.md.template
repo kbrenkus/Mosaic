@@ -81,6 +81,28 @@ After editing kernel/agent config files, update {ORG}-MAINTENANCE §5E budget ta
 
 ---
 
+## File Optimization Rules
+
+Context-efficient formatting for all reference files (.md). Reduces token consumption 15-25% with zero reasoning quality loss.
+
+**Format selection:**
+- **YAML** for lookup/routing data: ID tables, stage mappings, aliases, capability matrices, troubleshooting. ~57% fewer tokens than equivalent markdown tables.
+- **Minified markdown tables** for reasoning frameworks: authority types, entity types, decision trees. No cell padding (`|value|`), minimal separators (`|---|`).
+- **Telegraphic prose** for procedural/routing content: remove articles, conjunctions, filler where meaning preserved.
+- **Full prose** for reasoning exposition (MOSAIC-REASONING), behavioral directives, safety rules, "Do NOT" instructions, worked examples.
+
+**Whitespace:** Single blank line between sections. Never double-blank. HRs between major sections only. No trailing whitespace.
+
+**Tables:** `|---|` separators. `|value|` not `| value |`. Exception: numeric alignment.
+
+**Examples:** 1-2 for simple patterns, 3 max for complex. Keep worked YAML examples for delta format.
+
+**Never compress:** Reasoning exposition, behavioral safety instructions, data governance notes, markdown headers, delta trigger tables.
+
+Apply when creating, editing, bootstrapping, or regenerating files. See MOSAIC-OPERATIONS §4.7 for methodology.
+
+---
+
 ## Shared Reasoning Kernel
 
 MOSAIC-REASONING.md is the **shared reasoning kernel** -- company-agnostic, distributable across instances.

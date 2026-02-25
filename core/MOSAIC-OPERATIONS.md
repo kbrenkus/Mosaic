@@ -1,4 +1,4 @@
-# MOSAIC-OPERATIONS v1.1
+# MOSAIC-OPERATIONS v1.2
 
 > **Purpose:** Operational architecture for self-learning knowledge systems — how instances detect drift, accumulate observations, process learning, and maintain currency.
 > **Scope:** Company-agnostic. All examples use generic placeholders. Instance-specific operational details belong in instance files.
@@ -307,6 +307,23 @@ Two patterns for how deltas become reference file changes:
 |Narrative profiles, engagement history|B (Surgical)|Full regeneration destroys curated narrative; surgical is precise|
 |Routing headers, framework sections|Neither|Curated content, not data-driven. Edit manually.|
 
+### §4.7 File Optimization Patterns
+
+Context window is shared between kernel + retrieval + conversation. Every KB saved in file formatting = more conversation headroom. Research-backed patterns that reduce file size 15-25% with zero reasoning quality loss:
+
+**Format choice depends on content type:**
+|Content Type|Optimal Format|Why|
+|---|---|---|
+|Lookup data (IDs, mappings, aliases)|YAML|~57% fewer tokens than markdown tables for structured key-value data|
+|Reasoning frameworks (authority types, decision trees)|Minified markdown tables|Tables preserve visual structure agents use for reasoning; strip padding only|
+|Procedural/routing content|Telegraphic prose|Articles and conjunctions add tokens without adding comprehension|
+|Reasoning exposition, safety rules, behavioral directives|Full prose|Prose is load-bearing — compression destroys reasoning nuance|
+|Worked examples for complex patterns|Preserve verbatim|Examples teach semantics; proven essential by behavioral testing|
+
+**The lookup-vs-reasoning distinction** is the key design decision. Lookup tables are queried for specific values — YAML is more token-efficient and equally parseable. Reasoning tables are read holistically to understand a framework — visual table structure aids comprehension.
+
+**Operational rules** (format selection, whitespace, table padding, example counts) are codified in instance CLAUDE.md under "File Optimization Rules." Apply during: new file creation, existing file edits, domain bootstrapping, QUICK file regeneration.
+
 ---
 
 ## §5 Signal-to-Delta Convergence
@@ -464,5 +481,6 @@ Maintain 20-25 query benchmark spanning all operational domains. Track scores ov
 
 |Version|Date|Change|
 |---|---|---|
+|v1.2|2026-02-25|Added §4.7 File Optimization Patterns — methodology-level documentation of format selection, token efficiency research, lookup-vs-reasoning distinction.|
 |v1.1|2026-02-25|Context compression: table minification, telegraphic prose for procedural content, whitespace normalization. ~17% reduction. All section headers and code blocks preserved.|
 |v1.0|2026-02-24|Initial version. Learning loops, delta architecture, pipeline pattern, signal convergence, maintenance cycle, testing methodology — ported from operational deployment as company-agnostic patterns.|

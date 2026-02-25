@@ -1,4 +1,4 @@
-# KERNEL-BOOTSTRAP v1.2
+# KERNEL-BOOTSTRAP v1.3
 
 > **Purpose:** A step-by-step guide for deploying a new Mosaic knowledge architecture instance for an organization. This covers everything from initial setup through first-domain operational readiness.
 >
@@ -312,7 +312,18 @@ The first domain build will:
 4. Populate `{ORG}-TAXONOMY-QUICK.md` with the first classification frameworks
 5. Test the full pipeline: kernel → retrieval → MCP → agent response
 
-### 4.1 Upload and Test
+### 4.1 Apply File Optimization Rules
+
+Before uploading domain files, apply the File Optimization Rules from CLAUDE.md to all new files. Key checks:
+- Lookup/routing tables → YAML format (IDs, mappings, aliases)
+- All markdown tables → minified (no cell padding, `|---|` separators)
+- Procedural prose → telegraphic (remove articles, filler)
+- Reasoning exposition, safety rules, worked examples → full prose (never compress)
+- Whitespace → single blank lines, HRs between major sections only
+
+This ensures new domains start lean. See MOSAIC-OPERATIONS §4.7 for the methodology-level rationale.
+
+### 4.2 Upload and Test
 
 After building the first domain:
 
@@ -520,6 +531,7 @@ The test: *Does this file teach a pattern the agent needs on every query, or pro
 
 | Version | Date | Change |
 |---------|------|--------|
+| v1.3 | 2026-02-25 | Added §4.1 File Optimization checkpoint in Phase 3 — apply CLAUDE.md optimization rules before uploading domain files. |
 | v1.2 | 2026-02-25 | Added Phase 5: Learning Infrastructure Setup (delta queue, pipeline, signal awareness, memory management). Renumbered Phase 4 to "Git & Session Workflow." Added pipeline/ to directory tree. MOSAIC-OPERATIONS reference throughout. |
 | v1.1 | 2026-02-24 | Added §3.5 Design Pitfalls (empirical anti-patterns from first deployment), MOSAIC-PRINCIPLES reference in Phase 3. |
 | v1.0 | 2026-02-23 | Initial version. Covers infrastructure setup, kernel construction, first domain bootstrap, and operational readiness. |

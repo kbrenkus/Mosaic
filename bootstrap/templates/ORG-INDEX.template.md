@@ -97,10 +97,4 @@ For file versions and currency, {ORG}-MAINTENANCE §2.1/§2.2 is authoritative.
 
 ---
 
-## Changelog
-
-<!-- All changes tracked in {ORG}-MAINTENANCE consolidated changelog. -->
-
-|Version|Date|Change|
-|---|---|---|
-|1.0|{DATE}|Initial version from Level 0 organizational discovery.|
+<!-- Version history tracked in git. Manifest in {ORG}-MAINTENANCE §2. -->

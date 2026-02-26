@@ -350,16 +350,10 @@ Step 7: Verification
 
 ### §10.3 Emergency Sync Protocol
 
-For urgent changes that can't wait for monthly cycle: apply change to affected files, update manifest (§2, 3-part atomic op), run `prepare_upload.ps1`, upload kernel files if changed, add changelog entry. Next monthly cycle detects ripple effects.
+For urgent changes that can't wait for monthly cycle: apply change to affected files, update manifest (§2, 2-part atomic op), run `prepare_upload.ps1`, upload kernel files if changed, commit to git. Next monthly cycle detects ripple effects.
 
 ---
 
-## Consolidated Changelog
+## Change Log
 
-All changes logged here. Individual files have no changelogs.
-
-|Date|File|Version|Change|
-|---|---|---|---|
-|{DATE}|{ORG}-INDEX.md|1.0|Initial from Level 0 discovery.|
-|{DATE}|{ORG}-MAINTENANCE.md|1.0|Initial playbook.|
-<!-- Add entries chronologically as changes are made -->
+**Change history is tracked in git.** See `git log` in the instance repository.

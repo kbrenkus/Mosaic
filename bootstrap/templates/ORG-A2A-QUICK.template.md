@@ -175,10 +175,4 @@ Full source trust hierarchy: MOSAIC-REASONING §5.4.
 
 ---
 
-## Changelog
-
-<!-- All changes tracked in {ORG}-MAINTENANCE consolidated changelog. -->
-
-|Version|Date|Change|
-|---|---|---|
-|1.0|{DATE}|Initial version from KERNEL-BOOTSTRAP Phase 2 + Phase 5.|
+<!-- Version history tracked in git. Manifest in {ORG}-MAINTENANCE §2. -->

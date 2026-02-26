@@ -297,7 +297,7 @@ Every QUICK file should define **inclusion criteria**: what entities or content 
 
 Distributed knowledge systems require operations that span multiple files atomically. Version bumps, file moves, structural changes, and principle additions all touch multiple locations — they succeed together or not at all.
 
-- **Evidence:** The "3-part atomic operation" rule for version bumps: increment header version, update manifest row, add changelog entry. Any step done alone creates drift. File renames that don't update cross-references create broken pointers.
+- **Evidence:** The "2-part atomic operation" rule for version bumps: increment header version, update manifest row. Change history tracked in git. Any step done alone creates drift. File renames that don't update cross-references create broken pointers.
 - **Test:** For any structural change: "How many files does this touch?" If more than one, list all affected files before starting. Check them off as you go. The manifest/index is the canary — if it's out of date, the operation is incomplete.
 - **Anti-pattern:** "I'll update the manifest later." You won't. Or: updating one file and moving on, creating invisible inconsistencies that compound over time.
 - **Activates during:** Build (every structural change), maintenance (every version bump)

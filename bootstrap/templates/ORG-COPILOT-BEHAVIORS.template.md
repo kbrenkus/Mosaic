@@ -105,10 +105,4 @@ When a question requires capabilities you don't have (CRM data, file editing, co
 
 ---
 
-## Changelog
-
-<!-- All changes tracked in {ORG}-MAINTENANCE consolidated changelog. -->
-
-|Version|Date|Change|
-|---|---|---|
-|1.0|{DATE}|Initial behavioral directives from Level 0 organizational discovery.|
+<!-- Version history tracked in git. Manifest in {ORG}-MAINTENANCE §2. -->

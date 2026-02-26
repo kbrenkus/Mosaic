@@ -23,7 +23,7 @@ A Mosaic instance consists of:
 │   ├── {ORG}-A2A-QUICK.md          (agent coordination protocol summary)
 │   └── {ORG}-CLAUDE-BEHAVIORS.md   (Claude agent behavioral directives)
 ├── reference/                      (retrieval files → Azure Blob via MCP)
-│   ├── {ORG}-MAINTENANCE.md        (system governance + changelog)
+│   ├── {ORG}-MAINTENANCE.md        (system governance + manifests)
 │   └── ... domain files ...
 ├── agent/                          (agent-specific files)
 │   ├── {ORG}-COPILOT-BEHAVIORS.md  (Copilot behavioral directives)
@@ -226,7 +226,7 @@ Use the templates in `Mosaic/bootstrap/templates/` as starting points. Each temp
 
 | File | Template | Purpose |
 |------|----------|---------|
-| `reference/{ORG}-MAINTENANCE.md` | `ORG-MAINTENANCE.template.md` | System governance, manifests, changelog |
+| `reference/{ORG}-MAINTENANCE.md` | `ORG-MAINTENANCE.template.md` | System governance, manifests |
 
 ### 3.3 Run Level 0: Organizational Discovery
 
@@ -552,7 +552,7 @@ The test: *Does this file teach a pattern the agent needs on every query, or pro
 | `{ORG}-DOMAIN-ROUTER.md` | `ACME-DOMAIN-ROUTER.md` | Query routing table |
 | `{ORG}-CLAUDE-BEHAVIORS.md` | `ACME-CLAUDE-BEHAVIORS.md` | Claude behavioral directives |
 | `{ORG}-COPILOT-BEHAVIORS.md` | `ACME-COPILOT-BEHAVIORS.md` | Copilot behavioral directives |
-| `{ORG}-MAINTENANCE.md` | `ACME-MAINTENANCE.md` | System governance + changelog |
+| `{ORG}-MAINTENANCE.md` | `ACME-MAINTENANCE.md` | System governance + manifests |
 | `MOSAIC-REASONING.md` | (no prefix) | Shared reasoning kernel |
 
 ---

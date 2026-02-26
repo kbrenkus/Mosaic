@@ -742,7 +742,7 @@ When a new domain consolidates content that was previously scattered across othe
    - Preserve index scanning — cross-domain index files keep slim entries for "at a glance" queries, not just pointers
    - Route, don't summarize — stubs point to domain file sections, don't re-summarize
    - Bidirectional references — domain files route back to cross-domain indexes
-   - Version every pruned file (bump version, manifest, changelog)
+   - Version every pruned file (bump version, manifest)
    - Grep after pruning — verify no broken cross-references remain
 
 5. **Update cross-references:** Any file that previously pointed to the pruned section must be updated to point to the new domain file equivalent.

@@ -65,7 +65,7 @@ Azure Function exposes `get_section(file_name, section_ref)` as Claude.ai custom
 ## Cross-Reference Convention
 
 - Cross-references use **base filenames without extension or path** (e.g., "see {ORG}-TEAMS").
-- Keep .md in: manifest markers, file paths, changelog entries, table cells. Strip .md from: narrative references.
+- Keep .md in: manifest markers, file paths, table cells. Strip .md from: narrative references.
 
 ---
 
@@ -108,7 +108,7 @@ Apply when creating, editing, bootstrapping, or regenerating files. See MOSAIC-O
 MOSAIC-REASONING.md is the **shared reasoning kernel** -- company-agnostic, distributable across instances.
 
 - **Never add company-specific data** to MOSAIC-REASONING.md.
-- **Versioned independently.** Bumps still get changelog entry in {ORG}-MAINTENANCE.
+- **Versioned independently.** Version bumps get a manifest row in {ORG}-MAINTENANCE §2.1. Change history tracked in git.
 - **Instance files reference shared reasoning with pointers**, not duplicated content.
 - **Prefer editing MOSAIC-REASONING** when content is company-agnostic.
 
@@ -166,7 +166,7 @@ If MCP tools fail, report and offer existing snapshots.
 4. If user says "run maintenance"/"run monthly sync", start with pipeline, then §10.1 steps.
 
 **During a session:**
-- **Every version bump is a 3-part atomic operation:** (1) increment header version, (2) update {ORG}-MAINTENANCE §2.1/§2.2 manifest, (3) add changelog entry. Same edit session -- #1 drift source.
+- **Every version bump is a 2-part atomic operation:** (1) increment header version, (2) update {ORG}-MAINTENANCE §2.1/§2.2 manifest. Change history tracked in git. Same edit session -- #1 drift source.
 - **File structure changes:** update `prepare_upload.ps1`, {ORG}-MAINTENANCE §5F, {ORG}-INDEX §Related Reference Files.
 - **No static counts in prose.** Reference source: "count = rows in [table]."
 - Present analysis, wait for user direction before editing.

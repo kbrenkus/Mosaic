@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.6
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.7
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -235,6 +235,24 @@ Phase 2F: Data Mapping                    Phase 2E: Worldview Extraction
 
 *Go beyond data distribution:* Also identify the *reasoning failures* caused by the scatter — what questions can the system NOT answer because this domain's knowledge is distributed as attributes? These reasoning failures become the success criteria for the finished domain.
 
+**Prompt F1-3: Scatter Content Classification**
+For each scattered section identified by F1-2, classify using the boundary test:
+
+|Category|Test: "Would this differ for a different domain?"|Bootstrap Treatment|
+|---|---|---|
+|Domain-specific|Yes|Migrates to domain file. Source gets stub (per Phase 5.6).|
+|Cross-domain governance|No|Stays in source file. Domain file references it at source.|
+|Mixed|Elements of both|Split: domain-specific procedure migrates, governance framework stays. Domain file references the framework directly.|
+
+The boundary test prevents both over-extraction (orphaning governance) and under-extraction (leaving domain content in cross-cutting files).
+
+*Example classifications:*
+- Vendor list in Operations → domain-specific (migrates)
+- Approval workflow steps → domain-specific (migrates)
+- Legal review trigger "required for claims/disclaimers" → cross-domain governance (domain file references legal directly)
+- General approval escalation path → cross-domain governance (stays in Operations)
+- Domain tools in Systems index → mixed (slim inventory row stays for index scanning, tool detail migrates)
+
 **Completion criteria:**
 - [ ] Every relevant system identified with entity types listed
 - [ ] Agent accessibility assessed per system (MCP/API, manual, workaround needed)
@@ -243,6 +261,7 @@ Phase 2F: Data Mapping                    Phase 2E: Worldview Extraction
 - [ ] Reasoning failures from the scatter documented (these become success criteria)
 - [ ] Data quality issues noted (inconsistent naming, stale data, system-of-record conflicts)
 - [ ] Data sensitivity tiers identified per source system (what data is public vs. internal vs. restricted?)
+- [ ] Scatter content classified using boundary test (domain-specific, cross-domain governance, or mixed)
 
 ---
 
@@ -280,6 +299,8 @@ Phase 2F: Data Mapping                    Phase 2E: Worldview Extraction
 
 > *Goal: Understand the data in detail — types, relationships, quality, and flows.*
 
+*Multi-agent note:* If the instance has multiple agents with different access patterns (MCP + enterprise search + web research), Foundation track discovery can and should run across all available agents in parallel. The MCP agent runs F2-1 through F2-5 programmatically. Enterprise search agents run equivalent prompts targeting document-grounded content. Results converge at Phase 3 (see F2-6 and Phase 3 merge step).
+
 **Prompt F2-1: Entity Inventory**
 "For each system identified in Phase 1F, what are the specific entity types? What fields matter? What are the relationships between entities?"
 
@@ -313,12 +334,34 @@ Phase 2F: Data Mapping                    Phase 2E: Worldview Extraction
 
 *When to skip:* Not every domain has a "universe" beyond its active entities. Skip this for internally-bounded domains (like Maintenance).
 
+**Prompt F2-6: Multi-Agent Discovery Design**
+If the instance has multiple agents with different access patterns, design parallel discovery prompts for each agent:
+
+|Agent Type|Discovery Method|Best For|
+|---|---|---|
+|MCP agent (Claude Code)|Structured API queries|Entity counts, field values, relationship data, live system state|
+|Enterprise search (Copilot)|Document proximity search|Governance docs, SOPs, historical materials, folder structure, file dates|
+|Web research (Claude.ai)|Open web search|Competitive context, industry standards, external benchmarks|
+
+For each non-MCP agent, adapt F2-1 through F2-5 into search equivalents:
+- F2-1 (Entity Inventory) → "Search [site] for all documents related to [domain]. List titles, dates, locations."
+- F2-2 (Cross-System Identity) → "Find references to [entity] across SharePoint, email, Teams. How is it described in each?"
+- F2-3 (Data Flow) → "Search for workflow documents, handoff procedures, or process diagrams related to [domain]."
+- F2-4 (Data Quality) → "What are the most recent documents for [domain]? What appears stale or outdated?"
+- F2-5 (Universe Mapping) → "Search broadly for [domain]-related content. What exists beyond the primary site?"
+
+*Results capture:* Each agent's discovery results go to a structured capture file with: raw response, source prompt, timestamp, and agent identifier.
+
+*When to skip:* Single-agent instances or domains where all data is MCP-accessible.
+
 **Completion criteria:**
 - [ ] Entity types documented with key fields and relationships
 - [ ] Cross-system identity mapping complete for major entity types
 - [ ] Data flow documented (automatic, manual, broken)
 - [ ] Data quality assessed per source (high/medium/low confidence)
 - [ ] Broader entity universe mapped if applicable (total addressable market, external entities)
+- [ ] Multi-agent discovery designed if instance has 2+ agents with different access patterns
+- [ ] Discovery results captured with agent provenance markers
 
 ---
 
@@ -394,6 +437,15 @@ This is the most important and most difficult phase. Experts have internalized t
 > *Goal: Merge what exists (Foundation) with how to think about it (Freedom) into a coherent knowledge structure.*
 
 This is where an AI agent adds the most value. You have a substrate map (Phase 2F) and a set of reasoning patterns (Phase 2E). The synthesis produces:
+
+**3.0 Multi-Agent Discovery Merge**
+If Phase 2F ran discovery across multiple agents (F2-6), merge results before ontology construction:
+1. Identify entities discovered by multiple agents (cross-validation — higher confidence)
+2. Flag contradictions (different dates, statuses, or descriptions across agents)
+3. Note content discovered by only one agent (gap signals — enterprise search may find documents MCP misses, and vice versa)
+4. Produce a unified entity/data inventory that feeds into 3.1-3.4
+
+*When this matters:* Enterprise search agents often surface governance documents, historical materials, and folder structures invisible to MCP queries. MCP agents surface structured data (entity counts, field values, relationship data) invisible to search. The merge produces a richer substrate than either agent alone.
 
 **3.1 Entity Ontology**
 Combine the entity inventory (F2-1) with the expert's working taxonomy (E2-3) to produce:
@@ -569,6 +621,51 @@ If existing files contain a mix of reasoning and data (common in pre-domain arch
 **4.8 Budget Check**
 Estimate file sizes for kernel candidates. Does it fit within available headroom? If not, what reasoning can be condensed or what data can be moved to retrieval without losing reasoning capability?
 
+**4.9 Cross-Cutting File Evolution**
+Cross-cutting files (Operations, Systems, Policies, People/Teams) undergo a predictable evolution as domains are bootstrapped:
+
+**Before domains:** Cross-cutting files hold both governance frameworks and domain-specific detail together — because no domain files exist yet.
+
+**During bootstrap:** Phase 1F scatter audit classifies content using the boundary test (F1-3). Domain-specific content migrates to the new domain file. Cross-domain governance stays. The source file gets thinner but more focused.
+
+**After multiple bootstraps:** Cross-cutting files evolve into governance hubs — holding only what no single domain owns:
+- Operations → organizational authority, escalation frameworks, cross-domain routing
+- Systems → system-level architecture, integration patterns, cross-domain inventory
+- Policies → governance frameworks, compliance obligations, cross-domain policy index
+- People/Teams → organizational structure, reporting lines, cross-domain role routing
+
+This is a healthy thinning, not a hollowing out. Each file gets more focused on its unique value — the governance and index functions that span all domains.
+
+*Guard rails:*
+- **No governance orphaning:** When extracting, verify that cross-domain governance elements are either (a) retained in the source file or (b) already documented elsewhere and only referenced from the scattered section.
+- **Bidirectional routing:** Cross-cutting files route to domains for depth. Domain files route back to cross-cutting files for governance and breadth.
+- **Index preservation:** Cross-cutting files that serve as indexes (systems, policies, people) retain slim inventory entries for cross-domain scanning. Pure operations files need only cross-reference stubs.
+- **Evolution awareness:** Each bootstrap should note the cumulative impact on cross-cutting files. If a cross-cutting file has had 3+ domains extracted from it, consider whether the remaining content should be restructured as a governance hub.
+
+**4.10 Kernel Eligibility Gate**
+Before constructing domain files, answer: "Does this domain need kernel space?"
+
+**Default answer: No.** Domain knowledge is almost always ontological (defines entities) or navigational (routes to content). Both are retrievable. The router entry in the domain routing manifest is typically the only kernel touch point.
+
+**The test (MOSAIC-REASONING §6.1):**
+
+|Epistemic Type|Kernel?|Example|
+|---|---|---|
+|Dispositional (shapes HOW the agent reasons about everything)|Yes|Sovereignty rules, analytical voice, signal detection|
+|Hermeneutical (changes how the agent interprets inputs)|Yes|Entity type definitions, naming aliases, source trust hierarchy|
+|Ontological (defines what entities exist)|No — retrieve|Client lists, vendor tables, campaign inventories|
+|Navigational (helps find information)|No — retrieve|System recipes, folder paths, document indexes|
+
+**Two-part placement test for ambiguous cases:**
+1. Does this content shape reasoning quality even when not directly referenced?
+2. Would retrieval delay degrade agent performance in a way that changes outcomes?
+
+Both must be "yes" for kernel placement. Content that fails either test goes to retrieval.
+
+**Periodic kernel health audit:** When bootstrapping a new domain, audit the existing kernel against the same test. Content that was kernel-eligible when added may have been superseded by domain files or reasoning improvements. Kernel budget is finite — every KB matters for ambient reasoning quality.
+
+*Re-audit trigger:* Kernel headroom drops below 30% of platform limit, or 3+ domains have been bootstrapped since the last audit.
+
 **Completion criteria:**
 - [ ] Every artifact from Phase 3 assigned to kernel or retrieval
 - [ ] QUICK vs. full split defined for any large data files (with inclusion criteria and §0 routing header)
@@ -578,6 +675,8 @@ Estimate file sizes for kernel candidates. Does it fit within available headroom
 - [ ] Routing triggers defined for this domain (what queries should activate retrieval)
 - [ ] Overlay schema designed if entity-instance architecture (fields, valid values, owner) — see 4.5
 - [ ] Data sensitivity tiers defined and assigned to template sections — see 4.6
+- [ ] Cross-cutting file evolution impact assessed for source files — see 4.9
+- [ ] Kernel eligibility gate passed (default: retrieval only) — see 4.10
 
 ---
 
@@ -617,6 +716,37 @@ Include sensitivity markers per section (see Phase 4.6) and source attribution m
 - Apply behavioral parity check — does this directive apply to both agents?
 - For retrieval-aware rewrites: verify that directives previously assuming static data now correctly reference domain retrieval
 
+**5.6 Domain Consolidation & Source Pruning**
+When a new domain consolidates content that was previously scattered across other files (identified in Phase 1F scatter map and classified in F1-3), the source files must be pruned to prevent interception conflicts and improve system clarity.
+
+*Why this matters:* The interception principle (MOSAIC-REASONING §6.3) means agents find the closer copy and stop. If domain content exists in both a cross-cutting file and the new domain file, agents may find the shallow cross-cutting version first and miss the enriched domain version. Pruning eliminates the conflict.
+
+**Procedure:**
+
+1. **Pre-prune safety scan:** Grep for all cross-references to sections being pruned. Document every file that points to the pruned content.
+
+2. **Classify each source section** using the stub depth table:
+
+   |Source File Type|Stub Pattern|Rationale|
+   |---|---|---|
+   |Operations / deep reference|Pure cross-reference (section pointers only)|Domain file replaces this entirely|
+   |Cross-domain index (systems, policies, people)|Slim inventory row (names/costs/status) + pointer to domain file|Preserves "at a glance" scanning for the index file's primary audience|
+   |Routing / admin QUICK|Pure cross-reference|Domain QUICK file replaces this routing function|
+
+   The key question: "Does someone scanning THIS file (not the domain) need to see anything, or just know where to go?" Index files need skeleton rows; non-index files need pure stubs.
+
+3. **Apply bidirectional routing:** When a domain file and a cross-domain index both reference the same content, both files should point to each other. The index routes to the domain file for depth. The domain file routes back to the index for breadth. This prevents navigation dead-ends regardless of which file the agent finds first.
+
+4. **Guard rails:**
+   - Never leave a navigation hole — always replace pruned content with a stub
+   - Preserve index scanning — cross-domain index files keep slim entries for "at a glance" queries, not just pointers
+   - Route, don't summarize — stubs point to domain file sections, don't re-summarize
+   - Bidirectional references — domain files route back to cross-domain indexes
+   - Version every pruned file (bump version, manifest, changelog)
+   - Grep after pruning — verify no broken cross-references remain
+
+5. **Update cross-references:** Any file that previously pointed to the pruned section must be updated to point to the new domain file equivalent.
+
 **Completion criteria:**
 - [ ] QUICK file written and sized within retrieval guidelines
 - [ ] Full file written (if applicable)
@@ -625,6 +755,9 @@ Include sensitivity markers per section (see Phase 4.6) and source attribution m
 - [ ] Router entry added with triggers and notes
 - [ ] Behavioral directives updated (if needed) in both agent files
 - [ ] All files follow cross-reference conventions and naming standards
+- [ ] Source files pruned per Phase 1F scatter classification (stubs, slim rows, or retained with rationale)
+- [ ] Bidirectional routing verified between domain files and cross-cutting indexes
+- [ ] No broken cross-references across the system (post-prune grep verified)
 
 ---
 
@@ -950,6 +1083,7 @@ The Freedom track depends on a domain expert who may never have externalized the
 | Version | Date | Change |
 |---------|------|--------|
 | v0.1 | 2026-02-15 | Initial protocol design. Reverse-engineered from two completed domain anatomies. |
+| v0.7 | 2026-02-25 | **Three proposals integrated from Phase B evidence.** (1) Multi-agent parallel discovery: Phase 2F multi-agent note, new F2-6 (multi-agent discovery design with agent-type table and search-adapted prompts), Phase 3.0 (multi-agent discovery merge before ontology construction), Phase 2F completion criteria updated. (2) Cross-cutting file evolution: new F1-3 (scatter content classification with boundary test table), Phase 4.9 (cross-cutting file evolution pattern with guard rails), Phase 4.10 (kernel eligibility gate with epistemic type table and two-part placement test), Phase 1F and 4 completion criteria updated. (3) Domain consolidation & source pruning: new Phase 5.6 (full procedure — pre-prune scan, stub depth classification table, bidirectional routing, guard rails, cross-reference updates), Phase 5 completion criteria updated. All three discovered during Phase B Marketing & Communications bootstrap. |
 | v0.6 | 2026-02-26 | **Multi-agent validation.** Phase 7.1: added multi-agent baseline requirement — run baselines across all agents per Phase 6.7 model, with shared queries (cross-agent comparison) and agent-native queries (unique access strengths). Phase 7.2: post-build comparison now per-agent. New Phase 7.5: cross-agent parity analysis — diagnose divergence (access gap, file gap, routing gap, A2A gap), track parity improvement post-build. Completion criteria updated: secondary agent baseline, per-agent improvement, parity analysis. Phase 7.4: multi-agent conversation budget note. Discovered during Phase B (Marketing & Communications) bootstrap — organic Growth/Clients build tested both agents but the protocol didn't codify it. |
 | v0.5 | 2026-02-26 | Integrated 7 operational insights from first production deployment (Growth/Clients retroactive audit, 82% composite). **New subsections:** 4.5 Overlay Design, 4.6 Data Sensitivity Design, 6.0 Enrichment Operating System preamble, 6.6 Pipeline Specification, 6.7 Multi-Agent Execution Model, Phase 8 Retroactive Audit. **Strengthened:** Phase 1F (sensitivity in completion criteria), Phase 2F (cross-system identity iterative expectation, sensitivity in data quality), Phase 4.4 (source attribution dual-purpose pattern), Phase 5 (context compression discipline, template versioning, sensitivity markers), Phase 6.2 (identity mismatch trigger), Phase 7 (restructured: pre-build baseline before Phase 5, scoring rubric with dimensions, conversation budget, acceptance criteria). Updated Architecture Overview Level 3 description. MOSAIC-OPERATIONS cross-references throughout. |
 | v0.4 | 2026-02-24 | Expanded §4.3 QUICK split with design rules (inclusion criteria, §0 routing header, no operational state, attention gradient). Updated §5.1 with construction guidance. Completion criteria updated. |

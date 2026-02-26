@@ -190,8 +190,8 @@ domains have been bootstrapped since the last audit.
 
 | Field | Value |
 |-------|-------|
-| **Reviewed by** | |
-| **Review date** | |
-| **Decision** | {Accepted / Modified / Deferred / Rejected} |
-| **Rationale** | |
-| **Implemented in** | {Version, if accepted} |
+| **Reviewed by** | Kurt Brenkus / Claude Code |
+| **Review date** | 2026-02-25 |
+| **Decision** | Accepted |
+| **Rationale** | Boundary test and kernel eligibility gate are essential architecture decisions. Phase B Marketing domain validated the classification principle against 4 cross-cutting files. |
+| **Implemented in** | DOMAIN-BOOTSTRAP v0.7 (F1-3, Phase 4.9, Phase 4.10, completion criteria). Kernel eligibility gate also mirrored to instance CLAUDE.md. |

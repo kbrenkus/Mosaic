@@ -124,8 +124,8 @@ version. Pruning eliminates the conflict.
 
 | Field | Value |
 |-------|-------|
-| **Reviewed by** | |
-| **Review date** | |
-| **Decision** | {Accepted / Modified / Deferred / Rejected} |
-| **Rationale** | |
-| **Implemented in** | {Version, if accepted} |
+| **Reviewed by** | Kurt Brenkus / Claude Code |
+| **Review date** | 2026-02-25 |
+| **Decision** | Accepted |
+| **Rationale** | Interception conflicts are a known architecture risk. Source pruning is mandatory, not optional. Phase B Marketing domain will be first live application. |
+| **Implemented in** | DOMAIN-BOOTSTRAP v0.7 (Phase 5.6, completion criteria) |

@@ -53,6 +53,7 @@ Mosaic/
 ### Proposals (proposals/)
 - PROPOSAL-TEMPLATE.md defines the format for instance feedback upstream.
 - Accepted proposals become changes to core files or new upgrade instructions.
+- **Valid proposal categories:** Reasoning frameworks, architecture patterns, protocol enhancements, design principles, tool improvements, and **structural patterns** (file organization, compression techniques, pipeline designs, cross-reference conventions, maintenance workflows). Structural patterns discovered during instance work are first-class upstream contributions — they benefit every instance even though they aren't methodology changes per se.
 
 ### Upgrades (upgrades/)
 - Each published upgrade gets a dated markdown file explaining what changed and how instances should update.

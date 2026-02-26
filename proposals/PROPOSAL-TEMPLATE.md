@@ -2,7 +2,7 @@
 
 **Submitted by:** {Instance Name} ({ORG})
 **Date:** {DATE}
-**Category:** {Reasoning Framework | Architecture Pattern | Protocol Enhancement | Design Principle | Tool Improvement}
+**Category:** {Reasoning Framework | Architecture Pattern | Protocol Enhancement | Design Principle | Tool Improvement | Structural Pattern}
 
 ---
 

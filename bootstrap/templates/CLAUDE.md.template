@@ -21,12 +21,22 @@
 
 ## MCP Server — `get_section` Tool
 
-Azure Function exposes `get_section(file_name, section_ref)` as Claude.ai custom connector, reading `.md` files from Azure Blob Storage.
+Azure Function exposes `get_section(file_name, section_ref)` as Claude.ai custom connector, reading `.md` files from Azure Blob Storage (`{blob-container}/reference-files`).
+
+**Blob scope:** `reference/*.md` (excluding kernel files) + any additional directories configured for retrieval. Kernel files are uploaded to Claude.ai project knowledge only, NOT blob. `prepare_upload.ps1` auto-syncs non-kernel `.md` files to blob at session end.
 
 **Three hygiene rules:**
-1. **Editing existing files** — no extra steps; `prepare_upload.ps1` syncs automatically.
-2. **Adding new file to `reference/`** — no extra steps; blob sync glob picks it up.
-3. **Adding file outside `reference/` needing `get_section`** — add to blob sync glob in `prepare_upload.ps1`, run `scripts/upload_to_blob.ps1` once to seed.
+1. **Editing existing files** -- no extra steps; `prepare_upload.ps1` syncs automatically.
+2. **Adding new file to `reference/`** -- no extra steps; blob sync glob picks it up.
+3. **Adding file outside `reference/` needing `get_section`** -- add to blob sync glob in `prepare_upload.ps1`, run `scripts/upload_to_blob.ps1` once to seed.
+
+**Server code vs. content changes:** Server code (`MosaicMCP/function_app.py`) changes are only needed for behavior changes: new tools, changed parsing logic, new error format. Content changes never require a redeploy.
+
+**Redeploy command** (if `function_app.py` changes):
+```
+<!-- CUSTOMIZE: Set paths to your Azure CLI and Azure Functions Core Tools installation -->
+func azure functionapp publish {function-app-name} --python
+```
 
 ---
 
@@ -114,6 +124,35 @@ MOSAIC-REASONING.md is the **shared reasoning kernel** -- company-agnostic, dist
 
 ---
 
+## Shared Repo Relationship
+
+Instance repo sits alongside the shared Mosaic methodology repo:
+
+```
+{parent-dir}/
+├── Mosaic/            (shared methodology, reasoning kernel, bootstrap protocols)
+├── {org}-instance/    (this repo, organization instance + pipeline)
+└── MosaicMCP/         (Azure Function MCP server deployment)
+```
+
+**Pulling reasoning kernel updates:**
+1. `cd Mosaic/ && git pull`
+2. Compare `Mosaic/core/MOSAIC-REASONING.md` version with local copy
+3. If newer, copy and upload to Claude.ai project knowledge
+4. Update {ORG}-MAINTENANCE §2.1 manifest
+5. Run 3 smoke test queries to verify no regression
+
+**Submitting insights upstream:** When instance work reveals improvements to shared reasoning, write a proposal using `Mosaic/proposals/PROPOSAL-TEMPLATE.md` and commit to the shared repo.
+
+**Structural learning trigger:** During instance work, structural improvements often emerge organically -- file organization patterns, compression techniques, pipeline designs, cross-reference conventions, bootstrap shortcuts, maintenance workflows. When Claude Code or the user identifies a structural improvement that is company-agnostic, flag it as an upstream candidate. If approved, write a proposal (Category: "Structural Pattern") and commit to the shared repo. Examples:
+- **Structural pattern:** "YAML lookup tables use ~57% fewer tokens than markdown tables" -- any instance benefits.
+- **Methodology change:** "Add a new phase to DOMAIN-BOOTSTRAP for X" -- changes the process itself.
+- **Not upstream:** "Instance pipeline pulls from system X with filter Y" -- instance-specific configuration.
+
+**Boundary rule:** Instance-specific content (names, system IDs, entity data) never goes into Mosaic/. Shared methodology never goes only into the instance repo -- if it's company-agnostic, it belongs in Mosaic/.
+
+---
+
 ## Pipeline Operations
 
 Pipeline (`pipeline/`) runs in phases. See MOSAIC-OPERATIONS §4 for architecture.
@@ -145,6 +184,21 @@ If MCP tools fail, report and offer existing snapshots.
 
 ---
 
+## Domain Bootstrap Workflow
+
+When bootstrapping a new domain, follow DOMAIN-BOOTSTRAP.md (Mosaic/bootstrap/) Levels 1-3. Key integration points with this instance:
+
+- **Phase 1F (Substrate Audit):** System inventory in {ORG}-INDEX + {ORG}-SYSTEMS. Agent accessibility documented per system. Scatter content classification (F1-3): use boundary test to classify scattered content as domain-specific, cross-domain governance, or mixed before extraction.
+- **Phase 2F (Data Mapping):** Run discovery across both Claude Code (MCP) and Copilot (enterprise search) in parallel per F2-6. Capture results with agent provenance. Merge at Phase 3.0 before ontology construction.
+- **Phase 4 (Architecture):** Kernel budget tracked in {ORG}-MAINTENANCE §5E. Apply File Optimization Rules from the start. Kernel eligibility gate (§4.10): default is retrieval-only. Cross-cutting file evolution (§4.9): assess cumulative impact on shared files.
+- **Phase 5 (Construction):** File naming: {ORG}-{DOMAIN}-QUICK.md, {ORG}-{DOMAIN}.md. Router entry in {ORG}-DOMAIN-ROUTER. Manifest rows in {ORG}-MAINTENANCE §2.1/§2.2. Behavioral directives in both behavior files (parity check applies). Source pruning (§5.6): prune scattered content per F1-3 classification, apply stub depth, verify bidirectional routing.
+- **Phase 6 (Enrichment):** Pipeline spec in pipeline/. Overlay YAML in pipeline/overlays/. MCP acquisition procedure in Pipeline Operations section above.
+- **Phase 7 (Validation):** Pre-build baseline and post-build comparison in testing/. Multi-agent validation: run baselines on both Claude.ai and Copilot per Phase 7.1/7.5.
+
+For retroactive audits of existing domains, follow DOMAIN-BOOTSTRAP Phase 8. Audit findings become maintenance backlog items in {ORG}-MAINTENANCE §5A.
+
+---
+
 ## Git Workflow
 
 **Session start:** `git pull` before any work. Claude Code checks and reminds.
@@ -154,6 +208,10 @@ If MCP tools fail, report and offer existing snapshots.
 **Safety rules:**
 - **Never force push.** If git complains, stop and troubleshoot.
 - **Merge conflicts:** Claude Code helps resolve. Never force through.
+- **Instance repo:** Push freely -- it's private.
+- **Shared repo (Mosaic):** Push only when intentionally publishing methodology updates. Never push instance-specific content.
+
+**Deferred blob sync:** If Azure CLI is not available (e.g., travel), use `prepare_upload.ps1 -SkipBlob` to stage kernel files locally. Commit and push to git. Blob sync runs when back at main workstation. Git is always source of truth; blob catches up.
 
 ---
 
@@ -169,7 +227,8 @@ If MCP tools fail, report and offer existing snapshots.
 - **Every version bump is a 2-part atomic operation:** (1) increment header version, (2) update {ORG}-MAINTENANCE §2.1/§2.2 manifest. Change history tracked in git. Same edit session -- #1 drift source.
 - **File structure changes:** update `prepare_upload.ps1`, {ORG}-MAINTENANCE §5F, {ORG}-INDEX §Related Reference Files.
 - **No static counts in prose.** Reference source: "count = rows in [table]."
-- Present analysis, wait for user direction before editing.
+- **Design principles for reference file editing.** Apply epistemic dispositions from MOSAIC-REASONING §7: curriculum not database, implicit knowledge is invisible, agent experience is design data. See MOSAIC-PRINCIPLES for full catalog.
+- Present analysis and wait for user direction before editing files. User commentary on findings does NOT equal approval to apply changes.
 
 **Session end:** Run prepare_upload.ps1, remind user to upload per §5F, stage/commit/push.
 
@@ -187,13 +246,25 @@ When multi-turn analysis produces refined conclusions, write brief to `memory/` 
 
 ## Plan Validation Requirement
 
-Plans modifying reference files, restructuring content, or changing behavior must include validation design.
+Plans modifying reference files, restructuring content, or changing behavior must include validation design -- not as an afterthought. Tests designed after the build inherit the build's blind spots.
 
 1. **Pre-test queries** (3-5) -- BEFORE implementation, scored against rubric
 2. **Scoring rubric** -- dimensions with point scales, defined during planning
 3. **Post-test queries** -- AFTER implementation, same rubric
 4. **Acceptance criteria** -- e.g., "no regression, +2 minimum on depth"
-5. **Conversation budget** -- max queries per test conversation
+5. **Conversation budget** -- max queries per test conversation (rule of thumb: max 3 queries + 2 on-demand files per conversation)
+
+**When this applies:**
+- Multi-file edits (3+ files) -- always
+- File splits, merges, or restructuring -- always
+- Behavioral directive changes -- always (extends Agent Behavior Regression Rule)
+- Single-file content additions -- use judgment; skip for trivial additions
+
+**Test design principles:**
+- Design tests during planning, when you understand the *intent* of the changes.
+- Pre-test scores reveal the current ceiling. Post-test scores reveal whether the change helped, hurt, or was neutral.
+- Group test queries by domain to stay within conversation context budget.
+- Record test design in the implementation brief. Record results in `testing/`.
 
 See MOSAIC-OPERATIONS §7 for testing architecture.
 

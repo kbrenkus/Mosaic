@@ -17,7 +17,9 @@ This reveals two generalizable patterns: (1) agent phenomenological feedback is 
 - **Before:** IP-A2A-QUICK = 362 lines, 19 KB. Agent described it as "navigated rather than absorbed."
 - **After:** 221 lines, 13 KB (39% reduction). Delta schema, worked examples, routing table, and process patterns moved to retrieval. Type table, signal detection, capability matrix, system recipes retained.
 - **Kernel budget:** 96 KB → 89 KB. Headroom 104 KB → 111 KB.
-- **Post-test:** (Pending — 5 queries testing delta emission, routing, recipe adherence, new client detection, source trust. Results will be appended.)
+- **Pre-test (old kernel):** 7/10. Routing (2), recipe (2), source trust (2) perfect. Delta emission (0) and detection flow (1) lost points — zero deltas emitted across 5 queries despite accumulating delta-worthy observations.
+- **Post-test (new kernel):** 8/10 (+1). Same perfect scores on routing, recipe, source trust. Detection flow improved to 2 (full §4.10 flow WITH [GAP] emission). Agent emitted 2 inline YAML deltas (Q3: lifecycle mismatch, Q4: new client gap) and showed explicit delta reasoning in Q1 — vs zero delta awareness in pre-test.
+- **Key finding:** Less procedural content in kernel = better behavioral adherence. The old kernel had ~65 lines of delta formatting content (schema, examples, posting instructions). The new kernel has ~15 lines of dispositional content (type table, confidence gating) + retrieval pointer. Delta output improved despite less formatting guidance being ambient. Procedural content was "navigated" (consumed budget without shaping behavior); dispositional content drives the actual reasoning.
 - **Agent phenomenological report:** "The reasoning files feel like they've become part of how I think. A2A-QUICK feels more like a reference I consult." This subjective distinction mapped precisely to the dispositional/procedural classification.
 
 ## 3. Universality Assessment

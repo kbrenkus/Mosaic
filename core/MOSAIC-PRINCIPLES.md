@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.2
+**Version:** 1.3
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -272,6 +272,17 @@ Source systems, full reference files, QUICK summary files, and manifests each go
 - **Anti-pattern:** Updating the full reference file and assuming the QUICK file and manifest will catch up. They won't — they're separate artifacts with separate update paths.
 - **Activates during:** Maintenance (every update), build (file structure design)
 
+---
+
+**A-019 Phenomenological Feedback**
+
+Agent self-report about kernel experience is design data, not anecdote. When an agent describes a file as "navigated rather than absorbed," that maps to the dispositional/procedural axis and predicts which content benefits from ambient presence vs. retrieval. Distinct from Loop 4 `[META]` observations, which capture reasoning errors — phenomenological feedback captures the agent's experience of architecture itself.
+
+- **Evidence:** Claude.ai reported a 19 KB kernel file as "navigated rather than absorbed." Applying the dispositional/procedural classification section-by-section led to 39% reduction with zero behavioral regression and +1 score improvement. The agent's subjective experience predicted the classification outcome.
+- **Test:** Ask the agent: "Which files feel like they've become part of how you think, and which feel like references you consult?" Files in the second category are pruning candidates. Validate with pre/post behavioral test.
+- **Anti-pattern:** Dismissing agent self-report as non-actionable. Treating all kernel content as equally important because it passed the eligibility gate.
+- **Activates during:** Phase 8 retroactive audits, kernel headroom reviews, post-build validation
+
 ### 3.2 Build Methodology
 
 How to construct and evolve Mosaic knowledge architecture.
@@ -386,6 +397,17 @@ The most common failure pattern: a behaviors file that was written as the "tell 
 - **Test:** For each prose paragraph in a kernel file, apply the five tests. Score: earns budget (3+ pass), marginal (2 pass), candidate for condensation (0-1 pass). The harshest filter: narrative that is ontological, derivable, non-ambient, stale-prone, and landscape-descriptive is the lowest-value content in the kernel.
 - **Anti-pattern:** Grandfathering narrative because it was written early. Leaving "helpful context" paragraphs that duplicate content from other kernel files. Treating interception elimination as less important than byte savings — the reasoning quality improvement from reaching canonical sources exceeds the budget recovery.
 - **Activates during:** Build (content authoring), maintenance (budget audits, narrative review), Session 1-type behavioral rewrites
+
+---
+
+**A-020 Navigation vs. Absorption Test**
+
+When an agent reports content feels navigated (consulted at point of use) rather than absorbed (internalized, shaping all reasoning), the content is a retrieval candidate. Inverse of the ambient context principle (MOSAIC-REASONING §6.2). Applied at the section level within files that have already passed the kernel eligibility gate.
+
+- **Evidence:** Same as A-019. Delta formatting content (schema, worked examples, posting instructions) was "navigated" — 65 lines consuming ambient budget. Type table and confidence gating (15 lines) were "absorbed" — they shaped delta awareness. After moving navigated content to retrieval, delta emission improved from 0 to 2 inline deltas despite less formatting guidance being ambient.
+- **Test:** Would the agent's reasoning quality change if this section were absent at the start of the conversation? If no — retrieval candidate. If yes — must be ambient. The counterfactual test distinguishes content that shapes reasoning from content consumed at a workflow moment.
+- **Anti-pattern:** Assuming that content which is useful is therefore ambient. Useful-at-a-moment content can be retrieved at that moment. Only content that shapes reasoning before the moment arrives must be ambient.
+- **Activates during:** Build (kernel content authoring), maintenance (section-level kernel audits)
 
 ---
 
@@ -568,6 +590,8 @@ All 32 named principles with one-line definitions. For full entries with evidenc
 | A-016 | Worked Examples with Anti-Patterns | Show agents both the correct path and the incorrect path. | 3.3 |
 | A-017 | Marker System as Construction Methodology | Typed gaps are first-class construction artifacts, not defects. | 3.2 |
 | A-018 | Narrative Qualification Test | Prose earns kernel budget through five tests: epistemological type, derivability, ambient necessity, staleness risk, landscape vs. curriculum. | 3.2 |
+| A-019 | Phenomenological Feedback | Agent self-report about kernel experience is actionable design data. | 3.1 |
+| A-020 | Navigation vs. Absorption Test | Navigated content is a retrieval candidate; absorbed content must be ambient. | 3.2 |
 
 ---
 

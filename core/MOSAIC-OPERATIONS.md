@@ -1,4 +1,4 @@
-# MOSAIC-OPERATIONS v1.2
+# MOSAIC-OPERATIONS v1.3
 
 > **Purpose:** Operational architecture for self-learning knowledge systems — how instances detect drift, accumulate observations, process learning, and maintain currency.
 > **Scope:** Company-agnostic. All examples use generic placeholders. Instance-specific operational details belong in instance files.
@@ -438,6 +438,19 @@ Enrichment queue names #1 candidate with rationale. User decides: enrich now, pi
 ### §6.5 Cycle Frequency
 
 **Default:** Monthly. Balances freshness with overhead. Data-heavy instances may benefit from biweekly Loop 1 processing. Stable instances may extend to 6 weeks. Pipeline (Step 2a) can run independently when rapid data refresh is needed.
+
+### §6.6 Kernel Density Review
+
+Periodic audit of kernel file content density and budget utilization. Not part of the regular maintenance cycle — triggered by conditions:
+
+**Triggers:**
+- Kernel headroom drops below 30% of platform limit
+- Agent reports navigation-heavy kernel experience (see MOSAIC-PRINCIPLES A-019)
+- 3+ domain bootstraps since last review (cumulative kernel growth)
+
+**Methodology:** Section-level audit per DOMAIN-BOOTSTRAP Phase 8 supplement. Classify each section within each kernel file as dispositional/procedural/redundant. Move procedural content to retrieval with pointers. Dissolve redundant content. Validate with pre/post behavioral testing.
+
+**Output:** Pruning brief documenting dispositional/procedural classification per section, retrieval destinations for moved content, and pre/post test results.
 
 ---
 

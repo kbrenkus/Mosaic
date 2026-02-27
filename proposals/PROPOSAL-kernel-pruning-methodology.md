@@ -105,8 +105,8 @@ Add kernel density review to quarterly audit cycle:
 
 | Field | Value |
 |-------|-------|
-| **Reviewed by** | |
-| **Review date** | |
-| **Decision** | |
-| **Rationale** | |
-| **Implemented in** | |
+| **Reviewed by** | mosaic-ip maintainer |
+| **Review date** | 2026-02-27 |
+| **Decision** | Accepted |
+| **Rationale** | Validated by pre/post testing: 7/10 → 8/10, zero regression. Delta emission improved despite less formatting content in kernel. Methodology is organization-agnostic and architecture-independent. |
+| **Implemented in** | MOSAIC-PRINCIPLES v1.3, MOSAIC-REASONING v1.8, DOMAIN-BOOTSTRAP v0.8, MOSAIC-OPERATIONS v1.3 |

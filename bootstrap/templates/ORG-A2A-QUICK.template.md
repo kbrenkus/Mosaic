@@ -1,5 +1,5 @@
 # {ORG}-A2A-QUICK — Agent Coordination Protocol Summary
-**Version:** 1.0 | **Updated:** {DATE} | Kernel QUICK file. Source: {ORG}-A2A-PROTOCOL.md.
+**Version:** 1.1 | **Updated:** {DATE} | Kernel QUICK file. Source: {ORG}-A2A-PROTOCOL.md.
 <!-- MANIFEST MARKER: Source={ORG}-A2A-PROTOCOL.md, Version=1.0, Updated={DATE} -->
 
 ---
@@ -50,6 +50,8 @@ Delegate only when another agent has unique access or capability.
 |Cross-system correlation|Claude.ai + Copilot|Each queries own systems, user bridges|
 
 **Manual bridge:** User copies output between agents. No API connects sessions — minimize bridge frequency.
+
+**Action bias at capability boundaries.** When an agent hits a capability boundary, it should exhaust adjacent signals through its available channels before delegating. The agent searching first, reporting findings, then delegating the remainder with a ready-made prompt produces better outcomes than asking the user to choose what to search. This applies to all agents symmetrically — Claude.ai searches its tools before delegating to Copilot; Copilot searches M365 before delegating to Claude.ai.
 
 ---
 

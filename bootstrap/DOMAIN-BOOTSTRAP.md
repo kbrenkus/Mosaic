@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.7
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.8
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -974,6 +974,18 @@ As the protocol improves — incorporating lessons from each build — earlier d
 - Prioritized gap list with specific improvement actions
 - Estimated effort per improvement
 - Composite score for tracking improvement over time
+
+**Section-level kernel audit (Phase 4.10 supplement):**
+
+The Phase 4.10 kernel eligibility gate determines whether a FILE earns kernel space. After deployment, a section-level audit can recover additional headroom within eligible files:
+
+1. **Enumerate sections** within each kernel file
+2. **Classify each section** as dispositional (shapes reasoning before conscious application), procedural (consumed at a specific workflow moment), or redundant (content exists canonically elsewhere per §6.3)
+3. **Redundant → dissolve.** The canonical source already exists; the kernel copy creates interception risk.
+4. **Procedural → move to retrieval with pointer.** Identify the retrieval home by consumption moment — where does the agent need this content? Place it there. Leave a 2-3 line pointer in the kernel file.
+5. **Dispositional → keep.** Check for compression opportunities (YAML tables, telegraphic prose) but do not move to retrieval.
+6. **Optional: solicit agent phenomenological feedback.** Ask: "Which files feel navigated (consulted) vs. absorbed (internalized)?" Content reported as navigated is a pruning candidate (see MOSAIC-PRINCIPLES A-019, A-020).
+7. **Validate with pre/post behavioral test** — run identical queries before and after pruning. No regression = the content was navigated, not absorbed. See MOSAIC-OPERATIONS §7 for test methodology.
 
 *Not every domain needs every audit cycle.* Focus audit effort on domains with active users and operational pipelines. Dormant domains can wait.
 

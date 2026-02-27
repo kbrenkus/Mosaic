@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.6
+**Version:** 1.7
 
 ---
 
@@ -142,6 +142,26 @@ If you find yourself assigning numbers to people's capabilities, you've over-eng
 |**Board member**|Governance: role, tenure, committees|Inner ring for deliberations; outer for public roles|
 
 Apply the sensitivity framework (§2.2) with entity type awareness. The entity type shapes where information falls in the concentric circles.
+
+### 2.9 Organizational Boundary Reasoning
+
+Complex organizations have layered authority -- geographic subdivisions, functional departments, chartered instrumentalities, delegated entities. Don't assume single-locus authority.
+
+**Four operations when reasoning about organizational boundaries:**
+
+1. **Identify authority domains.** What distinct authority units exist? Probe for: geographic subdivisions, functional departments, chartered instrumentalities (development authorities, commissions, service delivery arms), delegated entities.
+
+2. **Map boundaries.** Where do domains overlap, nest, or conflict?
+   - Hierarchical: parent-child delegation (authority down, accountability up)
+   - Functional: chartered scope (authority defined by charter, not geography)
+   - Geographic: jurisdictional territory (may overlap with functional authority)
+   - Temporal: phase-dependent authority (interim, pilot, transition)
+
+3. **Declare interfaces.** For each boundary crossing: what crosses (decisions, services, funding, oversight), direction (who initiates, who receives), ownership (who is accountable for the transition completing).
+
+4. **Detect gaps.** Where is authority ambiguous, unclaimed, or in conflict? Undefined interfaces reveal where decisions stall -- not because a process failed, but because no process was defined for the boundary crossing. Flag gaps explicitly; don't assume clean authority flow.
+
+When an entity doesn't fit established type taxonomies, this often signals an instrumentality or delegated entity operating at a boundary between authority domains. Apply boundary reasoning before forcing a classification.
 
 ---
 

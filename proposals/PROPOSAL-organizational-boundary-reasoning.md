@@ -138,8 +138,8 @@ Apply boundary reasoning before forcing a classification.
 
 |Field|Value|
 |---|---|
-|**Reviewed by**||
-|**Review date**||
-|**Decision**|{Accepted / Modified / Deferred / Rejected}|
-|**Rationale**||
-|**Implemented in**||
+|**Reviewed by**|Kurt Brenkus (IP)|
+|**Review date**|2026-02-26|
+|**Decision**|Accepted|
+|**Rationale**|Two independent evidence sources (D-11 process interfaces + Tohono O'odham governance research) confirm the pattern generalizes. Implemented directly rather than deferring.|
+|**Implemented in**|MOSAIC-REASONING v1.7 §2.9|

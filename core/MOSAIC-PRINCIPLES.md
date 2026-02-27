@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.3
+**Version:** 1.4
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -411,6 +411,28 @@ When an agent reports content feels navigated (consulted at point of use) rather
 
 ---
 
+**A-021 Cognitive Foreground**
+
+Ambient context has a finite attentional budget beyond the token budget. Lookup data (ID mapping tables, system inventories, stage mappings) doesn't just consume tokens — it actively competes with dispositional content for cognitive foreground. Content that competes for foreground without shaping reasoning degrades the effectiveness of content that does shape reasoning.
+
+This extends A-020 (Navigation vs. Absorption) with a mechanism: navigated content isn't merely inert — it creates attentional interference. The pruning heuristic (MOSAIC-REASONING §6.1) operates at the section level; this principle explains WHY moving navigated content improves reasoning quality even when the token savings are modest.
+
+**Three-way classification for kernel content:**
+1. **Dispositional** — shapes all reasoning, must be ambient (reasoning frameworks, behavioral directives, signal triggers)
+2. **Orientation** — context the agent reasons *from*, benefits from ambient but survives retrieval (domain router, structural overview)
+3. **Lookup/procedural** — data the agent reasons *about* or consumes at a specific moment, should be retrieved (ID tables, stage mappings, worked examples, formatting schemas)
+
+**Design tradeoff:** Moving lookup data to retrieval adds latency (retrieval hops before queries) but increases investigation depth and analytical quality — the agent channels freed attention into more thorough work, not faster work. Favor depth over speed when quality of intelligence output matters more than response latency.
+
+**Watch for recipe ingredients:** Some lookup data (e.g., pipeline stage IDs) functions as a prerequisite for high-frequency recipes. Moving it adds retrieval cost on every query, not just occasionally. Evaluate per-item: if the data is consumed on >50% of queries in its domain, it may belong in kernel despite being "lookup" by type.
+
+- **Evidence:** Round 2 kernel slim (IP instance). Removed ~32 lines of lookup tables (pipeline stages, connected systems inventory, SharePoint site map) from two kernel files. Pre-test: 17/18. Post-test: 17/18 (zero regression). Behavioral shift: +46% tool calls, +50% unique analytical observations. Agent channeled freed cognitive budget into deeper investigation, not faster responses.
+- **Test:** After removing lookup content from kernel, does the agent (a) maintain or improve reasoning quality, AND (b) show increased investigation depth? If both, the removed content was competing for foreground. If reasoning quality drops, the content was orientation-layer, not lookup.
+- **Anti-pattern:** Assuming that modest byte savings from removing lookup data means the change is trivial. The cognitive quality improvement can be disproportionate to the token savings. Also: moving recipe-ingredient data (>50% query frequency) to retrieval and accepting the latency cost on every query.
+- **Activates during:** Maintenance (kernel density reviews, §6.6), build (kernel content decisions), Phase 8 retroactive audits
+
+---
+
 ### 3.3 Multi-Agent Design
 
 Principles for systems with multiple agents or agent types.
@@ -538,7 +560,7 @@ When do principles activate, and through what mechanism?
 | **New instance bootstrap** | All Level 1 + Level 2 | DOMAIN-BOOTSTRAP protocol references at each phase |
 | **New domain build** | A-007, A-008, A-009, A-010, A-011, A-014, A-015, A-017, U-001 | DOMAIN-BOOTSTRAP phase checkpoints |
 | **Tuning session** | A-006, U-006, U-007, U-008, U-009, U-013, U-014 | Tuning methodology (A-006) |
-| **Maintenance session** | A-005, A-008, A-018, U-010, U-011 | Maintenance protocols reference this catalog |
+| **Maintenance session** | A-005, A-008, A-018, A-021, U-010, U-011 | Maintenance protocols reference this catalog |
 | **Architecture decision** | U-001, U-004, A-010, A-011, A-012, A-013 | Architecture roadmap references this catalog |
 | **Plan mode** | U-005, U-010, A-008, A-014 | CLAUDE.md plan mode rules |
 | **File editing** | U-011, U-012, A-008, A-013, A-018 | CLAUDE.md session protocol |
@@ -592,6 +614,7 @@ All 32 named principles with one-line definitions. For full entries with evidenc
 | A-018 | Narrative Qualification Test | Prose earns kernel budget through five tests: epistemological type, derivability, ambient necessity, staleness risk, landscape vs. curriculum. | 3.2 |
 | A-019 | Phenomenological Feedback | Agent self-report about kernel experience is actionable design data. | 3.1 |
 | A-020 | Navigation vs. Absorption Test | Navigated content is a retrieval candidate; absorbed content must be ambient. | 3.2 |
+| A-021 | Cognitive Foreground | Lookup data competes with dispositional content for attentional budget; three-way classification refines pruning. | 3.1 |
 
 ---
 

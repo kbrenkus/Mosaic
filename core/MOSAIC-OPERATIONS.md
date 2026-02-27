@@ -1,4 +1,4 @@
-# MOSAIC-OPERATIONS v1.3
+# MOSAIC-OPERATIONS v1.4
 
 > **Purpose:** Operational architecture for self-learning knowledge systems — how instances detect drift, accumulate observations, process learning, and maintain currency.
 > **Scope:** Company-agnostic. All examples use generic placeholders. Instance-specific operational details belong in instance files.
@@ -448,7 +448,7 @@ Periodic audit of kernel file content density and budget utilization. Not part o
 - Agent reports navigation-heavy kernel experience (see MOSAIC-PRINCIPLES A-019)
 - 3+ domain bootstraps since last review (cumulative kernel growth)
 
-**Methodology:** Section-level audit per DOMAIN-BOOTSTRAP Phase 8 supplement. Classify each section within each kernel file as dispositional/procedural/redundant. Move procedural content to retrieval with pointers. Dissolve redundant content. Validate with pre/post behavioral testing.
+**Methodology:** Section-level audit per DOMAIN-BOOTSTRAP Phase 8 supplement. Classify each section using the three-way classification: dispositional (ambient), orientation (retrieval-tolerant), or lookup/procedural (retrieve). Check for recipe ingredients — lookup data consumed on >50% of domain queries may stay in kernel. Move lookup/procedural content to retrieval with pointers. Dissolve redundant content. Validate with pre/post behavioral testing. See MOSAIC-PRINCIPLES A-021.
 
 **Output:** Pruning brief documenting dispositional/procedural classification per section, retrieval destinations for moved content, and pre/post test results.
 

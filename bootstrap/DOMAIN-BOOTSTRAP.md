@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.8
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.9
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -980,12 +980,13 @@ As the protocol improves — incorporating lessons from each build — earlier d
 The Phase 4.10 kernel eligibility gate determines whether a FILE earns kernel space. After deployment, a section-level audit can recover additional headroom within eligible files:
 
 1. **Enumerate sections** within each kernel file
-2. **Classify each section** as dispositional (shapes reasoning before conscious application), procedural (consumed at a specific workflow moment), or redundant (content exists canonically elsewhere per §6.3)
+2. **Classify each section** using the three-way classification: dispositional (shapes reasoning before conscious application — must be ambient), orientation (context the agent reasons *from* — benefits from ambient but survives retrieval), or lookup/procedural (data the agent reasons *about* or consumes at a specific workflow moment — should be retrieved). Also check for redundant content (exists canonically elsewhere per §6.3). See MOSAIC-PRINCIPLES A-021 for the cognitive foreground mechanism.
 3. **Redundant → dissolve.** The canonical source already exists; the kernel copy creates interception risk.
 4. **Procedural → move to retrieval with pointer.** Identify the retrieval home by consumption moment — where does the agent need this content? Place it there. Leave a 2-3 line pointer in the kernel file.
 5. **Dispositional → keep.** Check for compression opportunities (YAML tables, telegraphic prose) but do not move to retrieval.
-6. **Optional: solicit agent phenomenological feedback.** Ask: "Which files feel navigated (consulted) vs. absorbed (internalized)?" Content reported as navigated is a pruning candidate (see MOSAIC-PRINCIPLES A-019, A-020).
-7. **Validate with pre/post behavioral test** — run identical queries before and after pruning. No regression = the content was navigated, not absorbed. See MOSAIC-OPERATIONS §7 for test methodology.
+6. **Check for recipe ingredients.** Review lookup/procedural content flagged for retrieval: is any of it consumed on >50% of queries in its domain? If so, the retrieval hop cost may outweigh the cognitive foreground benefit — consider retaining it in kernel. Evaluate frequency, not just epistemological type.
+7. **Optional: solicit agent phenomenological feedback.** Ask: "Which files feel navigated (consulted) vs. absorbed (internalized)?" Content reported as navigated is a pruning candidate (see MOSAIC-PRINCIPLES A-019, A-020, A-021).
+8. **Validate with pre/post behavioral test** — run identical queries before and after pruning. No regression = the content was navigated, not absorbed. See MOSAIC-OPERATIONS §7 for test methodology.
 
 *Not every domain needs every audit cycle.* Focus audit effort on domains with active users and operational pipelines. Dormant domains can wait.
 

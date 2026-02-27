@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.8
+**Version:** 1.9
 
 ---
 
@@ -417,6 +417,8 @@ Each kernel file serves a different epistemological function. Understanding thes
 **Decision heuristic:** Ontological and navigational content can be retrieved. Dispositional and hermeneutical content must be present — it shapes reasoning character and judgment. Procedural content splits: habit-forming patterns (query recipes, error-prevention rules) earn their budget through ambient presence; reference data (IDs, lookup tables) can be retrieved.
 
 **Pruning heuristic.** The kernel epistemology table above determines which FILES earn kernel space. Within those files, a finer-grained classification determines which SECTIONS need to be ambient. Detection triggers, type semantics, and capability awareness are dispositional — they shape reasoning before conscious application and must be present. Formatting schemas, worked examples, posting instructions, and troubleshooting guides are procedural — they're consumed at specific workflow moments and can be retrieved via compact pointers (typically 2-3 lines naming the retrieval target and trigger condition). Replace procedural sections with retrieval pointers; keep dispositional sections and check for compression opportunities. Validate with pre/post behavioral testing — if no regression, the content was "navigated" (consumed budget without shaping behavior), not "absorbed" (internalized into reasoning). See MOSAIC-PRINCIPLES A-019, A-020.
+
+**Cognitive foreground.** Ambient context has a finite attentional budget beyond the token budget. Lookup data doesn't just consume tokens — it actively competes with dispositional content for cognitive foreground (see MOSAIC-PRINCIPLES A-021). This refines the two-way dispositional/procedural cut into a three-way classification: (1) dispositional — shapes all reasoning, must be ambient; (2) orientation — context the agent reasons *from*, benefits from ambient but survives retrieval with one hop; (3) lookup/procedural — data the agent reasons *about*, should be retrieved. Moving lookup data to retrieval adds latency but increases investigation depth — the agent channels freed attention into more thorough work. **Watch for recipe ingredients:** lookup data consumed on >50% of domain queries may belong in kernel despite being lookup by type — evaluate the frequency cost of the retrieval hop, not just the epistemological classification.
 
 ### 6.2 Ambient Context Principle
 

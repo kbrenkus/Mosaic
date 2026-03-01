@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.9
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.10
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -208,6 +208,44 @@ Phase 2F: Data Mapping                    Phase 2E: Worldview Extraction
                       Benchmark queries, before/after
                       testing, steward review
 ```
+
+### Session Sequencing
+
+> *The phases describe logical dependencies, not session boundaries. In practice, sessions are shaped by the steward bottleneck: expert input takes days or weeks, while Foundation track work can often complete in a single session.*
+
+**Dependency map — what blocks what:**
+
+```
+Phase 1F ──────────────────────────────┐
+  (Substrate Audit)                    │
+       │                               │
+       ├── Phase 2F (Data Mapping)     │    Phase 1E (Expert Engagement)
+       │     └── F2-6 (Copilot        │         │
+       │          discovery prompts)   │    Phase 2E (Worldview Extraction)
+       │                               │         │
+       ├── Phase 7.1 (Pre-build       │         │
+       │    baseline — run early!)     │         │
+       │                               │         │
+       └───────────────────────────────┴─────────┘
+                                       │
+                              Phase 3 (Ontology — needs BOTH tracks)
+                                       │
+                              Phase 3.5 → 4 → 5 → 6 → 7.2
+```
+
+**The steward bottleneck pattern:** Expert engagement (1E) and worldview extraction (2E) require human input that typically spans days or weeks between sessions. Meanwhile, Foundation track work (1F, 2F, F2-6, 7.1 baseline) depends only on system access and existing knowledge. Run Foundation ahead; Freedom catches up.
+
+**Practical session guidance:**
+
+|Session|Foundation Track (run ahead)|Freedom Track (steward-paced)|
+|---|---|---|
+|Session 1|Phase 1F complete. Start Phase 2F MCP pulls. Draft F2-6 Copilot discovery prompts.|Prepare 1E steward interview template. Send to steward/proxy.|
+|Between sessions|Copilot discovery prompts can be run independently.|Steward fills interview (1E + 2E responses).|
+|Session 2|Complete 2F data mapping. Run 7.1 pre-build baseline. Integrate Copilot discovery results (3.0 merge).|Review steward responses. Identify follow-up questions.|
+|Session 3|Phase 3 ontology convergence (both tracks now available). Design brief. Steward approval.|Steward reviews design brief.|
+|Session 4+|Phase 4 through 5, 6, 7.2 (sequential after convergence).|Steward validates (7.3).|
+
+*Adapt to your pace.* A fast build with a responsive steward might collapse Sessions 1-2 into one. A build with a busy steward might split Session 2 into multiple. The key insight: **never let Foundation track work wait for Freedom track input.**
 
 ---
 

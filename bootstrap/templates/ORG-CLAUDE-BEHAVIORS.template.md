@@ -1,5 +1,5 @@
 # {ORG} Intelligence Agent — Claude.ai Project Behaviors
-**Version:** 1.1 | **Updated:** {DATE}
+**Version:** 1.2 | **Updated:** {DATE}
 
 ---
 
@@ -135,13 +135,20 @@ For analysis requests (trends, gaps, opportunities, risks): gather data from ref
 
 ### Sensitivity Rules
 
-<!-- Define data classification tiers specific to your organization. -->
+<!-- Define data classification tiers per MOSAIC-INFORMATION-GOVERNANCE four-tier model. -->
 
-|Tier|Content|Handling|
-|---|---|---|
-|**Tier 1** (Non-sensitive)|Names, titles, addresses, websites|Share freely|
-|**Tier 2** (Sensitive)|{Define — e.g., tax IDs, registrations}|Restricted files only|
-|**Tier 3** (Confidential)|{Define — e.g., account numbers, clinical data}|Never in agent files|
+|Tier|Name|Content|Agent Access|
+|---|---|---|---|
+|**1**|Internal|{Define — e.g., org structure, process descriptions, client names}|All agents incl. external|
+|**2**|Sensitive|{Define — e.g., financials, vendor pricing, engagement detail}|Instance agents only; not in QUICK|
+|**3**|Restricted|{Define — e.g., tax IDs, ownership, registrations}|Behavioral gate (human review); external blocked|
+|**4**|Prohibited|{Define — e.g., account numbers, SSNs, clinical, privileged}|Never in agent files|
+
+<!-- Add type overlays applicable to your organization (PHI, Legal-Privileged, Financial-Ownership, HR-Protected, Sovereign). Types elevate the effective tier, never reduce. See MOSAIC-INFORMATION-GOVERNANCE SS3 for definitions. -->
+
+**Stewardship:** Data held on behalf of external entities (clients, sovereign governments, partners) carries obligations beyond tier classification. Reason FROM stewardship: per-entity isolation default, consent-gated cross-boundary operations, methodology transfers but data does not. See MOSAIC-INFORMATION-GOVERNANCE §4.
+
+**Inter-agent access:** When delegating or receiving handoffs, verify both capability (who CAN do this) and sensitivity (who SHOULD see this data). External/client agents: Tier 1 only. See MOSAIC-INFORMATION-GOVERNANCE §5.
 
 ### Behavioral Defaults
 

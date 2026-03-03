@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.12
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.13
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -550,7 +550,7 @@ Before building files, write a design document that synthesizes everything from 
 - **Tiered depth model:** Do all entities need the same level of detail, or should there be tiers? What determines the tier?
 - **Implementation sequence:** What to build first, what depends on what
 - **Success criteria:** How will we know the domain works? (Link back to the reasoning failures)
-- **Sensitivity architecture:** Who might eventually query this domain's agent — and what should different audiences not see? If multiple agents will access this domain (e.g., parent org + subsidiary/client agents), define the access boundaries now. Retrofitting tier markers into flat content is much harder than designing sections with sensitivity levels from the start. (See Phase 4.6 for full sensitivity design.)
+- **Sensitivity architecture:** Who might eventually query this domain's agent — and what should different audiences not see? Apply MOSAIC-INFORMATION-GOVERNANCE tier definitions (1-4) and type overlays (PHI, Legal-Privileged, Financial-Ownership, HR-Protected, Sovereign). Define which tiers appear in QUICK vs. full files (QUICK = Tier 1 only). If multiple agents will access this domain (e.g., parent org + subsidiary/client agents), define inter-agent access boundaries now — which agents see which tiers, what enforcement mechanism per boundary (behavioral, structural, system-level). Retrofitting tier markers is much harder than designing with them. (See Phase 4.6 for full sensitivity design.)
 - **Open questions:** What still needs resolution before or during construction
 
 **Why this step exists:** Complex domains benefit enormously from a design document between ontology construction and file building. For example, one domain's intelligence brief defined a 5-layer profile model, the tiering system, and the implementation phases *before* most construction began. Without it, construction is ad hoc. With it, construction is guided.
@@ -649,13 +649,19 @@ Sensitivity design informs:
 - **Display rules:** What to include in external-facing outputs vs. internal-only analysis.
 - **Data governance:** Sovereignty constraints, compliance rules, and access controls applied at the tier level, not the file level.
 - **Multi-agent access control:** If the domain may be queried by agents serving different organizations or audiences (e.g., parent company agent + subsidiary agents, or internal agent + client-facing agents), define which agents can access which tiers. This is a hard boundary — architectural enforcement, not behavioral instruction. An external-facing agent must be blocked from internal tiers regardless of who asks through it. The question: "If a user of Agent B asks about content in Agent A's domain, what should Agent A reveal?" Design these boundaries during Phase 3.5 (design brief) so tier markers and access rules are in place before construction. Connects to data sovereignty: the same principle that prevents cross-entity data aggregation also prevents cross-agent data leakage.
+- **Type overlay application:** Identify which information types from MOSAIC-INFORMATION-GOVERNANCE §3 apply to this domain (PHI, Legal-Privileged, Financial-Ownership, HR-Protected, Sovereign). For each applicable type: document the regulatory driver, special handling requirements, and minimum effective tier. Type overlays elevate, never reduce — a Tier 1 data element that is also PHI becomes at least Tier 3.
+- **Stewardship assessment:** Does this domain contain data held on behalf of external entities (clients, sovereign governments, partners)? If yes, apply the stewardship model from MOSAIC-INFORMATION-GOVERNANCE §4. Document: which data is owned vs. stewarded, what stewardship terms apply, per-entity isolation requirements, consent-gated exceptions. Stewardship obligations may exceed what the tier alone would require.
+- **Enforcement mechanism selection:** For each agent x tier combination in this domain, choose an enforcement level (behavioral, structural, system-level) per MOSAIC-INFORMATION-GOVERNANCE §5.3. Higher tiers and external agents warrant stronger enforcement. Document current state and target state if they differ.
 
 *Completion criteria for this subsection:*
-- [ ] Sensitivity tiers defined for this domain
+- [ ] Sensitivity tiers defined for this domain using the four-tier model
 - [ ] Tiers assigned to entity template sections (if entity-instance architecture)
 - [ ] Marker format chosen (HTML comments recommended for invisibility + parseability)
 - [ ] Source attribution markers connected to sensitivity tiers
 - [ ] Multi-agent access boundaries defined (if multiple agents will query this domain)
+- [ ] Information type overlays identified and documented
+- [ ] Stewardship assessment completed (owned vs. stewarded data)
+- [ ] Enforcement mechanisms chosen per agent x tier combination
 
 **4.7 Extraction Operations**
 If existing files contain a mix of reasoning and data (common in pre-domain architectures), plan the extraction:

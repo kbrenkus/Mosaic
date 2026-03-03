@@ -1,4 +1,4 @@
-# MOSAIC-OPERATIONS v1.4
+# MOSAIC-OPERATIONS v1.5
 
 > **Purpose:** Operational architecture for self-learning knowledge systems — how instances detect drift, accumulate observations, process learning, and maintain currency.
 > **Scope:** Company-agnostic. All examples use generic placeholders. Instance-specific operational details belong in instance files.
@@ -164,6 +164,7 @@ evidence: ["what was observed"]
 current_ref: "what the reference file currently says"
 recommended: "what should change"
 sovereignty_check: false      # set true if applicable to your instance's data governance
+sensitivity_tier: 1|2|3       # tier of the data being observed; Tier 4 content never generates deltas
 agent: claude-operations|copilot|claude-code
 session_date: YYYY-MM-DD
 ---
@@ -174,6 +175,7 @@ session_date: YYYY-MM-DD
 - `confidence` follows source trust hierarchy in MOSAIC-REASONING §5.4
 - `mechanism` only populated for `[CAUSAL]` type — the specific, falsifiable hypothesis
 - `sovereignty_check` is instance-defined; some organizations may have data governance requirements
+- `sensitivity_tier` indicates the tier of data being observed (per MOSAIC-INFORMATION-GOVERNANCE §2). Tier 4 content never generates deltas (it should not exist in agent-accessible systems). sovereignty_check and sensitivity_tier are orthogonal — both can apply to the same delta
 
 ### §3.3 Queue Infrastructure
 

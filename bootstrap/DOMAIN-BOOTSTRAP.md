@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.10
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.12
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -264,6 +264,10 @@ Phase 1F ───────────────────────�
 
 *Why this matters:* The distinction between "system holds data" and "agent can access data" is foundational. If a CRM has custom objects that are invisible to the MCP connector, that drives the entire multi-agent execution model — you need manual exports, different agents for different access patterns, and workaround pipelines. Discover this in Phase 1, not Phase 5.
 
+*MCP availability discovery:* For every system marked "no current access," search the internet for existing MCP servers (official vendor, community, third-party platforms like Composio/Zapier). Record availability in the system inventory alongside current connection status. The question has two parts: (1) "Can agents access this today?" and (2) "Could agents access this if we connected an available MCP server?" Systems with available-but-unconnected MCP servers are architectural options, not current capabilities — record them as such and evaluate during Phase 3.5 (design brief) or Phase 5.
+
+*Why this substep exists:* In practice, substrate audits mark systems as "MCP: None" when the organization hasn't connected them — without checking whether MCP servers exist. This creates a false ceiling on what the domain can access. One domain build discovered 4 of 6 core systems had available MCP servers only during design brief review (Session 5), after architecture decisions had already been shaped by the "no access" assumption. Discovering availability during Phase 1F keeps architectural options open from the start.
+
 **Prompt F1-2: Current Knowledge Audit**
 "Where does the existing knowledge architecture already know something about this domain? Which files, sections, or attributes currently reference [domain concept]?"
 
@@ -294,6 +298,7 @@ The boundary test prevents both over-extraction (orphaning governance) and under
 **Completion criteria:**
 - [ ] Every relevant system identified with entity types listed
 - [ ] Agent accessibility assessed per system (MCP/API, manual, workaround needed)
+- [ ] MCP availability searched for systems without current access (official, community, third-party servers)
 - [ ] Every existing reference to this domain in the current architecture cataloged
 - [ ] At least one "invisible entity" or scattered-knowledge pattern identified
 - [ ] Reasoning failures from the scatter documented (these become success criteria)
@@ -545,6 +550,7 @@ Before building files, write a design document that synthesizes everything from 
 - **Tiered depth model:** Do all entities need the same level of detail, or should there be tiers? What determines the tier?
 - **Implementation sequence:** What to build first, what depends on what
 - **Success criteria:** How will we know the domain works? (Link back to the reasoning failures)
+- **Sensitivity architecture:** Who might eventually query this domain's agent — and what should different audiences not see? If multiple agents will access this domain (e.g., parent org + subsidiary/client agents), define the access boundaries now. Retrofitting tier markers into flat content is much harder than designing sections with sensitivity levels from the start. (See Phase 4.6 for full sensitivity design.)
 - **Open questions:** What still needs resolution before or during construction
 
 **Why this step exists:** Complex domains benefit enormously from a design document between ontology construction and file building. For example, one domain's intelligence brief defined a 5-layer profile model, the tiering system, and the implementation phases *before* most construction began. Without it, construction is ad hoc. With it, construction is guided.
@@ -642,12 +648,14 @@ Sensitivity design informs:
 - **Enrichment agent assignment:** Which agents can access which sensitivity tiers? MCP-accessible public data vs. internal engagement data may require different agents.
 - **Display rules:** What to include in external-facing outputs vs. internal-only analysis.
 - **Data governance:** Sovereignty constraints, compliance rules, and access controls applied at the tier level, not the file level.
+- **Multi-agent access control:** If the domain may be queried by agents serving different organizations or audiences (e.g., parent company agent + subsidiary agents, or internal agent + client-facing agents), define which agents can access which tiers. This is a hard boundary — architectural enforcement, not behavioral instruction. An external-facing agent must be blocked from internal tiers regardless of who asks through it. The question: "If a user of Agent B asks about content in Agent A's domain, what should Agent A reveal?" Design these boundaries during Phase 3.5 (design brief) so tier markers and access rules are in place before construction. Connects to data sovereignty: the same principle that prevents cross-entity data aggregation also prevents cross-agent data leakage.
 
 *Completion criteria for this subsection:*
 - [ ] Sensitivity tiers defined for this domain
 - [ ] Tiers assigned to entity template sections (if entity-instance architecture)
 - [ ] Marker format chosen (HTML comments recommended for invisibility + parseability)
 - [ ] Source attribution markers connected to sensitivity tiers
+- [ ] Multi-agent access boundaries defined (if multiple agents will query this domain)
 
 **4.7 Extraction Operations**
 If existing files contain a mix of reasoning and data (common in pre-domain architectures), plan the extraction:

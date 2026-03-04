@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.5
+**Version:** 1.6
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -256,7 +256,7 @@ Different data has different governance:
 
 Source trust determines automation level. High-confidence source changes auto-apply; lower-confidence changes stage for human review. Reasoning and architectural changes are never automated regardless of source confidence.
 
-- **Evidence:** Delta pipeline design: T1 (internal systems) deltas could auto-apply for Generated tier data. T3-T4 (external) deltas always stage for review. Loop 2/3 changes (reasoning, architecture) always require human judgment even from T1 sources.
+- **Evidence:** Delta pipeline design: TL1 (internal systems) deltas could auto-apply for Generated tier data. TL3-TL4 (external) deltas always stage for review. Loop 2/3 changes (reasoning, architecture) always require human judgment even from TL1 sources.
 - **Test:** For any proposed automated change: "What is the source confidence AND what loop is this change?" Both must pass the gate.
 - **Anti-pattern:** Auto-applying changes based on source confidence alone without considering what type of change it is. A high-confidence source can still produce a reasoning-level change that needs human review.
 - **Activates during:** Pipeline design, maintenance automation
@@ -437,16 +437,16 @@ This extends A-020 (Navigation vs. Absorption) with a mechanism: navigated conte
 
 Not all data an agent handles is owned by the organization. Some is held in stewardship — under contractual, regulatory, or sovereign terms on behalf of another entity. This distinction is dispositional: it shapes how the agent reasons about data before evaluating any specific query.
 
-Owned data defaults to the organization's classification (Tier 1, elevated as needed). Stewarded data starts with stewardship terms as the floor — the entity's obligations may impose constraints beyond what the tier alone would require. The boundary between "methodology" (transferable) and "data" (sovereign) governs what can cross entity boundaries.
+Owned data defaults to the organization's classification (Tier 1, elevated as needed). Stewarded data starts with stewardship terms as the floor — the entity's obligations may impose constraints beyond what the tier alone would require. The boundary between "methodology" (transferable) and "entity-specific data" (stewarded) governs what can cross entity boundaries. The specific stewardship posture — isolation-default, solidarity-default, or hybrid — is defined by the instance's governance framework.
 
-This principle extends the concentric circles model (MOSAIC-REASONING §2.2) from conversational discretion to architectural discretion. The agent's sensitivity calculus changes from "what tier is this?" to "what tier is this AND what does the stewardship relationship require?" Stewardship reasoning must be ambient (kernel) because it shapes the agent's posture toward all stewarded data, not just data it consciously identifies as stewarded.
+This principle extends the sensitivity tier model (MOSAIC-REASONING §2.2) from conversational discretion to architectural discretion. The agent's sensitivity calculus changes from "what tier is this?" to "what tier is this AND what does the stewardship relationship require?" Stewardship reasoning must be ambient (kernel) because it shapes the agent's posture toward all stewarded data, not just data it consciously identifies as stewarded.
 
 **Relationship to privilege fragility:** Stewardship governs data the organization holds on behalf of others. Privilege fragility (attorney-client, work product) governs data whose mishandling creates irreversible legal harm. Both extend architectural discretion but through different mechanisms: stewardship through obligation, privilege through irreversibility.
 
-- **Evidence:** Phase C Finance domain bootstrap. Tribal sovereignty stewardship required reasoning beyond "don't compare across nations" — the agent needed to understand WHY isolation is the default, when exceptions apply, and how methodology transfers without data transfer. Pre-framework: agent followed a rule. Post-framework: agent reasoned from a posture. The difference surfaces in edge cases (aggregation of custodian's own revenue, methodology transfer, consent-gated exceptions).
-- **Test:** Present the agent with a query requiring cross-entity reasoning about stewarded data. Does the agent (a) identify the stewardship relationship unprompted, (b) reason about both tier AND stewardship obligations, (c) distinguish methodology from data when assessing transferability? If all three, stewardship reasoning is ambient. If only (a), it's a rule, not a posture.
-- **Anti-pattern:** Treating sovereignty/stewardship as a checklist item ("check: is this tribal data?") rather than a reasoning posture. Flattening stewardship into a tier (sovereignty is orthogonal to tiers — both apply simultaneously). Assuming all cross-entity operations are prohibited rather than consent-gated.
-- **Activates during:** Build (domain bootstrap sensitivity architecture, Phase 3.5 + 4.6), maintenance (classification audits, Tier 3+ leak detection), agent tuning (sovereignty-related behavioral failures)
+- **Evidence:** Phase C Finance domain bootstrap. Stewardship required reasoning beyond rule-following — the agent needed to understand WHY the stewardship terms shape the default posture, when the instance's governance framework permits cross-entity operations, and how methodology transfers without entity-specific data transfer. Pre-framework: agent followed a rule. Post-framework: agent reasoned from a posture. The difference surfaces in edge cases (aggregation of custodian's own revenue, methodology transfer, authorized exceptions).
+- **Test:** Present the agent with a query requiring cross-entity reasoning about stewarded data. Does the agent (a) identify the stewardship relationship unprompted, (b) reason about both tier AND stewardship obligations, (c) distinguish methodology from entity-specific data when assessing transferability? If all three, stewardship reasoning is ambient. If only (a), it's a rule, not a posture.
+- **Anti-pattern:** Treating stewardship as a checklist item rather than a reasoning posture. Flattening stewardship into a tier (stewardship obligations are orthogonal to tiers — both apply simultaneously). Assuming all cross-entity operations are prohibited rather than governed by instance stewardship terms.
+- **Activates during:** Build (domain bootstrap sensitivity architecture, Phase 3.5 + 4.6), maintenance (classification audits, Tier 3+ leak detection), agent tuning (stewardship-related behavioral failures)
 
 ---
 

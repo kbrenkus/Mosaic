@@ -1,6 +1,6 @@
 # MOSAIC-INFORMATION-GOVERNANCE — Shared Information Governance Framework
 
-**Version:** 1.0
+**Version:** 1.1
 
 ---
 
@@ -131,6 +131,7 @@ Types determine **handling obligations** — what you must do with the data rega
 information_types:
   PHI:
     regulatory_driver: HIPAA, 42 CFR Part 2
+    authorized_use: TPO (Treatment, Payment, Operations) under BAA. PHI flows through healthcare operations under BAA/TPO - this is normal and necessary. Agent exclusion is a system-level boundary, not a prohibition on organizational PHI use.
     special_handling:
       - Minimum necessary standard
       - Breach notification obligations

@@ -129,7 +129,7 @@ mechanism: "..."                    # required for causal only
 evidence: ["what was observed"]
 current_ref: "what reference says"
 recommended: "what should change"
-sovereignty_check: false
+sensitivity_tier: 1
 agent: claude-operations|copilot|claude-code
 session_date: YYYY-MM-DD
 ---

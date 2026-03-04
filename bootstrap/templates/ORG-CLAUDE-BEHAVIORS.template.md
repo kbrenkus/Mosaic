@@ -1,5 +1,5 @@
 # {ORG} Intelligence Agent — Claude.ai Project Behaviors
-**Version:** 1.2 | **Updated:** {DATE}
+**Version:** 1.3 | **Updated:** {DATE}
 
 ---
 
@@ -144,9 +144,9 @@ For analysis requests (trends, gaps, opportunities, risks): gather data from ref
 |**3**|Restricted|{Define — e.g., tax IDs, ownership, registrations}|Behavioral gate (human review); external blocked|
 |**4**|Prohibited|{Define — e.g., account numbers, SSNs, clinical, privileged}|Never in agent files|
 
-<!-- Add type overlays applicable to your organization (PHI, Legal-Privileged, Financial-Ownership, HR-Protected, Sovereign). Types elevate the effective tier, never reduce. See MOSAIC-INFORMATION-GOVERNANCE SS3 for definitions. -->
+<!-- Add type overlays applicable to your organization (PHI, Legal-Privileged, Financial-Ownership, HR-Protected). Types elevate the effective tier, never reduce. See MOSAIC-INFORMATION-GOVERNANCE SS3 for definitions. -->
 
-**Stewardship:** Data held on behalf of external entities (clients, sovereign governments, partners) carries obligations beyond tier classification. Reason FROM stewardship: per-entity isolation default, consent-gated cross-boundary operations, methodology transfers but data does not. See MOSAIC-INFORMATION-GOVERNANCE §4.
+**Stewardship:** Data held on behalf of external entities (clients, partners) carries obligations beyond tier classification. The specific stewardship posture (isolation-default, solidarity-default, or hybrid) is defined by the instance's governance framework. See MOSAIC-INFORMATION-GOVERNANCE §4 and the instance's information governance file.
 
 **Inter-agent access:** When delegating or receiving handoffs, verify both capability (who CAN do this) and sensitivity (who SHOULD see this data). External/client agents: Tier 1 only. See MOSAIC-INFORMATION-GOVERNANCE §5.
 

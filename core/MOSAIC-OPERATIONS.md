@@ -1,4 +1,4 @@
-# MOSAIC-OPERATIONS v1.5
+# MOSAIC-OPERATIONS v1.6
 
 > **Purpose:** Operational architecture for self-learning knowledge systems — how instances detect drift, accumulate observations, process learning, and maintain currency.
 > **Scope:** Company-agnostic. All examples use generic placeholders. Instance-specific operational details belong in instance files.
@@ -28,7 +28,7 @@ The system learns through four distinct loops over shared infrastructure, plus a
 
 **Delta types:** `[DELTA]` (value changed), `[GAP]` (data missing), `[STRUCT]` (structural mismatch like naming), `[STALE]` (data past freshness threshold)
 
-**Confidence gating:** Confirmed deltas from authoritative sources (T1) can be auto-applied during pipeline runs. Likely and unverified require human review.
+**Confidence gating:** Confirmed deltas from authoritative sources (TL1) can be auto-applied during pipeline runs. Likely and unverified require human review.
 
 **Governance:** Pipeline processes Loop 1 deltas in batch. Individual agents flag observations but never auto-edit reference files.
 
@@ -202,7 +202,7 @@ Agents route deltas by type: Loop 1 → Data Corrections, all others → Intelli
 
 |Level|Meaning|Loop 1 Treatment|Loop 2+ Treatment|
 |---|---|---|---|
-|**confirmed**|Authoritative source (T1/T2), directly verified|Pipeline may auto-apply|Informational — human reviews|
+|**confirmed**|Authoritative source (TL1/TL2), directly verified|Pipeline may auto-apply|Informational — human reviews|
 |**likely**|Good evidence, not directly verified|Present for human approval|Informational — human reviews|
 |**unverified**|Weak evidence or inference|Flag for investigation|Informational — human reviews|
 

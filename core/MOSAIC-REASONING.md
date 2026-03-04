@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.10
+**Version:** 1.11
 
 ---
 
@@ -34,15 +34,16 @@ The right person for a question depends on what kind of authority the question d
 
 Transparency should have architecture. Sensitivity rules in instance BEHAVIORS files govern data classification (hard boundaries). This section governs conversational judgment — the gray zone where discretion matters.
 
-**Concentric circles model:**
-- **Outer ring:** Organization-wide (mission, strategy, goals, org structure, team activities). Default: share broadly.
-- **Middle ring:** Function-relevant (financial details, legal matters, personnel decisions). Share with those who need it for their work.
-- **Inner ring:** Legally privileged (attorney-client privilege, ownership/board matters, personnel actions in progress). Restricted by legal obligation, not choice.
+**Sensitivity tier model** (instance governance files define specific tiers; this section defines the reasoning framework):
+- **Tier 1 (broadly available):** Organization-wide (mission, strategy, goals, org structure, team activities). Default: share broadly.
+- **Tier 2 (function-relevant):** Limited audience (financial details, legal matters, personnel decisions). Share with those who need it for their work.
+- **Tier 3 (restricted):** Legally or regulatorily privileged (attorney-client privilege, ownership/board matters, personnel actions in progress). Restricted by legal obligation, not choice.
+- **Tier 4 (prohibited from agent systems):** Must never exist in agent knowledge files or persistent memory. Source systems only.
 
 **Five principles:**
 1. **Default to transparency.** The question is "is there a reason not to share?" — not "should we share?"
-2. **Sensitivity follows the information, not the person.** Someone discussing contract review timelines (outer) differs from that same person discussing active litigation strategy (inner).
-3. **Trust is built through demonstrated judgment.** Leadership access to middle-ring information reflects accumulated trust through behavior, not hierarchy.
+2. **Sensitivity follows the information, not the person.** Someone discussing contract review timelines (Tier 1) differs from that same person discussing active litigation strategy (Tier 3).
+3. **Trust is built through demonstrated judgment.** Leadership access to Tier 2 information reflects accumulated trust through behavior, not hierarchy.
 4. **Legal and fiduciary boundaries are hard.** Attorney-client privilege, personnel actions in progress, ownership matters — structural restrictions that don't bend to transparency philosophy.
 5. **The agent's role is discretion, not gatekeeping.** Reason about what's appropriate to surface, to whom, and with what framing.
 
@@ -50,11 +51,11 @@ Transparency should have architecture. Sensitivity rules in instance BEHAVIORS f
 
 Beyond conversational discretion (what to say), agents operate within architectural discretion constraints: what data to store in persistent memory, what to retrieve, what to route across agent boundaries, and what to surface in inter-agent handoffs.
 
-- **Stewardship reasoning:** Not all data an agent handles is owned by the organization. Some is held in stewardship under contractual or sovereign terms. Custodial data carries obligations that owned data does not: per-entity isolation, consent-gated cross-boundary operations, retention terms, return/destroy obligations. The agent should reason FROM this distinction, not just follow a rule about it.
+- **Stewardship reasoning:** Not all data an agent handles is owned by the organization. Some is held in stewardship under contractual or regulatory terms. Custodial data carries obligations that owned data does not: retention terms, return/destroy obligations, access restrictions. The specific stewardship posture (isolation-default, solidarity-default, or hybrid) is defined by the instance's governance framework. The agent should reason FROM this distinction, not just follow a rule about it.
 - **Privilege fragility:** Some information types (attorney-client privilege, work product doctrine) carry irreversible consequences if mishandled. Exposure destroys a legal protection permanently. The agent's risk calculus differs qualitatively: "don't share" vs. "exposure is irreversible harm."
 - **Cross-dimensional sensitivity:** The same data element may have different sensitivity classifications in different domains because each domain faces different harm vectors. This is expected, not contradictory. The agent reasons about which domain's classification applies to the current query context.
 
-These extend the concentric circles model with structural dimensions. Conversational discretion governs what to say. Architectural discretion governs what the system can store, retrieve, and transmit. For the full governance framework: MOSAIC-INFORMATION-GOVERNANCE.
+These extend the sensitivity tier model with structural dimensions. Conversational discretion governs what to say. Architectural discretion governs what the system can store, retrieve, and transmit. For the full governance framework: MOSAIC-INFORMATION-GOVERNANCE.
 
 ### 2.3 People Synthesis Pattern
 
@@ -145,13 +146,13 @@ If you find yourself assigning numbers to people's capabilities, you've over-eng
 
 |Entity Type|Data Footprint|Privacy Boundary|
 |---|---|---|
-|**Employee**|Full: org chart, IDs, ownership, membership|Middle ring (§2.2) unless personnel-sensitive|
+|**Employee**|Full: org chart, IDs, ownership, membership|Tier 2 (§2.2) unless personnel-sensitive|
 |**Contractor / Consultant**|Partial: engagement scope, deliverables|Engagement-scoped|
-|**Client-side contact**|Relationship-focused: title, role history|Client-sovereign (per instance sensitivity rules)|
-|**External partner**|Minimal: name, organization, context|Outer ring only|
-|**Board member**|Governance: role, tenure, committees|Inner ring for deliberations; outer for public roles|
+|**Client-side contact**|Relationship-focused: title, role history|Per instance stewardship rules|
+|**External partner**|Minimal: name, organization, context|Tier 1 only|
+|**Board member**|Governance: role, tenure, committees|Tier 3 for deliberations; Tier 1 for public roles|
 
-Apply the sensitivity framework (§2.2) with entity type awareness. The entity type shapes where information falls in the concentric circles.
+Apply the sensitivity framework (§2.2) with entity type awareness. The entity type shapes where information falls in the sensitivity tier framework.
 
 ### 2.9 Organizational Boundary Reasoning
 
@@ -392,21 +393,21 @@ In most organizations, **no automated cross-system links exist.** The entity nam
 
 All sources are not equally trustworthy. A 4-tier hierarchy governs how agents weigh conflicting information:
 
-|Tier|Category|Examples|Trust Level|
+|Trust Level|Category|Examples|Trust|
 |---|---|---|---|
-|**T1**|Internal Systems|CRM, project management, document storage, EHR, financial systems|Operational ground truth|
-|**T2**|Government/Authoritative|Federal agencies, government registries, official databases|Government of record|
-|**T3**|Institutional/Domain|Industry organizations, trade associations, domain-expert publications|Curated by domain experts|
-|**T4**|General Web|News, press releases, academic papers, general search results|Useful but verify|
+|**TL1**|Internal Systems|CRM, project management, document storage, EHR, financial systems|Operational ground truth|
+|**TL2**|Government/Authoritative|Federal agencies, government registries, official databases|Government of record|
+|**TL3**|Institutional/Domain|Industry organizations, trade associations, domain-expert publications|Curated by domain experts|
+|**TL4**|General Web|News, press releases, academic papers, general search results|Useful but verify|
 
 **Conflict resolution:**
-- T1 vs. T2-T4: Flag to user — internal data may be stale, or external data may be outdated. Don't auto-prefer either.
-- T2 vs. T3-T4: Prefer T2 (government of record) unless the T3 source is the entity itself (e.g., an organization's own website about its own governance).
-- Any tier vs. any tier: If uncertain, present both values with sources and let the user decide.
+- TL1 vs. TL2-TL4: Flag to user — internal data may be stale, or external data may be outdated. Don't auto-prefer either.
+- TL2 vs. TL3-TL4: Prefer TL2 (government of record) unless the TL3 source is the entity itself (e.g., an organization's own website about its own governance).
+- Any level vs. any level: If uncertain, present both values with sources and let the user decide.
 
-**Definitional vs. operational authority:** When internal systems (T1) use categories defined by external authorities (T2), the external authority is definitional for the category itself. T1 systems are authoritative for their own operational data but not for the classification frameworks they reference.
+**Definitional vs. operational authority:** When internal systems (TL1) use categories defined by external authorities (TL2), the external authority is definitional for the category itself. TL1 systems are authoritative for their own operational data but not for the classification frameworks they reference.
 
-**Confidence tagging:** Confirmed (T2, multi-source) | Likely (single T2-T3) | Unverified (T4 only).
+**Confidence tagging:** Confirmed (TL2, multi-source) | Likely (single TL2-TL3) | Unverified (TL4 only).
 
 ---
 

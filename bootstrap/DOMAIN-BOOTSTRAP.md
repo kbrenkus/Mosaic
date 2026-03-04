@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.13
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.14
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -602,7 +602,7 @@ For large data files, apply the two-tier retrieval pattern:
 
 If yes, design:
 - **Template:** A structured document that defines what a complete entity-instance file looks like. Include fields, entity-type variants (if different entity types need different sections), and confidence tagging conventions. Source attribution markers (e.g., [MCP-TBD], [BD-TBD], [USER-INPUT-TBD]) serve dual purpose: (1) PROVENANCE — where data came from or where it must come from, and (2) COMPLETENESS DETECTION — gap markers that enrichment systems count to classify entities into enrichment tracks and measure profile maturity. Design source markers during template creation; the enrichment system (Phase 6) reads them programmatically to generate enrichment queues and track classification. See MOSAIC-OPERATIONS §4.3 for the enrichment queue architecture.
-- **Tiering model:** Not all entities need the same depth. Define tiers (e.g., T0 directory stub, T1 lightweight profile, T2 full profile) with explicit upgrade triggers.
+- **Tiering model:** Not all entities need the same depth. Define profile depth tiers (e.g., PD0 directory stub, PD1 lightweight profile, PD2 full profile) with explicit upgrade triggers.
 - **On-demand loading:** Entity-instance files are loaded when a user asks about a specific entity by name. They are never loaded as session-level data (too numerous). Design the naming convention and loading pattern.
 
 *When to use entity-instance architecture:* Domains with more than ~10-15 tracked entities that each need individual detail. Client domains, people directories, contract registries, compliance tracking — any domain where the system needs to answer "tell me about [specific entity]" with deep detail.

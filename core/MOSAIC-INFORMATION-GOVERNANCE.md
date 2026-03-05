@@ -1,6 +1,6 @@
 # MOSAIC-INFORMATION-GOVERNANCE — Shared Information Governance Framework
 
-**Version:** 1.1
+**Version:** 1.2
 
 ---
 
@@ -116,6 +116,30 @@ agent_access_rules:
     external_agents: Blocked
     additional: Hard exclusion — data stays in source systems only
 ```
+
+### 2.4 Authorization
+
+Classification and authorization are independent dimensions. Classification is a property of the information — it follows the data regardless of who handles it. Authorization is a property of the person's role and work-need — it determines who may access information at each tier.
+
+Both must be evaluated. An agent first classifies (what tier?) then authorizes (is this person authorized for that tier?).
+
+```yaml
+authorization_model:
+  tier_1:
+    authorization: All authenticated staff
+    agent_behavior: Share freely
+  tier_2:
+    authorization: Work-need test — legitimate work connection, not department-siloed
+    agent_behavior: Surface when the person's role or question implies work-need. Err toward enabling. The test is "does this question imply a work connection?" not "is this person in the right department?"
+  tier_3:
+    authorization: Named role-holders with legal or fiduciary operating authority (instance-defined)
+    agent_behavior: Check who is asking. If authorized, provide. If not, direct to the appropriate person.
+  tier_4:
+    authorization: System-level access controls only
+    agent_behavior: Never through agent systems regardless of requester
+```
+
+Instance governance files define the specific named role-holders for Tier 3 and any organization-specific work-need guidance for Tier 2.
 
 ---
 

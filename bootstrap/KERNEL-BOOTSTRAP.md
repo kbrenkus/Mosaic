@@ -1,4 +1,4 @@
-# KERNEL-BOOTSTRAP v1.4
+# KERNEL-BOOTSTRAP v1.5
 
 > **Purpose:** A step-by-step guide for deploying a new Mosaic knowledge architecture instance for an organization. This covers everything from initial setup through first-domain operational readiness.
 >
@@ -281,17 +281,22 @@ For the full catalog: MOSAIC-PRINCIPLES.
 
 ### 3.6 Write CLAUDE.md (Instance Project Rules)
 
-Create `CLAUDE.md` at the instance root. This governs Claude Code's behavior when working in your instance. Key sections:
+Create `CLAUDE.md` at the instance root from the template `Mosaic/bootstrap/templates/CLAUDE.template.md`. This governs Claude Code's behavior when working in your instance.
 
-- **Artifact Distribution** — the 3 upload targets (Claude.ai .md, Copilot .txt, Azure Blob) and the prepare_upload.ps1 workflow
-- **MCP Server** — endpoint URL, function key, hygiene rules
-- **File Organization** — your directory tree
-- **Cross-Reference Convention** — base filenames without extension
-- **Kernel Architecture & Budget** — the ~200 KB budget, reasoning-vs-data test
-- **Session Protocol** — start/end checklist, version bump rules
-- **Sensitivity Rule** — data classification tiers
+```bash
+cp Mosaic/bootstrap/templates/CLAUDE.template.md {org}-instance/CLAUDE.md
+```
 
-Use the existing CLAUDE.md from an established Mosaic instance as a reference for structure and conventions.
+Then customize:
+
+1. **Replace placeholders** — `{ORG}`, `{org}`, `{Organization Name}`, `{parent-dir}` throughout
+2. **MCP Server** — update endpoint URL, storage account name, blob scope paths
+3. **File Organization** — update directory tree as you add instance-specific directories
+4. **Pipeline Operations** — leave as placeholder until KERNEL-BOOTSTRAP Phase 5
+5. **Sensitivity Rule** — define your organization's tier examples and stewardship posture
+6. **Remove guidance comments** — delete `<!-- ... -->` blocks as you fill in each section
+
+The template includes 19 sections covering artifact distribution, retrieval architecture, kernel budget management, file optimization, session protocol, analysis checkpoints, validation requirements, sensitivity rules, behavioral parity, regression testing, and memory management. All encode hard-won patterns from production deployments.
 
 ---
 
@@ -561,6 +566,7 @@ The test: *Does this file teach a pattern the agent needs on every query, or pro
 
 | Version | Date | Change |
 |---------|------|--------|
+| v1.5 | 2026-03-05 | Added CLAUDE.template.md — full template for instance CLAUDE.md (19 sections, {ORG} placeholders, guidance comments). Updated §3.6 with template-based setup instructions. |
 | v1.4 | 2026-02-26 | Expanded Phase 5 pipeline setup: added §6.3.1 pipeline design lessons from production (78% universal logic, overlay schema, name normalization, enrichment threshold, auto-deletion). Expanded overlay YAML guidance in §6.3 (minimum + optional schema, MOSAIC-OPERATIONS cross-reference). Expanded §4.1 context compression rationale (bootstrap-time importance, key format decisions, cross-references). |
 | v1.3 | 2026-02-25 | Added §4.1 File Optimization checkpoint in Phase 3 — apply CLAUDE.md optimization rules before uploading domain files. |
 | v1.2 | 2026-02-25 | Added Phase 5: Learning Infrastructure Setup (delta queue, pipeline, signal awareness, memory management). Renumbered Phase 4 to "Git & Session Workflow." Added pipeline/ to directory tree. MOSAIC-OPERATIONS reference throughout. |

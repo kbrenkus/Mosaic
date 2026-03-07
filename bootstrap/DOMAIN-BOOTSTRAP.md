@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.19
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.20
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -835,6 +835,7 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 - [ ] §8A tool query patterns include Teams/chat search where team discussions are relevant
 - [ ] §8A "Also Check" entries include WHY-annotations (what each tool uniquely surfaces)
 - [ ] §8B delta targets map observation areas to target_file + target_section addressing fields (enables delta emission during normal queries)
+- [ ] §8C query efficiency patterns provide efficient MCP starting patterns per tool (defaults with escape hatches, not hard limits). `[RECIPE]` deltas feed back into §8C through the maintenance cycle.
 - [ ] Full file §12 includes system-specific identifiers (project GIDs, site paths, team IDs) for precise queries
 
 ---
@@ -883,7 +884,7 @@ Design the runtime behavior for when agents encounter incomplete data:
 - What should the agent do when it finds a gap? (Flag it, recommend a specific enrichment prompt, or auto-queue a maintenance task)
 - When should the agent NOT fire gap detection? (During rapid-fire queries, when the user is clearly asking about something else)
 
-**Revalidation signals:** Agents should emit not only new findings (contradictions, novel data) but also revalidation signals. When a reference file documents a gap and live queries confirm it remains unresolved, a lightweight `[GAP]` one-liner confirms the gap survived another cycle. This feeds the maintenance loop with staleness signals, not just novelty. Design the domain's delta detection surface (§12) to distinguish drifting sections (emit deltas + revalidations) from stable sections (steward decisions only). Include a §8B delta target table in the QUICK file that pre-fills addressing fields (target_file, target_section) for common observation areas.
+**Revalidation signals:** Agents should emit not only new findings (contradictions, novel data) but also revalidation signals. When a reference file documents a gap and live queries confirm it remains unresolved, a lightweight `[GAP]` one-liner confirms the gap survived another cycle. This feeds the maintenance loop with staleness signals, not just novelty. Design the domain's delta detection surface (§12) to distinguish drifting sections (emit deltas + revalidations) from stable sections (steward decisions only). Include a §8B delta target table in the QUICK file that pre-fills addressing fields (target_file, target_section) for common observation areas. If the domain uses MCP tools with multi-hop exploration patterns (e.g., Asana project chains, Outlook thread reconstruction), add a §8C query efficiency section with efficient starting patterns. Frame as defaults with escape hatches ("start recent, widen if the thread predates it"), not hard limits. The `[RECIPE]` delta type feeds back into §8C — agents discover efficient patterns during investigation and the maintenance cycle encodes them. §8A = which tools. §8B = where to address deltas. §8C = how to query efficiently.
 
 *Why this matters:* Coverage gap detection is the difference between a knowledge repository and an intelligence system. Without it, data quality degrades silently. With it, the system actively monitors its own completeness and recommends maintenance actions.
 

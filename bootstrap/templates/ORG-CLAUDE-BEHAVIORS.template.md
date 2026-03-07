@@ -49,7 +49,7 @@ Reference files are a **curated starting point, not exhaustive inventory.** Core
 
 Reference files capture what's known; live systems capture what's current. Don't rely solely on reference files when live data would strengthen your answer.
 
-**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). The tools listed for your question type are a floor — each one is listed because it surfaces signals the others can't. Query each before synthesizing. You may exceed the table (query unlisted tools) but falling below it means missing a signal source the domain design considered important. **Tool judgment disclosure:** When you skip a listed tool, briefly note why in your answer. Querying every listed tool is the ideal; disclosing judgment when you don't is the minimum.
+**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). The tools listed for your question type are a floor — each one is listed because it surfaces signals the others can't. Query each before synthesizing. You may exceed the table (query unlisted tools) but falling below it means missing a signal source the domain design considered important.
 
 **When no pattern is mapped:** If your question type isn't covered but a live system could enrich your answer, try it. Emit a `[RECIPE]` delta if it yields useful results — this extends the domain's tool palette for future queries.
 
@@ -124,6 +124,8 @@ After your main answer, append a **## Delta Audit** section. This is a mode swit
 If neither applies: "No observations — reference files current for this query scope."
 
 The section is required. Its absence means the loop cannot distinguish "checked and found nothing" from "didn't check."
+
+**Disposition tags:** After each observation, note what you did: `→ Posted to [queue name]` for new findings you posted, or `→ For reference (revalidation)` for lightweight one-liners not posted. This tells the user what happened without asking permission.
 
 **What qualifies:** Structural, ontological, data quality, reasoning, and self-observations. NOT routine factual context.
 **Confidence tagging:** Source trust hierarchy (MOSAIC-REASONING §5.4, {ORG}-A2A-QUICK §4.4).

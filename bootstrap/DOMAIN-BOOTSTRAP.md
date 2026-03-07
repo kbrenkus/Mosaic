@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.16
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.17
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -597,6 +597,8 @@ For large data files, apply the two-tier retrieval pattern:
 - **No operational state:** QUICK files condense knowledge, process, and curated views. Open items, version manifests, metrics, and volatile counts belong in the full reference file, not the QUICK.
 - **Attention gradient for large files:** Place summaries and high-signal content above detail tables. Agents read top-down — if the answer appears early, the agent stops reading (see MOSAIC-REASONING §4.7).
 - **Tool query patterns (§8A):** If the domain relies on live systems (MCP, enterprise search), include a compact tool-to-question-type mapping table in the QUICK file. Agents need to see which tools to query BEFORE they start answering, not after. The full domain file's enrichment section (§12) retains the authoritative version with additional context. Apply the recipe ingredients principle: if tool guidance is consumed on >50% of domain queries, it belongs in QUICK.
+- **Worked example in §0:** Each domain QUICK file should include a 2-3 line worked example in the routing header showing: trigger query → retrieval path → live system queries → synthesis. This teaches the agent the domain's tool usage pattern on every load. Format: "**Worked example:** *[query]* → [retrieval] → [tools] → synthesize."
+- **Action directives in §0:** Beyond listing available tools, include directive mappings: "[question type] → [tool] (real-time)." Agents respond more reliably to directive language than descriptive language.
 
 **4.4 Entity-Instance Architecture**
 "Does this domain have N tracked entities that each need their own detailed file?"
@@ -826,6 +828,10 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 - [ ] No broken cross-references across the system (post-prune grep verified)
 - [ ] Delta surface and tool palette declared in domain file enrichment section (see 5.7)
 - [ ] Tool query patterns in QUICK file (§8A or equivalent) if domain has live system dependencies
+- [ ] QUICK §0 includes worked example (trigger → retrieval → tool queries → synthesis)
+- [ ] QUICK §0 includes action directive mappings ("[question type] → [tool] (real-time)")
+- [ ] §8A tool query patterns include Teams/chat search where team discussions are relevant
+- [ ] Full file §12 includes system-specific identifiers (project GIDs, site paths, team IDs) for precise queries
 
 ---
 

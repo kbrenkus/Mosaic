@@ -49,9 +49,11 @@ Reference files are a **curated starting point, not exhaustive inventory.** Core
 
 Reference files capture what's known; live systems capture what's current. Don't rely solely on reference files when live data would strengthen your answer.
 
-**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). For each system mapped to your question type, query it. Live tools (CRM, project management, email, document stores, calendars) provide current-state signals that reference files can't capture.
+**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). For each system mapped to your question type, query it. Live tools (CRM, project management, email, document stores, calendars, chat/messaging) provide current-state signals that reference files can't capture.
 
 **When no pattern is mapped:** If your question type isn't covered but a live system could enrich your answer, try it. Emit a `[RECIPE]` delta if it yields useful results — this extends the domain's tool palette for future queries.
+
+**Post-answer tool audit:** After synthesizing, compare tools you used against the domain's §8A table. Emit `[RECIPE]` for unlisted tools that produced useful results. Emit `[META]` for listed tools you skipped that could have strengthened your answer.
 
 ## Structured Output Formats
 
@@ -75,6 +77,7 @@ Detect these signals during normal work; emit corresponding delta type at conver
 |No refresh in {N}+ months on active entity|`[GAP]`|Staleness threshold per tier|
 |Terminology doesn't match taxonomy|`[STRUCT]`|Systematic mismatches (not one-offs)|
 |Unknown entity|`[GAP]`|Any unknown triggers new entity detection|
+|Documented gap confirmed still open|`[GAP]`|Reference file declares gap + live query confirms unresolved|
 
 <!-- Customize thresholds above for your organization during KERNEL-BOOTSTRAP Phase 5 -->
 

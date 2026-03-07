@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.15
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.16
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -596,6 +596,7 @@ For large data files, apply the two-tier retrieval pattern:
 - **Inclusion criteria:** Define what entities or content qualify for this QUICK file and where non-qualifying items route instead. Put these criteria in the §0 routing header. Without explicit boundaries, QUICK files grow unboundedly as entities are added.
 - **No operational state:** QUICK files condense knowledge, process, and curated views. Open items, version manifests, metrics, and volatile counts belong in the full reference file, not the QUICK.
 - **Attention gradient for large files:** Place summaries and high-signal content above detail tables. Agents read top-down — if the answer appears early, the agent stops reading (see MOSAIC-REASONING §4.7).
+- **Tool query patterns (§8A):** If the domain relies on live systems (MCP, enterprise search), include a compact tool-to-question-type mapping table in the QUICK file. Agents need to see which tools to query BEFORE they start answering, not after. The full domain file's enrichment section (§12) retains the authoritative version with additional context. Apply the recipe ingredients principle: if tool guidance is consumed on >50% of domain queries, it belongs in QUICK.
 
 **4.4 Entity-Instance Architecture**
 "Does this domain have N tracked entities that each need their own detailed file?"
@@ -741,7 +742,7 @@ Both must be "yes" for kernel placement. Content that fails either test goes to 
 *Context compression discipline:* Apply file optimization rules to all constructed files from the start. YAML for lookup data (~57% fewer tokens than markdown tables), minified tables for reasoning frameworks (no cell padding, minimal separators), telegraphic prose for procedural content (remove articles and filler where meaning is preserved), full prose for reasoning exposition and behavioral directives. Files created during initial build set the token budget baseline — optimization applied later requires re-uploading and re-testing. Getting format right at construction avoids a compression retrofit cycle. See MOSAIC-OPERATIONS §4.7 for format selection methodology.
 
 **5.1 Domain Retrieval Files**
-- QUICK file: Session-level data, optimized for the most common queries. Include §0 routing header with inclusion criteria, section index, and escalation rules. No operational state — only knowledge, process, and curated views.
+- QUICK file: Session-level data, optimized for the most common queries. Include §0 routing header with inclusion criteria, section index, and escalation rules. Include §8A tool query patterns if the domain has live system dependencies (MCP tools, enterprise search). No operational state — only knowledge, process, and curated views.
 - Full file: Complete data, available for escalation. For files exceeding ~20 KB, apply attention gradient: summaries and high-signal content above detail tables (see MOSAIC-REASONING §4.7).
 - Follow existing naming conventions ({ORG}-{DOMAIN}-QUICK.md for index files)
 
@@ -804,7 +805,7 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 
 1. **Delta detection surface** — which reference file sections contain drifting data vs. stable anchors. For each drifting section: what to compare against (which live system), staleness threshold, and refresh cadence.
 
-2. **Tool query patterns** — which live systems to query per question type within this domain. Maps question categories to primary data sources including M365. Enables agents to select the right tool without domain-specific enumeration in kernel behavior files.
+2. **Tool query patterns** — which live systems to query per question type within this domain. **Placement rule:** place a compact version in the QUICK file (§8A) so agents see it on every domain query. The full domain file's enrichment section retains the detailed version with system paths, project GIDs, and recipes. Without QUICK placement, agents must retrieve the full file's enrichment section to learn which tools to use — an extra hop most queries won't trigger.
 
 3. **Multi-agent source assignment** — which agent handles which data source for this domain (extends Phase 6.7).
 
@@ -824,6 +825,7 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 - [ ] Bidirectional routing verified between domain files and cross-cutting indexes
 - [ ] No broken cross-references across the system (post-prune grep verified)
 - [ ] Delta surface and tool palette declared in domain file enrichment section (see 5.7)
+- [ ] Tool query patterns in QUICK file (§8A or equivalent) if domain has live system dependencies
 
 ---
 

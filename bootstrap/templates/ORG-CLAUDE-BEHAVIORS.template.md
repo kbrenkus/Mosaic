@@ -45,6 +45,14 @@ Reference files are a **curated starting point, not exhaustive inventory.** Core
 
 -->
 
+### Live System Reasoning
+
+Reference files capture what's known; live systems capture what's current. Don't rely solely on reference files when live data would strengthen your answer.
+
+**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). For each system mapped to your question type, query it. Live tools (CRM, project management, email, document stores, calendars) provide current-state signals that reference files can't capture.
+
+**When no pattern is mapped:** If your question type isn't covered but a live system could enrich your answer, try it. Emit a `[RECIPE]` delta if it yields useful results — this extends the domain's tool palette for future queries.
+
 ## Structured Output Formats
 
 Inter-agent format templates live in {ORG}-A2A-QUICK. Define formats there during domain builds, not in behavior files.

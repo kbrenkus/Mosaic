@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.14
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.15
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -799,6 +799,19 @@ When a new domain consolidates content that was previously scattered across othe
 
 5. **Update cross-references:** Any file that previously pointed to the pruned section must be updated to point to the new domain file equivalent.
 
+**5.7 Delta Surface & Tool Palette Declaration**
+Each domain file's enrichment section (§12 or equivalent) should declare:
+
+1. **Delta detection surface** — which reference file sections contain drifting data vs. stable anchors. For each drifting section: what to compare against (which live system), staleness threshold, and refresh cadence.
+
+2. **Tool query patterns** — which live systems to query per question type within this domain. Maps question categories to primary data sources including M365. Enables agents to select the right tool without domain-specific enumeration in kernel behavior files.
+
+3. **Multi-agent source assignment** — which agent handles which data source for this domain (extends Phase 6.7).
+
+*Why this matters:* Kernel behavior files contain general delta detection dispositions ("watch for reference-vs-live divergence"). Domain files declare the specific detection surface. Without this, new domains get no delta coverage until someone adds triggers to kernel — which violates the cognitive foreground principle.
+
+*Self-extending tool palettes:* Tool palettes are living documents, not fixed specifications. The kernel behavioral directive (BEHAVIORS "Tool discovery") encourages agents to try any available MCP connection, not just those listed. When an unlisted tool yields useful results, the agent emits a `[RECIPE]` delta that triggers a palette update during maintenance. Initial construction declares the known-good set; operational use extends it.
+
 **Completion criteria:**
 - [ ] QUICK file written and sized within retrieval guidelines
 - [ ] Full file written (if applicable)
@@ -810,6 +823,7 @@ When a new domain consolidates content that was previously scattered across othe
 - [ ] Source files pruned per Phase 1F scatter classification (stubs, slim rows, or retained with rationale)
 - [ ] Bidirectional routing verified between domain files and cross-cutting indexes
 - [ ] No broken cross-references across the system (post-prune grep verified)
+- [ ] Delta surface and tool palette declared in domain file enrichment section (see 5.7)
 
 ---
 
@@ -917,6 +931,8 @@ Design decisions to document:
 - Which channels require multi-agent coordination (data collected by one agent, integrated by another)?
 - What is the human-only boundary? (Relationship knowledge, strategic judgment, governance decisions)
 - How do agent outputs converge? (Delta queue, overlay updates, direct file edits)
+
+*Note:* The domain-level tool palette (Phase 5.7) declares which tools to use per question type at query time. The multi-agent model here determines which agent runs enrichment prompts at maintenance time. Complementary: 5.7 = query-time routing, 6.7 = maintenance-time orchestration.
 
 **Completion criteria:**
 - [ ] At least one initial population prompt per data source

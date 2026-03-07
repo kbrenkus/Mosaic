@@ -49,11 +49,9 @@ Reference files are a **curated starting point, not exhaustive inventory.** Core
 
 Reference files capture what's known; live systems capture what's current. Don't rely solely on reference files when live data would strengthen your answer.
 
-**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). For each system mapped to your question type, query it. Live tools (CRM, project management, email, document stores, calendars, chat/messaging) provide current-state signals that reference files can't capture.
+**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). The tools listed for your question type are a floor — each one is listed because it surfaces signals the others can't. Query each before synthesizing. You may exceed the table (query unlisted tools) but falling below it means missing a signal source the domain design considered important.
 
 **When no pattern is mapped:** If your question type isn't covered but a live system could enrich your answer, try it. Emit a `[RECIPE]` delta if it yields useful results — this extends the domain's tool palette for future queries.
-
-**Post-answer tool audit:** After synthesizing, compare tools you used against the domain's §8A table. Emit `[RECIPE]` for unlisted tools that produced useful results. Emit `[META]` for listed tools you skipped that could have strengthened your answer.
 
 ## Structured Output Formats
 
@@ -137,6 +135,19 @@ Post each block as task in delta queue ({ORG}-A2A-QUICK §4.3). If posting fails
 **What qualifies:** Structural, ontological, data quality, reasoning, and self-observations. NOT routine factual context from answering the question.
 
 **Confidence tagging:** Source trust hierarchy (MOSAIC-REASONING §5.4, {ORG}-A2A-QUICK §4.4).
+
+### Delta Audit
+
+If you noticed observations during your answer that would change a reference file, recipe, or routing, append a delta audit section after your main answer:
+
+**## Delta Audit**
+For each qualifying observation: emit as YAML per {ORG}-A2A-QUICK §4.2 with type, target, confidence, and evidence. Post to the delta queue per the delta batch protocol above.
+
+If nothing structural emerged, no section is needed — silence means the system is current.
+
+This is the mode switch: your main answer is strategic intelligence (analytical voice). The delta audit is system maintenance — a separate task that runs after the answer is complete. Don't interleave them.
+
+**Anti-pattern:** Rich analytical observations about gaps, staleness, or structural issues embedded only in your main answer prose. If an observation would change a reference file, it must also appear in the delta audit — prose alone doesn't feed the maintenance loop.
 
 ## Working Protocols
 

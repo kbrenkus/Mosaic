@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.17
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.18
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -597,6 +597,7 @@ For large data files, apply the two-tier retrieval pattern:
 - **No operational state:** QUICK files condense knowledge, process, and curated views. Open items, version manifests, metrics, and volatile counts belong in the full reference file, not the QUICK.
 - **Attention gradient for large files:** Place summaries and high-signal content above detail tables. Agents read top-down — if the answer appears early, the agent stops reading (see MOSAIC-REASONING §4.7).
 - **Tool query patterns (§8A):** If the domain relies on live systems (MCP, enterprise search), include a compact tool-to-question-type mapping table in the QUICK file. Agents need to see which tools to query BEFORE they start answering, not after. The full domain file's enrichment section (§12) retains the authoritative version with additional context. Apply the recipe ingredients principle: if tool guidance is consumed on >50% of domain queries, it belongs in QUICK.
+- **WHY-annotations in §8A:** Each "Also Check" entry should include a brief reason (1-5 words) explaining what that tool uniquely surfaces. "SharePoint: conference docs" → "SharePoint: strategy docs and budgets." Agents respond to reasons more reliably than to directives — they query a tool when they understand what it holds, not just because a table says to.
 - **Worked example in §0:** Each domain QUICK file should include a 2-3 line worked example in the routing header showing: trigger query → retrieval path → live system queries → synthesis. This teaches the agent the domain's tool usage pattern on every load. Format: "**Worked example:** *[query]* → [retrieval] → [tools] → synthesize."
 - **Action directives in §0:** Beyond listing available tools, include directive mappings: "[question type] → [tool] (real-time)." Agents respond more reliably to directive language than descriptive language.
 
@@ -770,6 +771,7 @@ Include sensitivity markers per section (see Phase 4.6) and source attribution m
 - Update agent behavior files if the new domain requires specific handling
 - Apply behavioral parity check — does this directive apply to both agents?
 - For retrieval-aware rewrites: verify that directives previously assuming static data now correctly reference domain retrieval
+- If the instance BEHAVIORS doesn't already include a delta audit section (observations → formal YAML after the main answer), add one during the first domain build. This is an instance-level directive, not per-domain.
 
 **5.6 Domain Consolidation & Source Pruning**
 When a new domain consolidates content that was previously scattered across other files (identified in Phase 1F scatter map and classified in F1-3), the source files must be pruned to prevent interception conflicts and improve system clarity.
@@ -831,6 +833,7 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 - [ ] QUICK §0 includes worked example (trigger → retrieval → tool queries → synthesis)
 - [ ] QUICK §0 includes action directive mappings ("[question type] → [tool] (real-time)")
 - [ ] §8A tool query patterns include Teams/chat search where team discussions are relevant
+- [ ] §8A "Also Check" entries include WHY-annotations (what each tool uniquely surfaces)
 - [ ] Full file §12 includes system-specific identifiers (project GIDs, site paths, team IDs) for precise queries
 
 ---

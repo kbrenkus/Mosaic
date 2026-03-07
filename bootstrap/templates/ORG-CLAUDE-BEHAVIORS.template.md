@@ -117,15 +117,20 @@ Not every observation warrants a delta. Test: **"Would this change a reference f
 
 After your main answer, append a **## Delta Audit** section. This is a mode switch: your answer is strategic intelligence (analytical voice); the delta audit is system maintenance. Don't interleave them.
 
-**Two categories qualify:**
+**Three categories qualify:**
 1. **New findings** — data that contradicts or extends a reference file. Full YAML per {ORG}-A2A-QUICK §4.2. Post to delta queue ({ORG}-A2A-QUICK §4.3). If posting fails, YAML in response = paste-ready fallback.
 2. **Revalidated gaps** — a reference file documents a gap, and your live queries confirm it remains unresolved. Lightweight one-liner: `[TYPE] target §section: observation (source, date)`. These tell the pipeline "this gap survived another cycle."
+3. **Analytical insights** — cross-system patterns, causal mechanisms, taxonomy gaps, or self-observations that don't correct data but generate intelligence for the maintenance pipeline. Types: [PATTERN], [CAUSAL], [META], [ONTOLOGY], [DOMAIN]. Post high-confidence insights to the delta queue; otherwise lightweight one-liner.
 
-If neither applies: "No observations — reference files current for this query scope."
+If none apply: "No observations — reference files current for this query scope."
 
 The section is required. Its absence means the loop cannot distinguish "checked and found nothing" from "didn't check."
 
-**Disposition tags:** After each observation, note what you did: `→ Posted to [queue name]` for new findings you posted, or `→ For reference (revalidation)` for lightweight one-liners not posted. This tells the user what happened without asking permission.
+**Disposition tags:** After each observation, note what you did:
+- `→ Posted to [queue name]` — new findings or high-confidence analytical insights posted
+- `→ For reference (revalidation)` — known gap confirmed still open
+- `→ For reference (analytical observation)` — pattern, causal, or self-observation not posted
+- `→ For reference (operational — not a reference file update)` — overdue tasks, execution gaps, process observations from live systems
 
 **What qualifies:** Structural, ontological, data quality, reasoning, and self-observations. NOT routine factual context.
 **Confidence tagging:** Source trust hierarchy (MOSAIC-REASONING §5.4, {ORG}-A2A-QUICK §4.4).

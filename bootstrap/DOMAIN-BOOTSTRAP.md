@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.20
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.21
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -599,6 +599,7 @@ For large data files, apply the two-tier retrieval pattern:
 - **Tool query patterns (§8A):** If the domain relies on live systems (MCP, enterprise search), include a compact tool-to-question-type mapping table in the QUICK file. Agents need to see which tools to query BEFORE they start answering, not after. The full domain file's enrichment section (§12) retains the authoritative version with additional context. Apply the recipe ingredients principle: if tool guidance is consumed on >50% of domain queries, it belongs in QUICK.
 - **WHY-annotations in §8A:** Each "Also Check" entry should include a brief reason (1-5 words) explaining what that tool uniquely surfaces. "SharePoint: conference docs" → "SharePoint: strategy docs and budgets." Agents respond to reasons more reliably than to directives — they query a tool when they understand what it holds, not just because a table says to.
 - **Worked example in §0:** Each domain QUICK file should include a 2-3 line worked example in the routing header showing: trigger query → retrieval path → live system queries → synthesis. This teaches the agent the domain's tool usage pattern on every load. Format: "**Worked example:** *[query]* → [retrieval] → [tools] → synthesize."
+- **Signal source hierarchy in §0:** Categorize the domain's tools by how data is created: real-time signal (M365 -- work as it happens), documented signal (PM tools -- work as recorded), creative production (design tools -- deliverable state), external (web -- public context), curated (reference files -- validated knowledge). Teach the agent WHY to prefer real-time for "what's happening" queries and to diagnose cross-category gaps. This is curriculum (reasoning context), not a directive (tool order). The gap between real-time and documented signal is itself diagnostic -- it reveals where documentation hasn't caught up to reality.
 - **Action directives in §0:** Beyond listing available tools, include directive mappings: "[question type] → [tool] (real-time)." Agents respond more reliably to directive language than descriptive language.
 
 **4.4 Entity-Instance Architecture**

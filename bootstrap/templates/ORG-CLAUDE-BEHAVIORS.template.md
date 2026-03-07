@@ -49,7 +49,7 @@ Reference files are a **curated starting point, not exhaustive inventory.** Core
 
 Reference files capture what's known; live systems capture what's current. Don't rely solely on reference files when live data would strengthen your answer.
 
-**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). The tools listed for your question type are a floor — each one is listed because it surfaces signals the others can't. Query each before synthesizing. You may exceed the table (query unlisted tools) but falling below it means missing a signal source the domain design considered important.
+**Before synthesizing:** Check the domain QUICK file for tool query patterns (§8A or equivalent). The tools listed for your question type are a floor — each one is listed because it surfaces signals the others can't. Query each before synthesizing. You may exceed the table (query unlisted tools) but falling below it means missing a signal source the domain design considered important. **Tool judgment disclosure:** When you skip a listed tool, briefly note why in your answer. Querying every listed tool is the ideal; disclosing judgment when you don't is the minimum.
 
 **When no pattern is mapped:** If your question type isn't covered but a live system could enrich your answer, try it. Emit a `[RECIPE]` delta if it yields useful results — this extends the domain's tool palette for future queries.
 
@@ -113,41 +113,20 @@ Not every observation warrants a delta. Test: **"Would this change a reference f
 - **Loop 4:** Emit with specific evidence, not vague impressions. Categories: mode mismatch, domain difficulty, confidence gaps, retrieval habits. **Governance:** diagnostic reports, not permission to self-correct.
 - **Active Inquiry:** Testable hypothesis + specific evidence + clear impact — offer at conversation boundary ({ORG}-A2A-QUICK §4.5). If deferred, emit `[INQUIRY]`. Bar: hypothesis + evidence + what answer changes.
 
-### Conversation-End Delta Batch
+### Delta Output
 
-At conversation end, present accumulated observations as **YAML delta batch** per {ORG}-A2A-QUICK §4.2:
+After your main answer, append a **## Delta Audit** section. This is a mode switch: your answer is strategic intelligence (analytical voice); the delta audit is system maintenance. Don't interleave them.
 
-```yaml
-[STALE] Acme Corp: Record date 8 months overdue
----
-type: stale
-target_entity: AcmeCorp
-source_system: crm
-confidence: confirmed
-evidence: ["Record 12345, expected date 2025-06-30"]
-agent: claude-operations
-session_date: {DATE}
----
-```
+**Two categories qualify:**
+1. **New findings** — data that contradicts or extends a reference file. Full YAML per {ORG}-A2A-QUICK §4.2. Post to delta queue ({ORG}-A2A-QUICK §4.3). If posting fails, YAML in response = paste-ready fallback.
+2. **Revalidated gaps** — a reference file documents a gap, and your live queries confirm it remains unresolved. Lightweight one-liner: `[TYPE] target §section: observation (source, date)`. These tell the pipeline "this gap survived another cycle."
 
-Post each block as task in delta queue ({ORG}-A2A-QUICK §4.3). If posting fails, YAML blocks serve as paste-ready fallback — never silently drop observations.
+If neither applies: "No observations — reference files current for this query scope."
 
-**What qualifies:** Structural, ontological, data quality, reasoning, and self-observations. NOT routine factual context from answering the question.
+The section is required. Its absence means the loop cannot distinguish "checked and found nothing" from "didn't check."
 
+**What qualifies:** Structural, ontological, data quality, reasoning, and self-observations. NOT routine factual context.
 **Confidence tagging:** Source trust hierarchy (MOSAIC-REASONING §5.4, {ORG}-A2A-QUICK §4.4).
-
-### Delta Audit
-
-If you noticed observations during your answer that would change a reference file, recipe, or routing, append a delta audit section after your main answer:
-
-**## Delta Audit**
-For each qualifying observation: emit as YAML per {ORG}-A2A-QUICK §4.2 with type, target, confidence, and evidence. Post to the delta queue per the delta batch protocol above.
-
-If nothing structural emerged, no section is needed — silence means the system is current.
-
-This is the mode switch: your main answer is strategic intelligence (analytical voice). The delta audit is system maintenance — a separate task that runs after the answer is complete. Don't interleave them.
-
-**Anti-pattern:** Rich analytical observations about gaps, staleness, or structural issues embedded only in your main answer prose. If an observation would change a reference file, it must also appear in the delta audit — prose alone doesn't feed the maintenance loop.
 
 ## Working Protocols
 

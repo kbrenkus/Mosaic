@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.18
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.19
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -834,6 +834,7 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 - [ ] QUICK §0 includes action directive mappings ("[question type] → [tool] (real-time)")
 - [ ] §8A tool query patterns include Teams/chat search where team discussions are relevant
 - [ ] §8A "Also Check" entries include WHY-annotations (what each tool uniquely surfaces)
+- [ ] §8B delta targets map observation areas to target_file + target_section addressing fields (enables delta emission during normal queries)
 - [ ] Full file §12 includes system-specific identifiers (project GIDs, site paths, team IDs) for precise queries
 
 ---
@@ -881,6 +882,8 @@ Design the runtime behavior for when agents encounter incomplete data:
 - How should the agent detect gaps? (Source attribution markers like `[MCP-TBD]`, missing sections, stale timestamps)
 - What should the agent do when it finds a gap? (Flag it, recommend a specific enrichment prompt, or auto-queue a maintenance task)
 - When should the agent NOT fire gap detection? (During rapid-fire queries, when the user is clearly asking about something else)
+
+**Revalidation signals:** Agents should emit not only new findings (contradictions, novel data) but also revalidation signals. When a reference file documents a gap and live queries confirm it remains unresolved, a lightweight `[GAP]` one-liner confirms the gap survived another cycle. This feeds the maintenance loop with staleness signals, not just novelty. Design the domain's delta detection surface (§12) to distinguish drifting sections (emit deltas + revalidations) from stable sections (steward decisions only). Include a §8B delta target table in the QUICK file that pre-fills addressing fields (target_file, target_section) for common observation areas.
 
 *Why this matters:* Coverage gap detection is the difference between a knowledge repository and an intelligence system. Without it, data quality degrades silently. With it, the system actively monitors its own completeness and recommends maintenance actions.
 

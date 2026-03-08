@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.27
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.28
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -818,6 +818,8 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 *Why this matters:* Kernel behavior files contain general delta detection dispositions ("watch for reference-vs-live divergence"). Domain files declare the specific detection surface. Without this, new domains get no delta coverage until someone adds triggers to kernel — which violates the cognitive foreground principle.
 
 *Self-extending tool palettes:* Tool palettes are living documents, not fixed specifications. The kernel behavioral directive (BEHAVIORS "Tool discovery") encourages agents to try any available MCP connection, not just those listed. When an unlisted tool yields useful results, the agent emits a `[RECIPE]` delta that triggers a palette update during maintenance. Initial construction declares the known-good set; operational use extends it.
+
+*Self-healing naming registries:* Domain QUICK files should declare key entity names, abbreviations, and aliases in §0 routing so agents resolve them without retrieval hops. When an agent encounters a name requiring multiple file lookups to resolve — a term users treat as obvious — it emits a `[TAXONOMY]` delta targeting the appropriate domain file. Distinct from `[STRUCT]` (wrong term used systematically) and `[ONTOLOGY]` (entity doesn't fit existing categories). Evidence: PT12 agent spent 6 lookups resolving "TCD" (The Creative Department) before investigation could begin, missing Calendar due to budget exhaustion.
 
 **Completion criteria:**
 - [ ] QUICK file written and sized within retrieval guidelines

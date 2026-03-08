@@ -30,7 +30,7 @@ Azure Function exposes `get_section(file_name, section_ref)` as Claude.ai custom
 2. **Adding new file to `reference/`** -- no extra steps; blob sync glob picks it up.
 3. **Adding file outside `reference/` needing `get_section`** -- add to blob sync glob in `prepare_upload.ps1`, run `scripts/upload_to_blob.ps1` once to seed.
 
-**Server code vs. content changes:** Server code (`MosaicMCP/function_app.py`) changes are only needed for behavior changes: new tools, changed parsing logic, new error format. Content changes never require a redeploy.
+**Server code vs. content changes:** Server code (`mcp-server/function_app.py`) changes are only needed for behavior changes: new tools, changed parsing logic, new error format. Content changes never require a redeploy.
 
 **Redeploy command** (if `function_app.py` changes):
 ```
@@ -131,8 +131,8 @@ Instance repo sits alongside the shared Mosaic methodology repo:
 ```
 {parent-dir}/
 ├── Mosaic/            (shared methodology, reasoning kernel, bootstrap protocols)
-├── {org}-instance/    (this repo, organization instance + pipeline)
-└── MosaicMCP/         (Azure Function MCP server deployment)
+└── {org}-instance/    (this repo, organization instance + pipeline)
+    └── mcp-server/      (Azure Function MCP server — deployed to {org}-mcp-server)
 ```
 
 **Pulling reasoning kernel updates:**

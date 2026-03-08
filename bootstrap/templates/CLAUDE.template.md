@@ -58,6 +58,7 @@ func azure functionapp publish {org}-mcp-server --python
 │   ├── overlays/                     (curated human-judgment YAML)
 │   ├── inputs/                       (.gitignored — Phase 1 JSON snapshots)
 │   └── run-logs/                     (.gitignored — run summaries)
+├── mcp-server/                      (Azure Function MCP server code)
 ├── scripts/                          (prepare_upload.ps1, utilities)
 ├── testing/                          (test plan + results/)
 ├── source-documents/                 (.gitkeep — intake folder, gitignored)

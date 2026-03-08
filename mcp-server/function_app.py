@@ -42,13 +42,15 @@ def read_file(file_name: str) -> str | None:
 # Section parser
 # ---------------------------------------------------------------------------
 
-# Matches numbered headers in two formats:
+# Matches numbered headers in these formats:
 #   ## 1. Title          (most reference files)
 #   ### 1.1 Title        (subsections)
 #   ## §1 Title          (§ prefix variant, kept for compat)
-# Captures the number without trailing period.
+#   ## 2A. Title         (alphanumeric sections, e.g. IP-TAXONOMY)
+#   ### 2A.5 Title       (alphanumeric subsections)
+# Captures the ref without trailing period.
 _HEADER_RE = re.compile(
-    r"^(#{2,4})\s*[§S]?\s*(\d[\d.]*?)\.?\s+(.+)$",
+    r"^(#{2,4})\s*[§S]?\s*(\d+[A-Za-z]?(?:\.\d+)*)\.?\s+(.+)$",
     re.MULTILINE,
 )
 

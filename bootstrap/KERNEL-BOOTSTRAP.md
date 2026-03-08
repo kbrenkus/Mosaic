@@ -152,13 +152,15 @@ az functionapp config appsettings set \
 
 **Step 3: Deploy the function code**
 
-Copy the MCP server code from `Mosaic/mcp-server/` to a deployment directory:
+Copy the MCP server code from `Mosaic/mcp-server/` into the instance repo:
 
 ```bash
-cp -r Mosaic/mcp-server/ {org}-mcp-deploy/
-cd {org}-mcp-deploy
+cp -r Mosaic/mcp-server/ {org}-instance/mcp-server/
+cd {org}-instance/mcp-server
 func azure functionapp publish {org}-mcp-server --python
 ```
+
+Add a `.gitignore` in `mcp-server/` for `.python_packages/` and `local.settings.json`.
 
 **Step 4: Get the function key**
 

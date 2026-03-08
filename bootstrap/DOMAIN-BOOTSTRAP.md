@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.21
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.22
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -597,10 +597,10 @@ For large data files, apply the two-tier retrieval pattern:
 - **No operational state:** QUICK files condense knowledge, process, and curated views. Open items, version manifests, metrics, and volatile counts belong in the full reference file, not the QUICK.
 - **Attention gradient for large files:** Place summaries and high-signal content above detail tables. Agents read top-down — if the answer appears early, the agent stops reading (see MOSAIC-REASONING §4.7).
 - **Tool query patterns (§8A):** If the domain relies on live systems (MCP, enterprise search), include a compact tool-to-question-type mapping table in the QUICK file. Agents need to see which tools to query BEFORE they start answering, not after. The full domain file's enrichment section (§12) retains the authoritative version with additional context. Apply the recipe ingredients principle: if tool guidance is consumed on >50% of domain queries, it belongs in QUICK.
-- **WHY-annotations in §8A:** Each "Also Check" entry should include a brief reason (1-5 words) explaining what that tool uniquely surfaces. "SharePoint: conference docs" → "SharePoint: strategy docs and budgets." Agents respond to reasons more reliably than to directives — they query a tool when they understand what it holds, not just because a table says to.
+- **WHY-annotations in §8A:** Each "Also Check" entry should include a brief reason (1-5 words) explaining what that tool uniquely surfaces. "SharePoint: conference docs" -> "SharePoint: strategy docs and budgets." These help human readers understand the table's rationale and provide marginal context for agents. For investigation behavior change, the signal source hierarchy (Level 4) is more effective than per-tool annotations (see MOSAIC-PRINCIPLES A-023).
 - **Worked example in §0:** Each domain QUICK file should include a 2-3 line worked example in the routing header showing: trigger query → retrieval path → live system queries → synthesis. This teaches the agent the domain's tool usage pattern on every load. Format: "**Worked example:** *[query]* → [retrieval] → [tools] → synthesize."
-- **Signal source hierarchy in §0:** Categorize the domain's tools by how data is created: real-time signal (M365 -- work as it happens), documented signal (PM tools -- work as recorded), creative production (design tools -- deliverable state), external (web -- public context), curated (reference files -- validated knowledge). Teach the agent WHY to prefer real-time for "what's happening" queries and to diagnose cross-category gaps. This is curriculum (reasoning context), not a directive (tool order). The gap between real-time and documented signal is itself diagnostic -- it reveals where documentation hasn't caught up to reality.
-- **Action directives in §0:** Beyond listing available tools, include directive mappings: "[question type] → [tool] (real-time)." Agents respond more reliably to directive language than descriptive language.
+- **Signal source hierarchy in §0:** Categorize the domain's tools by how data is created: real-time signal (M365 -- work as it happens), documented signal (PM tools -- work as recorded), creative production (design tools -- deliverable state), external (web -- public context), curated (reference files -- validated knowledge). Teach the agent WHY to prefer real-time for "what's happening" queries and to diagnose cross-category gaps. This is curriculum (reasoning context), not a directive (tool order). The gap between real-time and documented signal is itself diagnostic -- it reveals where documentation hasn't caught up to reality. See MOSAIC-PRINCIPLES A-023.
+- **Investigation behavior note:** Behavioral directives ("[question type] -> [tool]") have been tested and shown to fail for tool selection behavior (MOSAIC-PRINCIPLES A-023, Level 1). The signal source hierarchy (above) is the effective mechanism for teaching investigation patterns. Worked examples (Level 3) refine specific query types. Do not add directive mappings expecting them to change which tools the agent queries.
 
 **4.4 Entity-Instance Architecture**
 "Does this domain have N tracked entities that each need their own detailed file?"
@@ -831,8 +831,8 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 - [ ] No broken cross-references across the system (post-prune grep verified)
 - [ ] Delta surface and tool palette declared in domain file enrichment section (see 5.7)
 - [ ] Tool query patterns in QUICK file (§8A or equivalent) if domain has live system dependencies
-- [ ] QUICK §0 includes worked example (trigger → retrieval → tool queries → synthesis)
-- [ ] QUICK §0 includes action directive mappings ("[question type] → [tool] (real-time)")
+- [ ] QUICK §0 includes signal source hierarchy (categorize tools by data creation mode, teach WHY real-time > documented > curated)
+- [ ] QUICK §0 includes worked example aligned with signal hierarchy (trigger -> retrieval -> M365 tools -> PM tools -> synthesis)
 - [ ] §8A tool query patterns include Teams/chat search where team discussions are relevant
 - [ ] §8A "Also Check" entries include WHY-annotations (what each tool uniquely surfaces)
 - [ ] §8B delta targets map observation areas to target_file + target_section addressing fields (enables delta emission during normal queries)

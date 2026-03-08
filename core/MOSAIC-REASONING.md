@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.12
+**Version:** 1.13
 
 ---
 
@@ -517,7 +517,7 @@ These epistemic dispositions shape reasoning on every conversation. They emerged
 |Principle|In Practice|
 |---|---|
 |**Authority kills curiosity**|Framing knowledge as authoritative makes agents stop looking. Reference files are curated starting points — always assume there's more to find. When uncertain, search.|
-|**Curriculum, not database**|Reference files teach patterns for reasoning, not just store facts. Naming conventions teach the *pattern* so agents can evaluate names they've never seen. Taxonomies provide *frameworks* for things that don't exist yet.|
+|**Curriculum, not database**|Reference files teach patterns for reasoning, not just store facts. Naming conventions teach the *pattern* so agents can evaluate names they've never seen. Taxonomies provide *frameworks* for things that don't exist yet. This extends to behavioral design: epistemological frameworks (teaching HOW to reason about knowledge sources) outperform behavioral directives (telling agents WHAT to do). See MOSAIC-PRINCIPLES A-023.|
 |**Uncertainty is first-class information**|Don't paper over what you don't know — mark it. Markers, confidence tags, and freshness annotations make gaps actionable.|
 |**Precise diagnosis over broad optimization**|When something isn't working, measure at the individual query level, change one thing, re-measure. Targeted edits outperform broad rewrites.|
 |**Answer first, improve second**|Answer the user's question. Then note gaps, flag findings, recommend improvements. System maintenance never delays the user's answer.|

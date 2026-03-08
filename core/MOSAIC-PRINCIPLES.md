@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.6
+**Version:** 1.7
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -450,6 +450,28 @@ This principle extends the sensitivity tier model (MOSAIC-REASONING §2.2) from 
 
 ---
 
+**A-023 Intervention Hierarchy**
+
+Agent behavioral interventions operate at four levels. Each higher level is more generalizable but less specific. The most effective interventions teach the agent HOW to reason about a problem, not WHAT to do.
+
+|Level|Type|Mechanism|Effectiveness|
+|---|---|---|---|
+|1. Directive|"Do X when Y"|Behavioral rule competing for cognitive foreground|Fails for tool selection and investigation behavior|
+|2. Structural|Right info at right moment|Placement determines attention at decision time|Works for scaffolding output requirements|
+|3. Pattern|Worked example|Agent internalizes modeled sequence|Works for specific query types; takes precedence over Level 4 for modeled patterns|
+|4. Epistemological|Reasoning framework|Teach how to reason about knowledge sources|Works as default reasoning framework for all non-modeled query types|
+
+**Key discovery: Level 3 and Level 4 layer, not conflict.** Worked examples govern their specific query type. Epistemological frameworks govern everything else. Design both -- they serve different scopes. The hierarchy is the rising tide; worked examples are the targeted waves.
+
+**Worked example alignment:** Worked examples are most effective when they instantiate the epistemological framework for their specific query type, adding domain-specific refinements (which tools, which projects, which sections). Misaligned examples -- those prescribing a different investigation order than the framework would predict -- override the framework for their query type. This can be intentional (domain-specific reason to deviate, documented) or accidental (example written before framework existed). Audit worked examples against the signal hierarchy when adding one to a domain.
+
+- **Evidence:** 7 builds, 8 test rounds, 30 scored queries across IP Marketing domain. Level 1 (directives): WHY-annotations (Build 4) = 0 effect on tool breadth; tool judgment disclosure (Build 5) = 0/8 activation. Level 2 (structural): SS8A placement (Build 2) = tool breadth 4->7; SS8B delta targets (Build 5) = delta 0->10; third delta category (Build 7) = [PATTERN] 0->2. Level 3 (pattern): Teams worked example (Build 3) = Teams activation 0->4, but selective absorption (took Teams, ignored SharePoint from same example). Level 4 (epistemological): signal source hierarchy (Build 7) = tool breadth 8->10, M365-first on 2/3 queries, cross-source gap diagnosis in synthesis. Level 3/4 interaction: query modeled in worked example followed Level 3 order; queries without specific examples followed Level 4 hierarchy.
+- **Test:** When designing a behavioral intervention: (1) Is this a directive telling the agent what to do? (Level 1 -- will likely fail for tool selection.) (2) Is this structural placement of information at the right moment? (Level 2 -- effective for scaffolding.) (3) Is this a worked example modeling a specific pattern? (Level 3 -- effective for that query type.) (4) Is this a framework teaching how to reason about the problem? (Level 4 -- effective as default.)
+- **Anti-pattern:** Writing behavioral directives for tool selection ("always check Outlook first"). Adding WHY-annotations expecting they'll change tool breadth. Designing worked examples without checking alignment against the domain's signal hierarchy. Assuming Level 4 alone replaces Level 3 for specific query patterns.
+- **Activates during:** Build (QUICK file design, SS0 routing), tuning (diagnosing behavioral gaps), Phase 8 retroactive audits, domain bootstrap (Phase 4.3 design rules)
+
+---
+
 ### 3.3 Multi-Agent Design
 
 Principles for systems with multiple agents or agent types.
@@ -633,6 +655,7 @@ All 32 named principles with one-line definitions. For full entries with evidenc
 | A-020 | Navigation vs. Absorption Test | Navigated content is a retrieval candidate; absorbed content must be ambient. | 3.2 |
 | A-021 | Cognitive Foreground | Lookup data competes with dispositional content for attentional budget; three-way classification refines pruning. | 3.1 |
 | A-022 | Stewardship as Reasoning Posture | Stewarded data requires reasoning from obligation and sovereignty, not just tier classification. | 3.2 |
+| A-023 | Intervention Hierarchy | Four levels: directive < structural < pattern < epistemological. Level 3 and Level 4 layer, not conflict. | 3.2 |
 
 ---
 

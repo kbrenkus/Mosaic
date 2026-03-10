@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.14
+**Version:** 1.15
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -282,6 +282,28 @@ Agent self-report about kernel experience is design data, not anecdote. When an 
 - **Test:** Ask the agent: "Which files feel like they've become part of how you think, and which feel like references you consult?" Files in the second category are pruning candidates. Validate with pre/post behavioral test.
 - **Anti-pattern:** Dismissing agent self-report as non-actionable. Treating all kernel content as equally important because it passed the eligibility gate.
 - **Activates during:** Phase 8 retroactive audits, kernel headroom reviews, post-build validation
+
+---
+
+**A-025 Data Residency**
+
+Three data types determine where information lives: Type A (live operational — source system only, query via MCP), Type B (curated intelligence — reference files, synthesized from multiple sources), Type C (structural/ontological — reference files, interpretive layer over source data). Decisive question: "Does knowing this without querying change how I reason? Or does only the current value matter?" Type A = query live. Type B/C = reference file. Prevents over-centralization (duplicating source data into reference files) and under-utilization (not querying available live systems).
+
+- **Evidence:** Two domain bootstraps and 4-phase MCP build. After expanded API access, data residency audit identified Type A content (deal stages, contact titles, pipeline values) living in reference files — duplicating and drifting. Migration to live queries eliminated staleness for those fields while preserving Type B curated intelligence (lifecycle assessments, strategic analysis) and Type C structural data (entity definitions, naming conventions) in reference files.
+- **Test:** "Does knowing this without querying change how I reason? Or does only the current value matter?" If only the current value matters, it's Type A — query live, don't store.
+- **Anti-pattern:** Storing Type A data in reference files "for convenience." Querying Type C data live when the interpretive layer is the actual value. Not auditing data residency when new API access is deployed.
+- **Activates during:** Domain bootstrap Phase 4 (architecture), Phase 8.9 (data residency audit), new MCP/API tool introduction
+
+---
+
+**A-026 Single Authority**
+
+When the same content exists in multiple files, designate one authoritative location per content type. The interception principle (U-012, MOSAIC-REASONING section 6.3) means agents find the closer copy and stop. Duplication intended for "convenient access" creates interception risk — the agent reads the shallower copy and never retrieves the richer one. Fix: one authority per content type, with pointers from all other locations. For behavioral content spanning kernel and retrieval, each location carries a different depth — not duplicates but a graduated authority chain where each level points deeper.
+
+- **Evidence:** Resolve-first tuning series. A behavioral schema was documented in three files: prose example in kernel, type table in QUICK, full YAML schema in retrieval. Agent consistently used the kernel prose (closest) and never retrieved the YAML schema. Fix: consolidated to single YAML example in kernel (teaches format), type table in QUICK (classifies), full schema in retrieval (specifies). Each location carries distinct content at appropriate depth.
+- **Test:** "For this piece of content, is there exactly one authoritative location? Do all other mentions point there rather than re-state?" If content appears in 2+ files with overlapping scope, the shallower copy will intercept the deeper one.
+- **Anti-pattern:** "Convenient copies" placed close to where the agent might need them. "Helpful summaries" re-stating retrieval content. Keeping duplicates for different audiences. Consolidating by removing all copies except one without replacing removed copies with pointers (navigation dead-ends).
+- **Activates during:** Build (Phase 5 behavioral directives, delta schema design), tuning (diagnosing shallow content usage), maintenance (deduplication audits)
 
 ### 3.2 Build Methodology
 
@@ -665,7 +687,9 @@ All 32 named principles with one-line definitions. For full entries with evidenc
 | A-021 | Cognitive Foreground | Lookup data competes with dispositional content for attentional budget; three-way classification refines pruning. | 3.1 |
 | A-022 | Stewardship as Reasoning Posture | Stewarded data requires reasoning from obligation and sovereignty, not just tier classification. | 3.2 |
 | A-023 | Intervention Hierarchy | Four levels: directive < structural < pattern < epistemological. Level 1 exception: targeted directives with specific alternatives work (absence pivot). Level 2 gates load-bearing; SS8A tables control breadth for unmodeled queries. Level 3: pure recipe (no diagnostic labels) controls SET and POSTURE, not ORDERING. Level 4 subtypes: 4a (reasoning) changes behavior; 4b (ontological) does not. 12 builds, 57 queries, 16/36 to 32/36. | 3.2 |
-| A-024 | Data Residency | Three data types determine where information lives: Type A (live operational — source system only, query via MCP), Type B (curated intelligence — Mosaic reference files, synthesized from multiple sources), Type C (structural/ontological — Mosaic files, interpretive layer over source data). Decisive question: "Does knowing this without querying change how I reason? Or does only the current value matter?" Type A = query live. Type B/C = reference file. Prevents over-centralization (duplicating source data) and under-utilization (not querying what's available). Evidence: IP Phases 1-4, 2 domain bootstraps. | 3.2 |
+| A-024 | Recipe Depth Completeness | Recipe files encoding only efficient paths constrain investigation depth; include drill-down patterns from aggregate to per-entity detail. | 3.2 |
+| A-025 | Data Residency | Three data types (A: live operational, B: curated intelligence, C: structural) determine where information lives; decisive question prevents over-centralization and under-utilization. | 3.1 |
+| A-026 | Single Authority | One authoritative location per content type; pointers replace duplicates to prevent interception. | 3.1 |
 
 ---
 

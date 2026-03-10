@@ -117,7 +117,7 @@ Context-efficient formatting for all reference files (.md). These patterns reduc
 
 **Tables:** Minimal separators (`|---|`). No cell padding (`|value|` not `| value |`). Exception: numeric columns where alignment aids scanning.
 
-**Examples:** 1-2 for simple patterns. 3 max for complex/counterintuitive.
+**Examples:** 1-2 for simple patterns. 3 max for complex/counterintuitive. Worked examples for behavioral patterns contradicting agent instinct: always include — abstract directives fail for counterintuitive behaviors (A-023/F-1b).
 
 **Never compress:** Reasoning exposition in MOSAIC-REASONING (prose is load-bearing). Behavioral "Do NOT" / safety instructions. Data protection / sensitivity rules. Markdown headers (essential for hierarchy + `get_section` parsing).
 
@@ -255,7 +255,7 @@ For retroactive audits of existing domains, follow DOMAIN-BOOTSTRAP Phase 8. Aud
 - **File structure discipline:** When creating, renaming, or moving files, update all three locations: `scripts/prepare_upload.ps1` (upload script manifest), {ORG}-MAINTENANCE §5F Upload Manifest table, and {ORG}-INDEX §Related Reference Files (if the change affects a layer or category). Then verify no cross-references broke with a grep for the old name/path.
 - **New tool introduction checklist.** When a new MCP connection or service becomes available, follow this sequence in a single session:
   - **Discovery first:** (1) Fetch full API docs. (2) Build complete endpoint inventory classified: Active (use now) | Future-[Domain] (relevant later) | Not applicable. (3) **Applicability review checkpoint** — present catalog to user, get sign-off before encoding recipe file.
-  - **Build recipe file:** Create `reference/{ORG}-{SERVICE}-API.md` with active endpoints, quirks layer, future-domain notes, delta feedback pattern. Validate each active endpoint live during construction. Tag every endpoint with a validation status (`validated: YYYY-MM-DD`, `UNCONFIRMED`, `UNTESTED`, `FAILED`, `WRITE_DEFERRED`).
+  - **Build recipe file:** Create `reference/{ORG}-{SERVICE}-API.md` with active endpoints, quirks layer, future-domain notes, delta feedback pattern. For each aggregate endpoint, include the corresponding detail endpoint as an investigation depth pattern — the drill-down from account-level totals to per-entity breakdowns (A-024). Validate each active endpoint live during construction. Tag every endpoint with a validation status (`validated: YYYY-MM-DD`, `UNCONFIRMED`, `UNTESTED`, `FAILED`, `WRITE_DEFERRED`).
   - **Update 7 reference file locations** (after recipe file complete): (1) {ORG}-DOMAIN-ROUTER — `Tools:` in relevant domain entry. (2) {ORG}-{AGENT}-BEHAVIORS — §Connected Systems. (3) {ORG}-A2A-QUICK — §2.2 capability matrix row + §5.x recipe section. (4) Domain QUICK §0 — Tools declaration. (5) Domain QUICK §5 — systems YAML. (6) Domain QUICK §8A — question-type tool patterns. (7) {ORG}-SYSTEMS-QUICK §0 — system inventory row.
   - **If write-enabled:** add §3.1 Write Safety Classification to the recipe file (field-level mechanical/data fill/interpretive/structural classification). Update {ORG}-A2A-QUICK §2.3 with a write-enabled line pointing to recipe §3.1. Behavioral write offer pattern ({ORG}-{AGENT}-BEHAVIORS §MCP Write Offers) covers all writable services generically.
   - **Verify:** grep for new tool name across all .md files — every domain that could use it should have a hit.

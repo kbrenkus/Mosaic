@@ -257,7 +257,7 @@ Mosaic uses a **Core + Retrieval architecture.** An organizational kernel (reaso
 
 The test: Does the question need a *reasoning pattern* (kernel) or *specific data* (retrieval)?
 
-**Data Residency heuristic (A-024).** When MCP/API access expands, determine where each data element should live using three types:
+**Data Residency heuristic (A-025).** When MCP/API access expands, determine where each data element should live using three types:
 - **Type A — Live Operational:** Only the current value matters (deal stages, contact records, follower counts, campaign metrics). Source system is authoritative. Query via MCP; never duplicate in reference files.
 - **Type B — Curated Intelligence:** Synthesized from multiple sources, doesn't exist in this form anywhere else (strategic profiles, relationship assessments, governance narratives). Reference files hold the integrated interpretive view.
 - **Type C — Structural/Ontological:** Entity types, taxonomy, stage meanings. Even when source systems have a version, Mosaic's version is the interpretive map — a different layer, not a duplicate.

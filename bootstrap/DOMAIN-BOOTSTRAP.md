@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.29
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.30
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -724,6 +724,22 @@ Both must be "yes" for kernel placement. Content that fails either test goes to 
 
 *Re-audit trigger:* Kernel headroom drops below 30% of platform limit, or 3+ domains have been bootstrapped since the last audit.
 
+**4.11 Write Architecture Design**
+When a domain's system inventory (Phase 1F) includes systems where agents can create, update, or delete records via MCP or API, design the write safety architecture before construction.
+
+**Write safety classification:** Classify each writable field by judgment required:
+
+|Classification|Description|Language Gradient|
+|---|---|---|
+|Mechanical|Deterministic correction (inactive owner, typo, legacy term)|Direct: "[field] is [problem]. Change to [fix]?"|
+|Data fill|Populating blank field from authoritative source|Suggestive: "I'd suggest [value] based on [evidence]. Update?"|
+|Interpretive|Requires domain judgment (stage, amount, dates)|Observation: "I noticed [issue]. I can update if you'd like."|
+|Structural|Changes entity relationships or system architecture|Never auto-offer — delta observation only|
+
+**Placement:** Classification table goes in the service recipe file (§3.1) — service-specific. Behavioral write offer pattern goes in agent behavior file once, generically covering all writable services (A-026 single authority). Do not duplicate the language gradient in both locations.
+
+**Pipeline writes:** For batch updates from pipelines, design per-category approval. Direct execution (agent API calls with per-record confirmation) for small batches; bulk tool processing for larger volumes. Threshold is instance-specific.
+
 **Completion criteria:**
 - [ ] Every artifact from Phase 3 assigned to kernel or retrieval
 - [ ] QUICK vs. full split defined for any large data files (with inclusion criteria and §0 routing header)
@@ -735,6 +751,7 @@ Both must be "yes" for kernel placement. Content that fails either test goes to 
 - [ ] Data sensitivity tiers defined and assigned to template sections — see 4.6
 - [ ] Cross-cutting file evolution impact assessed for source files — see 4.9
 - [ ] Kernel eligibility gate passed (default: retrieval only) — see 4.10
+- [ ] Write architecture designed if domain has writable systems (safety classification, language gradient, pipeline paths) — see 4.11
 
 ---
 
@@ -775,6 +792,11 @@ Include sensitivity markers per section (see Phase 4.6) and source attribution m
 - For retrieval-aware rewrites: verify that directives previously assuming static data now correctly reference domain retrieval
 - If the instance BEHAVIORS doesn't already include a delta audit section (observations → formal YAML after the main answer), add one during the first domain build. This is an instance-level directive, not per-domain.
 
+**Directive authoring methodology (A-023 application):**
+- Choose intervention level deliberately. For behaviors aligning with agent instinct, Level 1 directive may suffice. For behaviors contradicting agent instinct (offering writes instead of executing, surfacing observations before answering), skip Level 1 — go to Level 2+ (demonstration). Abstract directives fail for counterintuitive behaviors; worked examples are often the only effective intervention (F-1b, validated: abstract routing directive = zero effect, worked example = immediate success).
+- Single authority per content type (A-026): behavioral example in kernel (teaches), type table in QUICK (classifies), full schema in retrieval (specifies). Do NOT duplicate same content at different locations — agent finds closer copy and stops (interception).
+- Format worked examples as action-oriented recipes with concrete search targets. Do NOT embed parenthetical diagnostic labels — these fragment the action arc and cost 2-3 points (Build 12, A-023). Do NOT use abstract framing ("investigate with tools that matter") — creates deliberation posture reducing investigation depth.
+
 **5.6 Domain Consolidation & Source Pruning**
 When a new domain consolidates content that was previously scattered across other files (identified in Phase 1F scatter map and classified in F1-3), the source files must be pruned to prevent interception conflicts and improve system clarity.
 
@@ -811,7 +833,7 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 
 1. **Delta detection surface** — which reference file sections contain drifting data vs. stable anchors. For each drifting section: what to compare against (which live system), staleness threshold, and refresh cadence.
 
-2. **Tool query patterns** — which live systems to query per question type within this domain. **Placement rule:** place a compact version in the QUICK file (§8A) so agents see it on every domain query. The full domain file's enrichment section retains the detailed version with system paths, project GIDs, and recipes. Without QUICK placement, agents must retrieve the full file's enrichment section to learn which tools to use — an extra hop most queries won't trigger.
+2. **Tool query patterns** — which live systems to query per question type within this domain. **Placement rule:** place a compact version in the QUICK file (§8A) so agents see it on every domain query. The full domain file's enrichment section retains the detailed version with system paths, project GIDs, and recipes. Without QUICK placement, agents must retrieve the full file's enrichment section to learn which tools to use — an extra hop most queries won't trigger. For each tool, include not just which tool to use but how deep to investigate — encode investigation depth patterns (A-024) showing the drill-down from aggregate to per-entity detail.
 
 3. **Multi-agent source assignment** — which agent handles which data source for this domain (extends Phase 6.7).
 
@@ -835,7 +857,7 @@ Each domain file's enrichment section (§12 or equivalent) should declare:
 - [ ] Delta surface and tool palette declared in domain file enrichment section (see 5.7)
 - [ ] Tool query patterns in QUICK file (§8A or equivalent) if domain has live system dependencies
 - [ ] QUICK §0 includes signal source hierarchy (categorize tools by data creation mode, teach WHY real-time > documented > curated)
-- [ ] QUICK §0 includes worked example as action-oriented recipe with diagnostic labels (trigger -> retrieval -> tool: concrete targets (diagnostic label) -> cross-reference -> synthesis; agent determines ordering regardless of example sequence)
+- [ ] QUICK §0 includes worked example as action-oriented recipe (trigger -> retrieval -> tool: concrete targets -> cross-reference -> synthesis; agent determines ordering regardless of example sequence). No parenthetical diagnostic labels (costs 2-3 points, Build 12/A-023).
 - [ ] §8A tool query patterns include Teams/chat search where team discussions are relevant
 - [ ] §8A "Also Check" entries include WHY-annotations (what each tool uniquely surfaces)
 - [ ] §8B delta targets map observation areas to target_file + target_section addressing fields (enables delta emission during normal queries)
@@ -1034,6 +1056,23 @@ Examples: "How does our marketing pipeline connect to growth targets?" (Marketin
 
 Evidence: Marketing+Growth cross-domain queries scored 14-15/16 in IP validation (2026-03-08). Cross-domain queries are the highest-value test type because they exercise the system's integration quality, not just domain-level content.
 
+**7.7 Behavioral Tuning Methodology**
+When Phase 7.2 post-build comparison or ongoing operations reveal behavioral deficits (tool selection failures, investigation depth issues, wrong output format), apply systematic tuning rather than ad hoc directive writing.
+
+**When tuning is triggered:** Validation scores below acceptance criteria on specific dimensions, user-reported behavioral patterns reducing quality, or agent self-report identifying friction (A-019).
+
+**Diagnosis framework (A-006, A-023):**
+1. Identify the specific failing query and score it against the rubric
+2. Determine which A-023 level is failing before writing any intervention. Is this a directive issue (Level 1)? Structural placement (Level 2)? Pattern coverage (Level 3)? Reasoning framework (Level 4)?
+3. If the behavior contradicts agent instinct, skip Level 1 — go directly to Level 2+ (F-1b)
+
+**Tuning discipline:**
+- One directive per failure mode — change one thing, test after each. Bundling makes attribution impossible.
+- Pre/post test each version using the same queries and rubric. Record in a tuning register.
+- If an abstract directive produces zero effect, try a worked example (F-1b). Do not iterate on the directive — the intervention level is wrong.
+- Interception check: verify the example is placed where the agent already looks. Examples in retrieval will be intercepted by shallower kernel content (A-026).
+- Use fictional entities in worked examples to prevent test contamination — real test-query clients create false positives.
+
 **Completion criteria:**
 - [ ] Pre-build baseline scored on primary agent (before Phase 5 begins)
 - [ ] Pre-build baseline scored on secondary agent(s) per Phase 6.7 model
@@ -1043,6 +1082,8 @@ Evidence: Marketing+Growth cross-domain queries scored 14-15/16 in IP validation
 - [ ] Steward formally reviews 3-5 responses and confirms quality
 - [ ] Phase 1F reasoning failures now resolved (success criteria met)
 - [ ] Pre/post results recorded in testing/ directory
+- [ ] Behavioral tuning methodology applied if validation reveals behavioral deficits (see 7.7)
+- [ ] Tuning register maintained if 2+ tuning iterations needed
 
 ---
 
@@ -1086,7 +1127,7 @@ The Phase 4.10 kernel eligibility gate determines whether a FILE earns kernel sp
 
 **8.9 Data Residency Audit (after expanded API access)**
 
-When new MCP/API access is deployed (new tools, expanded write access, new service connections), audit affected domain reference files for data residency (A-024). For each significant data element in scope files, classify:
+When new MCP/API access is deployed (new tools, expanded write access, new service connections), audit affected domain reference files for data residency (A-025). For each significant data element in scope files, classify:
 - **Type A found in reference files** → Mark for migration. Data belongs in source system; reference file is duplicating and drifting. Validate CRUD before migrating (can the target system create, read, update, delete this data via API?).
 - **Type B confirmed** → Validate currency. If stale, enrich or flag. If accurate, leave.
 - **Type C confirmed** → No action unless interpretive layer has diverged from source system reality.

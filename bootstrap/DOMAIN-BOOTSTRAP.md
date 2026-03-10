@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.28
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.29
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -1027,6 +1027,13 @@ For shared queries run on multiple agents, compare scores to assess parity:
 3. **Post-build parity should improve** — reference files should narrow the gap between agents on shared queries. If the gap widens post-build, investigate whether the new files are only accessible to one agent.
 4. **Document parity findings** — these inform both file design (what knowledge must be encoded vs. discovered) and A2A protocol tuning.
 
+**7.6 Cross-Domain Validation Queries (when 2+ domains exist)**
+When two or more domains have been bootstrapped, include 1-2 queries that force reasoning across domain boundaries. These test whether bridges, routing, and dispositional reasoning produce emergent synthesis — not just domain-by-domain answers.
+
+Examples: "How does our marketing pipeline connect to growth targets?" (Marketing + Growth), "What financial implications does this client engagement have?" (Growth + Finance). The answer should draw from both domains without being asked to.
+
+Evidence: Marketing+Growth cross-domain queries scored 14-15/16 in IP validation (2026-03-08). Cross-domain queries are the highest-value test type because they exercise the system's integration quality, not just domain-level content.
+
 **Completion criteria:**
 - [ ] Pre-build baseline scored on primary agent (before Phase 5 begins)
 - [ ] Pre-build baseline scored on secondary agent(s) per Phase 6.7 model
@@ -1076,6 +1083,20 @@ The Phase 4.10 kernel eligibility gate determines whether a FILE earns kernel sp
 8. **Validate with pre/post behavioral test** — run identical queries before and after pruning. No regression = the content was navigated, not absorbed. See MOSAIC-OPERATIONS §7 for test methodology.
 
 *Not every domain needs every audit cycle.* Focus audit effort on domains with active users and operational pipelines. Dormant domains can wait.
+
+**8.9 Data Residency Audit (after expanded API access)**
+
+When new MCP/API access is deployed (new tools, expanded write access, new service connections), audit affected domain reference files for data residency (A-024). For each significant data element in scope files, classify:
+- **Type A found in reference files** → Mark for migration. Data belongs in source system; reference file is duplicating and drifting. Validate CRUD before migrating (can the target system create, read, update, delete this data via API?).
+- **Type B confirmed** → Validate currency. If stale, enrich or flag. If accurate, leave.
+- **Type C confirmed** → No action unless interpretive layer has diverged from source system reality.
+- **Unclassifiable** → Flag for human judgment.
+
+**Do NOT migrate during the audit session.** Audit first, confirm classifications, then plan migrations as a separate workstream. Do NOT remove reference file content before the target system field is validated and populated (CRUD validation gate).
+
+**8.10 Process Improvement Register (optional)**
+
+Bootstrap work is inherently diagnostic — it reveals organizational maturity gaps as a byproduct. Optionally maintain a Process Improvement Register during the bootstrap, classifying gaps as: UNDOCUMENTED (process exists informally), FRAGMENTED (spread across systems), MISSING (no process exists), INFORMAL (relies on individual knowledge). Synthesize into an Organizational Intelligence Brief at Phase 7.5. Evidence: IP Finance PIR produced 10 items with 2 critical; review at Phase 3 took ~5 minutes.
 
 ---
 

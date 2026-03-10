@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.13
+**Version:** 1.14
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -665,6 +665,7 @@ All 32 named principles with one-line definitions. For full entries with evidenc
 | A-021 | Cognitive Foreground | Lookup data competes with dispositional content for attentional budget; three-way classification refines pruning. | 3.1 |
 | A-022 | Stewardship as Reasoning Posture | Stewarded data requires reasoning from obligation and sovereignty, not just tier classification. | 3.2 |
 | A-023 | Intervention Hierarchy | Four levels: directive < structural < pattern < epistemological. Level 1 exception: targeted directives with specific alternatives work (absence pivot). Level 2 gates load-bearing; SS8A tables control breadth for unmodeled queries. Level 3: pure recipe (no diagnostic labels) controls SET and POSTURE, not ORDERING. Level 4 subtypes: 4a (reasoning) changes behavior; 4b (ontological) does not. 12 builds, 57 queries, 16/36 to 32/36. | 3.2 |
+| A-024 | Data Residency | Three data types determine where information lives: Type A (live operational — source system only, query via MCP), Type B (curated intelligence — Mosaic reference files, synthesized from multiple sources), Type C (structural/ontological — Mosaic files, interpretive layer over source data). Decisive question: "Does knowing this without querying change how I reason? Or does only the current value matter?" Type A = query live. Type B/C = reference file. Prevents over-centralization (duplicating source data) and under-utilization (not querying what's available). Evidence: IP Phases 1-4, 2 domain bootstraps. | 3.2 |
 
 ---
 

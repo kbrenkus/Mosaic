@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.12
+**Version:** 1.13
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -469,6 +469,15 @@ Agent behavioral interventions operate at four levels. Each higher level is more
 - **Test:** When designing a behavioral intervention: (1) Is this a directive telling the agent what to do? (Level 1 -- will likely fail for tool selection.) (2) Is this structural placement of information at the right moment? (Level 2 -- effective for scaffolding.) (3) Is this a worked example modeling a specific pattern? (Level 3 -- effective for that query type.) (4) Is this a framework teaching how to reason about the problem? (Level 4 -- effective as default.)
 - **Anti-pattern:** Writing behavioral directives for tool selection ("always check Outlook first"). Adding WHY-annotations expecting they'll change tool breadth. Designing worked examples that prescribe tool ordering (the agent ignores sequence cues). Assuming Level 4 alone replaces Level 3 for tool coverage. Assuming either Level 3 or Level 4 overrides the agent's structural judgment about query-type fit. **Adding ontological catalogs (tool descriptions, entity inventories) expecting behavioral change -- these are subtype 4b, not 4a.** Softening Level 2 structural directives that gate investigation completion ("follow these before X"). **Using abstract/deliberative framing in worked examples ("investigate with the tools that matter", "consider which tools are relevant") -- creates deliberation posture that reduces investigation depth on non-modeled queries. Use action-oriented recipe framing with concrete search targets instead.** **Embedding diagnostic labels "(highest currency)", "(planned state)" in action-oriented recipes -- these fragment the action arc with micro-deliberation pauses. The signal source hierarchy paragraph provides epistemological framing separately (Build 12).**
 - **Activates during:** Build (QUICK file design, SS0 routing), tuning (diagnosing behavioral gaps), Phase 8 retroactive audits, domain bootstrap (Phase 4.3 design rules)
+
+**A-024 Recipe Depth Completeness**
+
+Recipe files that optimize for API call efficiency can inadvertently constrain investigation depth. An agent following a recipe stops exploring once it has what the recipe prescribes — the recipe becomes a ceiling, not a floor. The fix: recipe files should encode not just "how to get data" but "how deep to investigate." For each aggregate endpoint, include the corresponding detail endpoint as an **investigation depth pattern** — the drill-down path from account-level totals to per-entity breakdowns.
+
+- **Evidence:** Phase 2 HubSpot smoke test (2026-03-10). Run 2 (no recipe, trial-and-error): agent accidentally discovered `/email/public/v1/campaigns/{campaignId}` individual campaign endpoint, produced detailed per-campaign performance table with 8+ campaigns. Run 3 (with recipe): agent followed recipe to aggregate endpoint, got account-level totals, stopped — produced shallower analysis despite better efficiency (3 API calls vs 15). The recipe's efficiency gain became an investigation depth loss. Adding the campaign detail endpoint as an "investigation depth pattern" to the recipe restores depth while preserving efficiency.
+- **Test:** For each aggregate endpoint in a recipe file, ask: "What's the drill-down path from this summary to per-entity detail?" If the answer exists but isn't in the recipe, the recipe constrains depth.
+- **Anti-pattern:** Recipe files that only encode the most efficient path to aggregate data. Assuming that fewer API calls always produces better outcomes — the measure is analytical quality, not call count.
+- **Activates during:** Recipe file construction (Phase 1 build), recipe file maintenance (smoke test feedback loops), domain bootstrap Phase 6 (enrichment pipeline design)
 
 ---
 

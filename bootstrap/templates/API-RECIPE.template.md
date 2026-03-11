@@ -504,6 +504,6 @@ Source: {live API call or documentation}, YYYY-MM-DD
      [ ] §9 Delta feedback pattern
      [ ] All Active endpoints validated live during construction
      [ ] Investigation depth patterns marked for every aggregate endpoint
-     [ ] NTIC 7-location update (see CLAUDE.md new tool checklist)
+     [ ] NTIC 8-location update (see CLAUDE.md new tool checklist — includes governance reclassification + conflict scan)
      [ ] Smoke test (3 queries in Claude.ai after upload)
 -->

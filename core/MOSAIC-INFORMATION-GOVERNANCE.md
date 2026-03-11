@@ -59,7 +59,7 @@ tiers:
       - Human review of agent outputs before delivery
       - Behavioral gates on agent queries
       - Quarterly access reviews
-    examples: Tax IDs (EINs), registrations, ownership percentages, distributions, K-1s, insurance details
+    examples: State registrations, ownership percentages, distributions, K-1s, insurance details, UEI/CAGE codes
   4:
     name: Prohibited
     description: Must never exist in any agent knowledge base, retrieval system, or persistent memory

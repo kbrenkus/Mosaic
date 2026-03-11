@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.14
+**Version:** 1.15
 
 ---
 
@@ -39,6 +39,8 @@ Transparency should have architecture. Sensitivity rules in instance BEHAVIORS f
 - **Tier 2 (function-relevant):** Limited audience (financial details, legal matters, personnel decisions). Share with those who need it for their work.
 - **Tier 3 (restricted):** Legally or regulatorily privileged (attorney-client privilege, ownership/board matters, personnel actions in progress). Restricted by legal obligation, not choice.
 - **Tier 4 (prohibited from agent systems):** Must never exist in agent knowledge files or persistent memory. Source systems only.
+
+Note: sensitivity tiers classify INFORMATION, not systems. Whether an agent has technical access to a system (MCP connectivity) is independent from the sensitivity tier of data inside that system. Instance files define system connectivity separately. See MOSAIC-INFORMATION-GOVERNANCE §2.5.
 
 **Five principles:**
 1. **Default to transparency.** The question is "is there a reason not to share?" — not "should we share?"

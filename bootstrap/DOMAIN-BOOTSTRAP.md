@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.30
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.31
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -260,7 +260,7 @@ Phase 1F ───────────────────────�
 
 *Technique:* Start with the Level 0 system inventory and filter for relevance. Then probe for hidden sources — spreadsheets, shared drives, email folders, institutional knowledge that hasn't been digitized.
 
-*Critical addition — agent accessibility:* "For each system, can the AI agents access it programmatically? What are the connector limitations? What data is visible to MCP/API and what requires manual export or workarounds?"
+*Critical addition — agent accessibility:* "For each system, classify connectivity: Agent-Integrated (MCP/API access exists) or Manual (human-only access). For Agent-Integrated systems: what connector, what limitations? For Manual systems: what workaround exists? Connectivity is independent from data sensitivity — a Manual system may contain Tier 1 data; an Agent-Integrated system may contain Tier 2-3 data. See MOSAIC-INFORMATION-GOVERNANCE §2.5."
 
 *Why this matters:* The distinction between "system holds data" and "agent can access data" is foundational. If a CRM has custom objects that are invisible to the MCP connector, that drives the entire multi-agent execution model — you need manual exports, different agents for different access patterns, and workaround pipelines. Discover this in Phase 1, not Phase 5.
 
@@ -297,7 +297,7 @@ The boundary test prevents both over-extraction (orphaning governance) and under
 
 **Completion criteria:**
 - [ ] Every relevant system identified with entity types listed
-- [ ] Agent accessibility assessed per system (MCP/API, manual, workaround needed)
+- [ ] System connectivity classified per system (Agent-Integrated / Manual per MOSAIC-INFORMATION-GOVERNANCE §2.5)
 - [ ] MCP availability searched for systems without current access (official, community, third-party servers)
 - [ ] Every existing reference to this domain in the current architecture cataloged
 - [ ] At least one "invisible entity" or scattered-knowledge pattern identified
@@ -656,6 +656,7 @@ Sensitivity design informs:
 - **Data governance:** Sovereignty constraints, compliance rules, and access controls applied at the tier level, not the file level.
 - **Multi-agent access control:** If the domain may be queried by agents serving different organizations or audiences (e.g., parent company agent + subsidiary agents, or internal agent + client-facing agents), define which agents can access which tiers. This is a hard boundary — architectural enforcement, not behavioral instruction. An external-facing agent must be blocked from internal tiers regardless of who asks through it. The question: "If a user of Agent B asks about content in Agent A's domain, what should Agent A reveal?" Design these boundaries during Phase 3.5 (design brief) so tier markers and access rules are in place before construction. Connects to data sovereignty: the same principle that prevents cross-entity data aggregation also prevents cross-agent data leakage.
 - **Type overlay application:** Identify which information types from MOSAIC-INFORMATION-GOVERNANCE §3 apply to this domain (PHI, Legal-Privileged, Financial-Ownership, HR-Protected, Sovereign). For each applicable type: document the regulatory driver, special handling requirements, and minimum effective tier. Type overlays elevate, never reduce — a Tier 1 data element that is also PHI becomes at least Tier 3.
+- **System connectivity classification:** Ensure the domain's system inventory uses Agent-Integrated / Manual vocabulary (not "Tier") for system connectivity. Connectivity is a technical fact independent from data sensitivity. A system becoming Agent-Integrated does not change the sensitivity tier of its data. See MOSAIC-INFORMATION-GOVERNANCE §2.5.
 - **Stewardship assessment:** Does this domain contain data held on behalf of external entities (clients, sovereign governments, partners)? If yes, apply the stewardship model from MOSAIC-INFORMATION-GOVERNANCE §4. Document: which data is owned vs. stewarded, what stewardship terms apply, per-entity isolation requirements, consent-gated exceptions. Stewardship obligations may exceed what the tier alone would require.
 - **Enforcement mechanism selection:** For each agent x tier combination in this domain, choose an enforcement level (behavioral, structural, system-level) per MOSAIC-INFORMATION-GOVERNANCE §5.3. Higher tiers and external agents warrant stronger enforcement. Document current state and target state if they differ.
 

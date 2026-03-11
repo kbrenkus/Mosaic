@@ -1,6 +1,6 @@
 # MOSAIC-INFORMATION-GOVERNANCE — Shared Information Governance Framework
 
-**Version:** 1.2
+**Version:** 1.3
 
 ---
 
@@ -140,6 +140,29 @@ authorization_model:
 ```
 
 Instance governance files define the specific named role-holders for Tier 3 and any organization-specific work-need guidance for Tier 2.
+
+### 2.5 System Connectivity vs. Data Sensitivity
+
+System connectivity (whether an agent has MCP/API access to a system) and data sensitivity (what tier the data inside carries) are independent dimensions. Conflating them is the most common governance reasoning failure in multi-agent systems.
+
+```yaml
+system_connectivity:
+  definition: Binary technical fact -- agent has authenticated API/MCP access to this system, or it does not
+  vocabulary: Agent-Integrated / Manual (never "Tier")
+  where_documented: Instance INDEX file (system inventory section)
+  NOT_governance: Connectivity is infrastructure, not policy. A system becoming Agent-Integrated does not change the sensitivity tier of its data.
+
+data_sensitivity:
+  definition: Four-tier classification of information handling rules (section 2.1)
+  vocabulary: Tier 1-4
+  where_documented: This file (shared), instance INFORMATION-GOVERNANCE file
+  NOT_access: Sensitivity determines handling (what to store, display, persist) -- not whether the agent can query.
+
+common_conflation:
+  symptom: Agent says "Financial systems are Tier 4, no agent access" when asked about an MCP-connected financial system
+  cause: Governance fragment used "Tier" for BOTH system access and data sensitivity
+  fix: Never use "Tier" vocabulary for system connectivity. A financial system can be Agent-Integrated (connectivity) while containing Tier 2 data (sensitivity). The agent queries the system; sensitivity rules govern what it does with the results.
+```
 
 ---
 

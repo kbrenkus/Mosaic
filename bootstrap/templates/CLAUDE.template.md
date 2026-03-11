@@ -209,7 +209,7 @@ This instance repo sits alongside the shared Mosaic methodology repo:
 
 When bootstrapping a new domain for this instance, follow DOMAIN-BOOTSTRAP.md (Mosaic/bootstrap/) Levels 1-3. Key integration points with this instance:
 
-- **Phase 1F (Substrate Audit):** System inventory in {ORG}-INDEX. Agent accessibility documented per system.
+- **Phase 1F (Substrate Audit):** System inventory in {ORG}-INDEX. System connectivity classified per system (Agent-Integrated / Manual per MOSAIC-INFORMATION-GOVERNANCE §2.5).
 - **Phase 2F (Data Mapping):** Run discovery across available agents in parallel. Capture results with agent provenance.
 - **Phase 4 (Architecture):** Kernel budget tracked in {ORG}-MAINTENANCE §5E. Apply File Optimization Rules (above) from the start. Kernel eligibility gate (§4.10): default is retrieval-only.
 - **Phase 5 (Construction):** File naming convention: {ORG}-{DOMAIN}-QUICK.md, {ORG}-{DOMAIN}.md. Router entry in {ORG}-DOMAIN-ROUTER.md. Manifest rows in {ORG}-MAINTENANCE §2.1 and §2.2. Behavioral directives in {ORG}-CLAUDE-BEHAVIORS and {ORG}-COPILOT-BEHAVIORS (parity check applies).
@@ -256,7 +256,7 @@ For retroactive audits of existing domains, follow DOMAIN-BOOTSTRAP Phase 8. Aud
 - **New tool introduction checklist.** When a new MCP connection or service becomes available, follow this sequence in a single session:
   - **Discovery first:** (1) Fetch full API docs. (2) Build complete endpoint inventory classified: Active (use now) | Future-[Domain] (relevant later) | Not applicable. (3) **Applicability review checkpoint** — present catalog to user, get sign-off before encoding recipe file.
   - **Build recipe file:** Create `reference/{ORG}-{SERVICE}-API.md` using `Mosaic/bootstrap/templates/API-RECIPE.template.md` as the structural template. Includes: §0 routing, §1 tool routing with `tool_search`, §2 read recipes, §3 write recipes + safety classification (if write-enabled), §4 query patterns (if API has query language), §5 instance-specific mappings, §6 quirks, §7 endpoint catalog, §8 intelligence baseline (if Type B data), §9 delta feedback. For each aggregate endpoint, include the corresponding detail endpoint as an investigation depth pattern — the drill-down from account-level totals to per-entity breakdowns (A-024). Validate each active endpoint live during construction. Tag every endpoint with a validation status (`validated: YYYY-MM-DD`, `UNCONFIRMED`, `UNTESTED`, `FAILED`, `WRITE_DEFERRED`).
-  - **Update 8 reference file locations** (after recipe file complete): (1) {ORG}-DOMAIN-ROUTER — `Tools:` in relevant domain entry. (2) {ORG}-{AGENT}-BEHAVIORS — §Connected Systems. (3) {ORG}-A2A-QUICK — §2.2 capability matrix row + §5.x recipe section. (4) Domain QUICK §0 — Tools declaration. (5) Domain QUICK §5 — systems YAML. (6) Domain QUICK §8A — question-type tool patterns. (7) {ORG}-SYSTEMS-QUICK §0 — system inventory row. (8) **Governance reclassification** — if the system was previously classified as no-agent-access in the system index, reclassify to agent-connected. Then run a conflict scan: grep for the system name alongside restrictive terms (`"no agent access"`, `"human only"`, `"direct humans"`) across all .md files and resolve every hit. Watch for generic category labels (e.g., "Financial systems") that sweep in the newly-connected system alongside still-restricted systems — replace with specific system names.
+  - **Update 8 reference file locations** (after recipe file complete): (1) {ORG}-DOMAIN-ROUTER — `Tools:` in relevant domain entry. (2) {ORG}-{AGENT}-BEHAVIORS — §Connected Systems. (3) {ORG}-A2A-QUICK — §2.2 capability matrix row + §5.x recipe section. (4) Domain QUICK §0 — Tools declaration. (5) Domain QUICK §5 — systems YAML. (6) Domain QUICK §8A — question-type tool patterns. (7) {ORG}-SYSTEMS-QUICK §0 — system inventory row. (8) **Governance reclassification** — if the system was previously listed as Manual in {ORG}-INDEX, update it to Agent-Integrated. Then run a conflict scan: grep for the system name alongside restrictive terms (`"no agent access"`, `"human only"`, `"direct humans"`, `"Manual"`) across all .md files and resolve every hit. Watch for generic category labels (e.g., "Financial systems") that sweep in the newly-connected system alongside still-restricted systems — replace with specific system names.
   - **If write-enabled:** add §3.1 Write Safety Classification to the recipe file (field-level mechanical/data fill/interpretive/structural classification). Update {ORG}-A2A-QUICK §2.3 with a write-enabled line pointing to recipe §3.1. Behavioral write offer pattern ({ORG}-{AGENT}-BEHAVIORS §MCP Write Offers) covers all writable services generically.
   - **Verify:** grep for new tool name across all .md files — every domain that could use it should have a hit.
   - **Smoke test (3 queries after upload):** (1) Live data pull. (2) Write workflow (confirm-before-write). (3) Capability routing (A2A).
@@ -333,6 +333,14 @@ Four-tier model per MOSAIC-INFORMATION-GOVERNANCE:
 - **Never put Tier 3+ content** in CLAUDE.md, memory files, or QUICK reference files.
 - **Type overlays** (PHI, Legal-Privileged, Financial-Ownership, HR-Protected) elevate the effective tier, never reduce. See MOSAIC-INFORMATION-GOVERNANCE §3 for type definitions.
 - **When editing files that contain or reference sensitive data,** verify no Tier 3+ content leaked into QUICK files, kernel files, or memory files. Patterns to watch: EINs (`XX-XXXXXXX`), SSNs, account numbers, insurance policy numbers.
+
+## System Connectivity (Not a Sensitivity Tier)
+
+Whether an agent has MCP/API access to a system is a binary technical fact, NOT a governance classification. Never use "Tier" vocabulary for system connectivity. Use: "Agent-Integrated" or "Manual."
+
+- A system being Manual does NOT mean its data is Tier 4 -- it means the agent lacks technical access. Data sensitivity is classified independently.
+- A system being Agent-Integrated does NOT lower the sensitivity of its data -- the agent can query, but sensitivity rules govern what it stores, displays, and persists.
+- System connectivity: {ORG}-INDEX (system inventory). Data sensitivity: {ORG}-INFORMATION-GOVERNANCE.
 
 <!-- Add your organization's stewardship posture here. Examples:
      - "Solidarity posture: cross-client learning is the purpose, not the exception."

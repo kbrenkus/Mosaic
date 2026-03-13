@@ -436,20 +436,28 @@ future_entries:
 
 ## 8. Intelligence Baseline
 
-<!-- CONDITIONAL: Include this section if the service contains Type B
-     (curated intelligence) data worth capturing as a point-in-time snapshot.
-     Examples: LinkedIn follower demographics, GA4 traffic baselines,
-     QBO chart of accounts structure.
+<!-- CONDITIONAL: Include this section if the service contains curated zone
+     data (Curated zone per MOSAIC-OPERATIONS §4.8) worth capturing as a
+     point-in-time snapshot. The curated zone test: "Could a fresh agent
+     reconstruct this output in a single query session, given interpretive
+     frameworks + API access?" If no — it's curated state worth storing.
+     If yes — it's stale data masquerading as curated. Replace with an API
+     recipe in §2.
 
-     This is NOT a dump of live data (that's Type A — query live).
-     This is strategic context that changes slowly and helps the agent
-     reason even without a live call. Update when materially changed.
+     Examples of curated state: entity inventory with structural metadata
+     not in API results (realm pairings, class templates), follower
+     demographics with segmentation analysis, account structure with
+     governance annotations.
 
-     Delete this section for services where all data is Type A (live-query).
+     Examples of STALE data (do NOT store here): current deal amounts,
+     account balances, traffic numbers, email metrics. These belong in the
+     Live zone — write a recipe in §2 instead.
+
+     Delete this section for services where all data is Live zone.
      Most CRM/transactional services won't need this section.
 -->
 
-Type B data -- strategic intelligence baseline. Query live for current values; update this section when materially changed.
+Curated zone data — strategic intelligence baseline encoding judgment + structural context. Query live for current values; update this section when materially changed. For zone classification methodology: MOSAIC-OPERATIONS §4.8.
 
 **Last validated:** YYYY-MM-DD
 
@@ -500,7 +508,7 @@ Source: {live API call or documentation}, YYYY-MM-DD
      [ ] §5 Instance-specific mappings
      [ ] §6 API quirks (validate live — document every surprise)
      [ ] §7 Endpoint catalog with status tags
-     [ ] §8 Intelligence baseline (if Type B data exists)
+     [ ] §8 Intelligence baseline (if Curated/Structural zone data exists)
      [ ] §9 Delta feedback pattern
      [ ] All Active endpoints validated live during construction
      [ ] Investigation depth patterns marked for every aggregate endpoint

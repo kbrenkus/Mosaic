@@ -1,8 +1,9 @@
-# MOSAIC-OPERATIONS v1.6
+# MOSAIC-OPERATIONS v1.8
 
 > **Purpose:** Operational architecture for self-learning knowledge systems — how instances detect drift, accumulate observations, process learning, and maintain currency.
 > **Scope:** Company-agnostic. All examples use generic placeholders. Instance-specific operational details belong in instance files.
 > **Relationship:** MOSAIC-REASONING = how to think. MOSAIC-PRINCIPLES = design principles. MOSAIC-OPERATIONS = how the system learns.
+> **Charter:** Single authority for content placement decisions (which zone, which file, which format). Consumed during both construction (via DOMAIN-BOOTSTRAP pointer) and ongoing maintenance. For zone definitions, see MOSAIC-REASONING §6.7. For construction sequencing, see DOMAIN-BOOTSTRAP.
 
 ---
 
@@ -43,6 +44,7 @@ The system learns through four distinct loops over shared infrastructure, plus a
 - `[RECIPE]` — More effective way to query or combine results from connected systems.
 - `[ONTOLOGY]` — Entity or concept that doesn't fit existing classification frameworks.
 - `[CAUSAL]` — Hypothesized mechanism explaining *why* a pattern exists. Requires: (1) observed pattern, (2) specific falsifiable mechanism, (3) evidence beyond pattern data.
+- `[FRAMEWORK]` — Expert shares interpretive knowledge during conversation: evaluation criteria, governance rules, contextual reasoning, anti-patterns. Targets interpretive zone — definitions and frameworks that shape HOW data is read. Requires steward validation before integration (unlike other Loop 2 types that undergo human review, `[FRAMEWORK]` deltas are steward-specific because they modify the interpretive lens for an entire domain).
 
 **Graduation path:** `[PATTERN]` → `[CAUSAL]`. When you observe a pattern AND can articulate why, emit `[CAUSAL]` with the mechanism field. Don't wait for certainty.
 
@@ -141,6 +143,7 @@ Deltas are structured observations carrying learning from detection to integrati
 |`[RECIPE]`|2|Intelligence Queue|More effective query/combination method|Demonstrably better than existing|
 |`[ONTOLOGY]`|2|Intelligence Queue|Entity doesn't fit existing taxonomy|Unresolvable with current categories|
 |`[CAUSAL]`|2|Intelligence Queue|Mechanism hypothesis for observed pattern|Pattern + mechanism + evidence|
+|`[FRAMEWORK]`|2|Intelligence Queue|Expert interpretive knowledge (evaluation criteria, governance rules, anti-patterns)|Expert shares during conversation; steward validates|
 |`[DOMAIN]`|3|Intelligence Queue|Query class with no routing or domain|3+ occurrences of same class|
 |`[META]`|4|Intelligence Queue|Agent self-observation about reasoning|Specific evidence, not vague impression|
 |`[INQUIRY]`|—|Intelligence Queue|Testable hypothesis for user validation|Evidence bar met (see §2.5)|
@@ -326,6 +329,69 @@ Context window is shared between kernel + retrieval + conversation. Every KB sav
 
 **Operational rules** (format selection, whitespace, table padding, example counts) are codified in instance CLAUDE.md under "File Optimization Rules." Apply during: new file creation, existing file edits, domain bootstrapping, QUICK file regeneration.
 
+### §4.8 Content Placement Framework
+
+Single authority for "where does this content go?" — consumed during both construction (DOMAIN-BOOTSTRAP Phase 5) and maintenance (cycle processing). Zone definitions: MOSAIC-REASONING §6.7.
+
+#### Zone Litmus Tests
+
+Four tests classify content by refresh mechanism. Apply to every piece of content entering or being audited in reference files.
+
+**Interpretive:** "Would a fresh agent, given APIs and structural metadata but NO domain files, know how to interpret this data correctly?" If no → Interpretive zone. Content shapes HOW data is read. Examples: contract models, lifecycle definitions, evaluation criteria, elimination rules, anti-patterns.
+
+**Curated:** "Could a fresh agent reconstruct this output in a single query session, given interpretive frameworks + API access?" If no → Curated zone. Content encodes accumulated judgment across multiple conversations, pipeline runs, and expert interactions. Examples: lifecycle assignments, data quality diagnostics, coverage gap analysis.
+
+**Structural:** "Is this metadata needed to CONSTRUCT a query, but not present IN the query results?" If yes → Structural zone. Configuration that enables query construction. Examples: realm IDs, property names, entity pairings, pipeline stage mappings.
+
+**Live:** "Is this a number, record, or status from a source system that changes continuously?" If yes → Live zone. Never store. Write a recipe in the API recipe file instead.
+
+**Hardest boundary: curated vs stale.** Curated state is the output of APPLYING interpretive frameworks to live data — it cannot be reconstructed in one session. Stale data is a raw number copied from a source system that decays from the moment written. If a fresh agent with API access and interpretive frameworks could reconstruct the content in one session, it's stale data masquerading as curated state. Replace with a query recipe.
+
+#### Scatter Classification
+
+When domain content is found scattered across cross-domain files (discovered during DOMAIN-BOOTSTRAP Phase 1F-3 or maintenance audits), classify each scattered section:
+
+|Classification|Boundary Test|Action|
+|---|---|---|
+|**Domain-specific**|"Would this differ for a different domain?" → YES|Migrates to domain file; source gets stub|
+|**Cross-domain governance**|"Would this differ for a different domain?" → NO|Stays in source file; domain file references it|
+|**Mixed**|Contains both domain-specific and governance content|Split: domain-specific migrates, governance stays|
+
+#### Stub Depth
+
+When migrating domain-specific content, the source file needs a stub. Stub depth depends on the source file's purpose:
+
+|Source File Type|Stub Pattern|Rationale|
+|---|---|---|
+|Operations / deep reference|Pure cross-reference (section pointers only)|Domain file replaces entirely|
+|Cross-domain index (systems, policies, people)|Slim inventory row (names/status) + pointer to domain|Preserves "at a glance" scanning for index audience|
+|Routing / admin QUICK|Pure cross-reference|Domain QUICK replaces this routing|
+
+**Test:** "Does someone scanning THIS file (not the domain) need to see anything, or just know where to go?" Index files → skeleton rows; non-index → pure stubs.
+
+#### Bidirectional Routing Validation
+
+When creating any cross-reference:
+- Verify the return reference exists (domain file → source, source → domain)
+- Never leave a navigation hole — always replace pruned content with a stub
+- Route, don't summarize — stubs point to domain file sections, don't re-summarize content
+- After any pruning or migration, grep for the old location to verify no broken references
+
+#### Zone + Epistemological Layer Interaction
+
+Zones (how it refreshes) and epistemological layers (what type, MOSAIC-REASONING §6.6) are orthogonal. Both apply simultaneously:
+
+|Epistemological Layer|Typical Zone|Exception|
+|---|---|---|
+|Reasoning frameworks|Interpretive|—|
+|Routing topology|Structural|—|
+|Cross-system identity|Structural|—|
+|Entity index|Curated OR Structural|Curated if pipeline-maintained, Structural if static|
+|Relationship topology|Curated OR Interpretive|Curated if maintained, Interpretive if governance|
+|Entity detail|Curated OR Live|Curated if enriched, Live if API-queryable|
+
+**Graduation dynamic.** Content can shift both axes simultaneously. When a classification framework evolves from "labels I look up" to "patterns I reason from," it shifts epistemological type (ontological → hermeneutical) AND zone (curated/structural → interpretive). The two frameworks reinforce the same recommendation from different angles.
+
 ---
 
 ## §5 Signal-to-Delta Convergence
@@ -371,6 +437,25 @@ Signal awareness directives wired into agent behavior files through:
 4. **Confidence tagging** — Source trust hierarchy reference
 
 Instance customizes thresholds and adds domain-specific triggers during KERNEL-BOOTSTRAP Phase 5.
+
+### §5.5 Write-Back as Learning
+
+Write-back to source systems isn't just data cleaning — it closes the learning loop.
+
+```
+Live API Data → Curated Zone (apply interpretive frameworks)
+     ^                              |
+     |                    Anomaly Detection
+     |                    (missing data, stale values, inconsistencies)
+     |                              v
+     +-------- Write-Back <-- Approved Corrections
+```
+
+**The virtuous cycle:** Each maintenance cycle (1) improves source system data quality, (2) reduces future curation effort as fewer anomalies remain, (3) frees attention for deeper analytical patterns, (4) makes API-first more viable as source data becomes more trustworthy.
+
+**Safety classification for write-backs:** Write-backs from anomaly detection are typically mechanical (auto-approvable) or data fill (human review). Write-backs from cycle learning insights are typically interpretive (route through steward calibration per §6.8). Instance recipe files define the four-level classification per service.
+
+**Tracking:** Each cycle should record corrections made, trending toward decreasing correction volume over time. Rising correction volume signals either source system degradation or interpretive framework drift — both are §6.7 cycle-over-cycle signals.
 
 ---
 
@@ -454,6 +539,40 @@ Periodic audit of kernel file content density and budget utilization. Not part o
 
 **Output:** Pruning brief documenting dispositional/procedural classification per section, retrieval destinations for moved content, and pre/post test results.
 
+### §6.7 Cycle-Over-Cycle Learning
+
+Individual maintenance cycles detect point-in-time drift. Cycle-over-cycle comparison detects systemic patterns invisible in any single run.
+
+**Four comparison patterns:**
+
+1. **Drift detection:** Which entities changed lifecycle stage, deal owner, or coverage status? Track counts per category. Rising counts in specific categories signal systemic change (not just data maintenance).
+
+2. **Data quality trending:** Unmatched deals, missing contacts, stale deal stages — track count and trend per cycle. If write-backs are working (§5.5), these should decrease over time. Persistent or rising counts signal source system issues or incomplete write-back coverage.
+
+3. **Framework stability test:** Do interpretive frameworks still produce clean classifications? Signals of interpretive zone stress: increasing edge cases requiring manual override, growing "unclassifiable" markers, recurring steward corrections of the same type. **This is the bridge to Speed 3** — framework instability triggers steward calibration (§6.8).
+
+4. **Anomaly surfacing:** Patterns visible only across multiple cycles — seasonal clustering, recurring changes, variance trends that cancel out in single-cycle view.
+
+**Implementation:** Pipeline run summary gains a "Cycle Insights" section comparing to previous run. This is a methodology pattern — pipeline script changes implement it per instance.
+
+### §6.8 Steward Calibration Protocol
+
+Turns the steward interview from a one-time bootstrap event into continuous calibration. Domain expertise evolves; the knowledge system should evolve with it.
+
+**Default cadence:** Quarterly per domain. Adjust by domain maturity — new domains may need monthly calibration; stable domains may extend to semi-annual.
+
+**Trigger:** Framework stability test failures from §6.7 can trigger ad-hoc steward review independent of cadence.
+
+**Quarterly review agenda (per domain):**
+
+1. Present accumulated `[FRAMEWORK]` deltas since last review. Steward validates, modifies, or rejects each.
+2. Present cycle learning patterns — drift trends, data quality trajectory, framework stress signals from §6.7.
+3. Steward provides updated interpretive context (business changes, strategy shifts, organizational evolution).
+4. Agent proposes interpretive zone edits based on validated deltas + steward input. Steward approves.
+5. Updated frameworks feed into next pipeline cycle, closing the loop.
+
+**Governance:** Steward decisions are authoritative for interpretive zone content. The agent proposes; the steward disposes. This is the mechanism that prevents interpretive drift — expert judgment shapes the frameworks, not accumulated automation.
+
 ---
 
 ## §7 Testing & Validation Architecture
@@ -496,6 +615,7 @@ Maintain 20-25 query benchmark spanning all operational domains. Track scores ov
 
 |Version|Date|Change|
 |---|---|---|
+|v1.8|2026-03-12|Phase 2 Data Residency Zones. +§3.1 `[FRAMEWORK]` delta type (Loop 2, steward-validated). +§4.8 Content Placement Framework (single authority: zone litmus tests, scatter classification, stub depth, routing validation, zone-layer interaction). +§5.5 Write-Back as Learning (virtuous cycle, safety classification). +§6.7 Cycle-Over-Cycle Learning (drift, quality trending, framework stability, anomaly surfacing). +§6.8 Steward Calibration Protocol (quarterly review, `[FRAMEWORK]` delta processing).|
 |v1.2|2026-02-25|Added §4.7 File Optimization Patterns — methodology-level documentation of format selection, token efficiency research, lookup-vs-reasoning distinction.|
 |v1.1|2026-02-25|Context compression: table minification, telegraphic prose for procedural content, whitespace normalization. ~17% reduction. All section headers and code blocks preserved.|
 |v1.0|2026-02-24|Initial version. Learning loops, delta architecture, pipeline pattern, signal convergence, maintenance cycle, testing methodology — ported from operational deployment as company-agnostic patterns.|

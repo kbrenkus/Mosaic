@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.15
+**Version:** 1.18
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -287,12 +287,12 @@ Agent self-report about kernel experience is design data, not anecdote. When an 
 
 **A-025 Data Residency**
 
-Three data types determine where information lives: Type A (live operational — source system only, query via MCP), Type B (curated intelligence — reference files, synthesized from multiple sources), Type C (structural/ontological — reference files, interpretive layer over source data). Decisive question: "Does knowing this without querying change how I reason? Or does only the current value matter?" Type A = query live. Type B/C = reference file. Prevents over-centralization (duplicating source data into reference files) and under-utilization (not querying available live systems).
+- **Status:** Superseded by A-027 (Data Residency Zones). A-027 replaces the three-type model with four zones that separate refresh mechanisms more precisely.
 
-- **Evidence:** Two domain bootstraps and 4-phase MCP build. After expanded API access, data residency audit identified Type A content (deal stages, contact titles, pipeline values) living in reference files — duplicating and drifting. Migration to live queries eliminated staleness for those fields while preserving Type B curated intelligence (lifecycle assessments, strategic analysis) and Type C structural data (entity definitions, naming conventions) in reference files.
-- **Test:** "Does knowing this without querying change how I reason? Or does only the current value matter?" If only the current value matters, it's Type A — query live, don't store.
-- **Anti-pattern:** Storing Type A data in reference files "for convenience." Querying Type C data live when the interpretive layer is the actual value. Not auditing data residency when new API access is deployed.
-- **Activates during:** Domain bootstrap Phase 4 (architecture), Phase 8.9 (data residency audit), new MCP/API tool introduction
+Original formulation: three data types (live operational, curated intelligence, structural/ontological) determined where information lives. Decisive question: "Does knowing this without querying change how I reason?" A-027 preserves this question and refines the classification into four zones with explicit litmus tests.
+
+- **Evidence:** Two domain bootstraps and 4-phase MCP build. Data residency audit identified live operational content in reference files — duplicating and drifting. Migration to live queries eliminated staleness while preserving curated and structural content.
+- **Activates during:** Superseded — see A-027.
 
 ---
 
@@ -304,6 +304,28 @@ When the same content exists in multiple files, designate one authoritative loca
 - **Test:** "For this piece of content, is there exactly one authoritative location? Do all other mentions point there rather than re-state?" If content appears in 2+ files with overlapping scope, the shallower copy will intercept the deeper one.
 - **Anti-pattern:** "Convenient copies" placed close to where the agent might need them. "Helpful summaries" re-stating retrieval content. Keeping duplicates for different audiences. Consolidating by removing all copies except one without replacing removed copies with pointers (navigation dead-ends).
 - **Activates during:** Build (Phase 5 behavioral directives, delta schema design), tuning (diagnosing shallow content usage), maintenance (deduplication audits)
+
+---
+
+**A-027 Data Residency Zones**
+
+Domains with API access classify knowledge into four zones — Interpretive, Curated, Structural, Live — by refresh mechanism and reasoning function. Supersedes A-025. Four zones replace the three-type model with precise refresh semantics: Live (query only, never store), Curated (judgment outputs refreshed per cycle, expensive to reconstruct), Interpretive (judgment frameworks, never API-derivable), Structural (query construction metadata, not in query results). Zones are orthogonal to epistemological layers (MOSAIC-REASONING §6.6) and sync layers (A-005) — three independent axes that interact but don't override.
+
+- **Evidence:** Three domain bootstraps. Finance: all financial numbers moved to Live (API-only), interpretive frameworks (contract models, consolidation rules) retained, structural metadata (realm IDs, entity pairings) retained with event-driven updates — reference file data section shrank from ~15-20 KB to ~3-4 KB with zero reasoning regression. Growth: client directory confirmed as curated state — 57 rows of lifecycle assignments encoding judgment that cannot be reconstructed in a single query. Marketing: validated interpretive-heavy pattern — governance and taxonomy frameworks with minimal curated state.
+- **Test:** "For each content item in a domain file, can you name its zone and justify why it's not in an adjacent zone?" The hardest boundary is curated vs. stale: if a fresh agent with API access could reconstruct the content in one session, it's stale data, not curated state.
+- **Anti-pattern:** Storing Live zone data in reference files "for convenience." Treating all stored content as undifferentiated curated zone. Conflating zones with epistemological layers (they're orthogonal). Not auditing zone classification when new API access is deployed.
+- **Activates during:** Domain bootstrap Phase 4 (architecture), Phase 5 (construction), Phase 8 (retroactive audit), maintenance cycles (content placement decisions), new MCP/API tool introduction
+
+---
+
+**A-028 Three-Speed Learning Loop**
+
+Domain knowledge improves through three mechanisms at different timescales: Conversational (minutes — `[FRAMEWORK]` deltas capture expert interpretive knowledge shared during conversations), Cycle (monthly — pipeline as learning engine with drift detection, data quality trending, framework stability testing), Structural (quarterly — steward calibration turns the bootstrap interview into a continuous relationship). Each speed feeds the next: conversational deltas accumulate for cycle review; cycle patterns surface framework stress for steward calibration; steward updates improve the interpretive frameworks that guide the next cycle.
+
+- **Evidence:** Insight evaporation problem — expert shares "Feb books aren't closed yet" or "we evaluate BaaS deals differently" → insight dies with conversation → never persists → same question arises next cycle. Pipeline cycle comparison revealing drift patterns invisible in single runs (e.g., seasonal clustering, coverage gaps opening/closing). Finance bootstrap revealing interpretive zone content that can only be validated by domain steward, not by data comparison.
+- **Test:** "For this domain, can you name the three learning speeds and what each currently produces?" If the answer is vague or conflates cycle with structural, the learning loop specification is incomplete.
+- **Anti-pattern:** Treating steward interviews as one-time bootstrap events that never refresh. Auto-integrating `[FRAMEWORK]` deltas without steward validation (interpretive zone changes require expert judgment). Running pipeline cycles without comparing to previous cycle (missing systemic patterns).
+- **Activates during:** Domain bootstrap Phase 7.8 (learning loop specification), maintenance cycles (cycle-over-cycle comparison), quarterly reviews (steward calibration). See MOSAIC-OPERATIONS §6.7-§6.8.
 
 ### 3.2 Build Methodology
 
@@ -639,7 +661,7 @@ When do principles activate, and through what mechanism?
 
 ## 7. Quick Reference Index
 
-All 32 named principles with one-line definitions. For full entries with evidence, tests, and anti-patterns, see the section references.
+All 42 named principles with one-line definitions. For full entries with evidence, tests, and anti-patterns, see the section references.
 
 ### Level 1: Universal Agent Principles
 
@@ -688,8 +710,10 @@ All 32 named principles with one-line definitions. For full entries with evidenc
 | A-022 | Stewardship as Reasoning Posture | Stewarded data requires reasoning from obligation and sovereignty, not just tier classification. | 3.2 |
 | A-023 | Intervention Hierarchy | Four levels: directive < structural < pattern < epistemological. Level 1 exception: targeted directives with specific alternatives work (absence pivot). Level 2 gates load-bearing; SS8A tables control breadth for unmodeled queries. Level 3: pure recipe (no diagnostic labels) controls SET and POSTURE, not ORDERING. Level 4 subtypes: 4a (reasoning) changes behavior; 4b (ontological) does not. 12 builds, 57 queries, 16/36 to 32/36. | 3.2 |
 | A-024 | Recipe Depth Completeness | Recipe files encoding only efficient paths constrain investigation depth; include drill-down patterns from aggregate to per-entity detail. | 3.2 |
-| A-025 | Data Residency | Three data types (A: live operational, B: curated intelligence, C: structural) determine where information lives; decisive question prevents over-centralization and under-utilization. | 3.1 |
+| A-025 | Data Residency | **Superseded by A-027.** Original three-type model replaced by four zones with precise refresh semantics. | 3.1 |
 | A-026 | Single Authority | One authoritative location per content type; pointers replace duplicates to prevent interception. | 3.1 |
+| A-027 | Data Residency Zones | Four zones (Interpretive, Curated, Structural, Live) classify domain knowledge by refresh mechanism. Supersedes A-025. | 3.1 |
+| A-028 | Three-Speed Learning Loop | Conversational (`[FRAMEWORK]` deltas), Cycle (pipeline learning engine), Structural (steward calibration). Each speed feeds the next. | 3.1 |
 
 ---
 

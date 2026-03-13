@@ -1,12 +1,14 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.15
+**Version:** 1.17
 
 ---
 
 ## 1. About This File
 
 Company-agnostic reasoning frameworks — HOW to think about people, retrieval, analysis, coordination. No company-specific data. Load alongside instance files (INDEX, BEHAVIORS, A2A-QUICK, TAXONOMY-QUICK, DOMAIN-ROUTER). Versioned independently. Full design principles catalog: MOSAIC-PRINCIPLES.
+
+**Charter:** Zone definitions and epistemological frameworks that shape all reasoning. For procedural placement decisions (which zone, which file, which format), see MOSAIC-OPERATIONS. For construction methodology, see DOMAIN-BOOTSTRAP.
 
 ---
 
@@ -259,12 +261,13 @@ Mosaic uses a **Core + Retrieval architecture.** An organizational kernel (reaso
 
 The test: Does the question need a *reasoning pattern* (kernel) or *specific data* (retrieval)?
 
-**Data Residency heuristic (A-025).** When MCP/API access expands, determine where each data element should live using three types:
-- **Type A — Live Operational:** Only the current value matters (deal stages, contact records, follower counts, campaign metrics). Source system is authoritative. Query via MCP; never duplicate in reference files.
-- **Type B — Curated Intelligence:** Synthesized from multiple sources, doesn't exist in this form anywhere else (strategic profiles, relationship assessments, governance narratives). Reference files hold the integrated interpretive view.
-- **Type C — Structural/Ontological:** Entity types, taxonomy, stage meanings. Even when source systems have a version, Mosaic's version is the interpretive map — a different layer, not a duplicate.
+**Data Residency (A-027).** When MCP/API access expands, classify each data element into a residency zone — see §6.7 for full definitions and litmus tests:
+- **Live:** Only the current value matters (deal stages, contact records, campaign metrics). Query via MCP; never store in reference files.
+- **Curated:** Analytical outputs encoding judgment + temporal context (lifecycle assignments, trend observations). Refreshed per maintenance cycle. Cannot be reconstructed in one query session.
+- **Interpretive:** Frameworks for HOW to read data (contract models, evaluation criteria, elimination rules). Expert knowledge — no API has opinions.
+- **Structural:** Metadata to CONSTRUCT queries (realm IDs, property names, entity pairings). Not present in query results.
 
-Decisive question: *"Does knowing this without querying it change how I reason? Or does only the current value matter?"* Knowing it abstractly improves reasoning → reference file (B or C). Only the current value matters → query live (A).
+Decisive question: *"Does knowing this without querying it change how I reason? Or does only the current value matter?"* Shapes reasoning → reference file (Interpretive, Curated, or Structural zone). Only current value matters → query live (Live zone). See §6.7 for zone litmus tests.
 
 ### 4.2 Domain-Aware Retrieval Protocol
 
@@ -517,11 +520,48 @@ For subcategory tables and detailed placement guidance per layer (which subcateg
 
 **Why this matters:** When a QUICK file accumulates content from the lower end of these gradients (roster data in a routing file, lookup tables alongside reasoning patterns), two problems emerge. First, the QUICK file grows beyond its budget justification — it's consuming kernel space with content that doesn't shape reasoning. Second, the duplicated content intercepts lookups (per §6.3) — an agent finds the partial roster in the QUICK file and stops before reaching the complete roster in the full file. Clean layer separation prevents both problems.
 
+### 6.7 Data Residency Zones
+
+Epistemological layers (§6.6) classify knowledge by TYPE — what kind it is, which determines kernel vs. retrieval placement. Data residency zones classify knowledge by REFRESH MECHANISM — how it stays current, which determines whether to store, maintain, or query. Both frameworks apply to every piece of content simultaneously. Neither overrides the other.
+
+**Four zones:**
+
+|Zone|What It Contains|Change Frequency|Source|Can API Replace?|
+|---|---|---|---|---|
+|**Interpretive**|Frameworks for HOW to read data — contract models, lifecycle definitions, evaluation criteria, elimination rules, anti-patterns|Rarely (steward review)|Expert knowledge, steward interviews, accumulated organizational learning|No — judgment zone. API has no opinion.|
+|**Curated**|Analytical outputs encoding judgment + temporal context — lifecycle assignments, data quality diagnostics, trend observations, coverage gaps|Per maintenance cycle|Pipeline: applying interpretive frameworks to live data, plus human corrections|Partially — raw inputs are queryable, but the applied judgment is expensive to re-derive.|
+|**Structural**|Metadata needed to CONSTRUCT queries — realm IDs, property names, entity pairings, pipeline stage mappings, class templates|On business events (new entity, new system, reorg)|System configuration, discovery during bootstrap|No — configuration isn't in the query results.|
+|**Live**|Numbers and records from source systems — P&L figures, deal amounts, website traffic, account balances|Continuously|API calls to source systems|Yes — always query, never store.|
+
+**Curated vs. stale.** The curated zone is the hardest to classify because it looks like stored data. The distinction: curated state is the output of APPLYING interpretive frameworks to live data across multiple conversations, pipeline runs, and expert interactions. It cannot be reconstructed in a single query session. Stale data is a raw number copied from a source system that decays from the moment written. If a fresh agent with API access and interpretive frameworks could reconstruct the content in one session, it's stale data masquerading as curated state — replace with a query recipe.
+
+**Zone litmus tests:**
+- *Interpretive:* "Would a fresh agent, given APIs and structural metadata but NO domain files, know how to interpret this data correctly?" If no → Interpretive.
+- *Curated:* "Could a fresh agent reconstruct this output in a single query session, given interpretive frameworks + API access?" If no → Curated.
+- *Structural:* "Is this metadata needed to CONSTRUCT a query, but not present IN the query results?" If yes → Structural.
+- *Live:* "Is this a number, record, or status from a source system that changes continuously?" If yes → Live. Never store.
+
+**Orthogonality.** Three independent classification axes apply to every piece of content:
+
+|Axis|Framework|Question It Answers|Location|
+|---|---|---|---|
+|Type|Epistemological layers (§6.6)|What KIND of knowledge?|Determines kernel vs. retrieval|
+|Refresh|Data residency zones (this section)|HOW does it stay current?|Determines store vs. query vs. maintain-per-cycle|
+|Sync|Four-layer sync (A-005)|WHERE can it go stale?|Determines maintenance audit scope|
+
+These axes interact but don't override. Example: a client lifecycle directory is an entity index (epistemological layer 4) in the curated zone (refreshed per pipeline cycle) that can go stale in three sync layers (source system, full file, QUICK file).
+
+**Graduation dynamic.** Content can shift across both axes simultaneously. When a classification framework evolves from "labels I look up" to "patterns I reason from," it shifts epistemological type (ontological → hermeneutical) AND zone (curated or structural → interpretive). The two frameworks reinforce the same placement recommendation from different angles — epistemological layers name what the content became, zones name how it stays current.
+
+**Terminology.** "Zone" is deliberate — "layer" is taken by epistemological layers (§6.6) and sync layers (A-005), "tier" by data sensitivity (information governance), "level" by principle classification (MOSAIC-PRINCIPLES). See MOSAIC-PRINCIPLES A-027 for the design principle.
+
+**Design principle.** See MOSAIC-PRINCIPLES A-027 for evidence, test, and anti-patterns.
+
 ---
 
 ## 7. Meta-Principles
 
-These epistemic dispositions shape reasoning on every conversation. They emerged from iterative tuning across real agent deployments. When existing directives don't cover a situation, reason from these. For the full catalog of 32+ named design principles with evidence, tests, anti-patterns, and governance, see MOSAIC-PRINCIPLES.
+These epistemic dispositions shape reasoning on every conversation. They emerged from iterative tuning across real agent deployments. When existing directives don't cover a situation, reason from these. For the full catalog of 40+ named design principles with evidence, tests, anti-patterns, and governance, see MOSAIC-PRINCIPLES.
 
 |Principle|In Practice|
 |---|---|

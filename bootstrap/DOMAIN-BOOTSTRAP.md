@@ -1,8 +1,10 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.31
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.34
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
 > **Design principle:** This protocol is a curriculum, not a checklist. Each phase teaches *why* the work matters and *how to recognize* when it's complete. It follows the Foundation + Freedom pattern: Foundation discovers what exists (generalizable), Freedom discovers how experts think (domain-specific). They converge to produce durable knowledge architecture.
+>
+> **Charter:** Building and auditing domains. For content placement decisions during either construction or maintenance, see MOSAIC-OPERATIONS. For zone definitions, see MOSAIC-REASONING §6.7.
 >
 > **Validated against:** One organizational deployment (Level 0, 70% -> ~88% projected) and two completed domains (Level 1, 72-82% -> ~87-92% projected). Retrospective validation details in Section 5.
 
@@ -762,7 +764,7 @@ When a domain's system inventory (Phase 1F) includes systems where agents can cr
 
 > *Design principles for construction:* Atomic Multi-File Operations (A-008) — when a change touches multiple files (kernel + retrieval + router + manifest), all updates happen in the same session. Marker System as Construction Methodology (A-017) — use explicit markers (TODO, PLACEHOLDER, NEEDS-REVIEW) during construction so incomplete work is visible, not silently absent. See MOSAIC-PRINCIPLES section 3.2.
 
-*Context compression discipline:* Apply file optimization rules to all constructed files from the start. YAML for lookup data (~57% fewer tokens than markdown tables), minified tables for reasoning frameworks (no cell padding, minimal separators), telegraphic prose for procedural content (remove articles and filler where meaning is preserved), full prose for reasoning exposition and behavioral directives. Files created during initial build set the token budget baseline — optimization applied later requires re-uploading and re-testing. Getting format right at construction avoids a compression retrofit cycle. See MOSAIC-OPERATIONS §4.7 for format selection methodology.
+*Context compression discipline:* Apply file optimization rules to all constructed files from the start. YAML for lookup data (~57% fewer tokens than markdown tables), minified tables for reasoning frameworks (no cell padding, minimal separators), telegraphic prose for procedural content (remove articles and filler where meaning is preserved), full prose for reasoning exposition and behavioral directives. Files created during initial build set the token budget baseline — optimization applied later requires re-uploading and re-testing. Getting format right at construction avoids a compression retrofit cycle. See MOSAIC-OPERATIONS §4.7 for format selection methodology. For content placement decisions (zone classification, scatter resolution, stub depth): MOSAIC-OPERATIONS §4.8.
 
 **5.1 Domain Retrieval Files**
 - QUICK file: Session-level data, optimized for the most common queries. Include §0 routing header with inclusion criteria, section index, and escalation rules. Include §8A tool query patterns if the domain has live system dependencies (MCP tools, enterprise search). No operational state — only knowledge, process, and curated views.
@@ -799,6 +801,9 @@ Include sensitivity markers per section (see Phase 4.6) and source attribution m
 - Format worked examples as action-oriented recipes with concrete search targets. Do NOT embed parenthetical diagnostic labels — these fragment the action arc and cost 2-3 points (Build 12, A-023). Do NOT use abstract framing ("investigate with tools that matter") — creates deliberation posture reducing investigation depth.
 
 **5.6 Domain Consolidation & Source Pruning**
+
+> For the authoritative content placement methodology (zone litmus tests, scatter classification, stub depth rules): MOSAIC-OPERATIONS §4.8. This section documents the construction PROCEDURE for applying that methodology.
+
 When a new domain consolidates content that was previously scattered across other files (identified in Phase 1F scatter map and classified in F1-3), the source files must be pruned to prevent interception conflicts and improve system clarity.
 
 *Why this matters:* The interception principle (MOSAIC-REASONING §6.3) means agents find the closer copy and stop. If domain content exists in both a cross-cutting file and the new domain file, agents may find the shallow cross-cutting version first and miss the enriched domain version. Pruning eliminates the conflict.
@@ -989,6 +994,26 @@ Design decisions to document:
 - [ ] Pipeline integrated into instance CLAUDE.md or equivalent (Phase 1 MCP procedure, run instructions)
 - [ ] Overlay YAML seeded with initial entity list (if entity-instance architecture)
 
+### Phase 6.5: Curated Zone Baseline
+
+> *Goal: After the first pipeline cycle, classify what the domain produces by data residency zone. This establishes the zone profile for the domain and a write-back baseline.*
+
+After Phase 6 enrichment architecture is built and the first pipeline cycle has run:
+
+1. **Classify pipeline outputs by zone.** For each section of each output file, apply the zone litmus tests from MOSAIC-OPERATIONS §4.8. Name the zone: interpretive (frameworks, evaluation criteria), curated (judgment outputs refreshed per cycle), structural (query construction metadata), or live (never stored — recipe only).
+
+2. **Assess zone weighting.** Does the domain match its expected pattern? Curated-heavy domains (primary deliverable is a maintained analytical artifact) vs. interpretive-heavy domains (primary deliverable is analysis-on-demand using frameworks + live data). This is a heuristic, not a target — don't force a domain into a shape.
+
+3. **Establish write-back baseline.** What source system corrections did the first cycle produce? Track count by correction type (mechanical, data fill, interpretive, structural per instance recipe file safety classification). This becomes the baseline for §6.7 cycle-over-cycle trending.
+
+4. **Flag curated vs stale.** Any content classified as curated — apply the curated zone test: "Could a fresh agent reconstruct this in one session with APIs + interpretive frameworks?" If yes, it's stale data masquerading as curated state. Replace with an API recipe.
+
+**Completion criteria:**
+- [ ] Zone classification table created for domain's files
+- [ ] Zone weighting assessed (curated-heavy / interpretive-heavy / mixed)
+- [ ] Write-back baseline recorded (correction count by type)
+- [ ] Any stale-masquerading-as-curated content identified and flagged for migration
+
 ---
 
 ### Phase 7: Validation
@@ -1074,6 +1099,18 @@ When Phase 7.2 post-build comparison or ongoing operations reveal behavioral def
 - Interception check: verify the example is placed where the agent already looks. Examples in retrieval will be intercepted by shallower kernel content (A-026).
 - Use fictional entities in worked examples to prevent test contamination — real test-query clients create false positives.
 
+**7.8 Learning Loop Specification**
+
+Define how this domain learns over time. This specification enables MOSAIC-OPERATIONS §6.7 (cycle-over-cycle learning) and §6.8 (steward calibration) for the domain.
+
+1. **Delta categories active for this domain.** At minimum: standard Loop 1 types (`[DELTA]`, `[GAP]`, `[STRUCT]`, `[STALE]`) + `[FRAMEWORK]` for the interpretive zone. Assess which Loop 2 types are relevant (e.g., `[RECIPE]` if the domain has API integrations, `[PATTERN]` if cross-entity analysis is common).
+
+2. **Cycle comparison patterns.** What should the pipeline compare cycle-over-cycle? Domain-specific signals: entity count changes, lifecycle stage transitions, coverage gap open/close rates, data quality metrics. See MOSAIC-OPERATIONS §6.7 for methodology.
+
+3. **Steward calibration triggers.** What framework stability signals should trigger a steward review for this domain? Examples: >3 `[FRAMEWORK]` deltas accumulated, rising manual override count in curated zone, new entity types that don't fit existing taxonomy. See MOSAIC-OPERATIONS §6.8 for protocol.
+
+4. **Write-back tracking.** What corrections does this domain's pipeline produce? What's the trending expectation? (Decreasing correction volume = improving source quality. See §5.5 in MOSAIC-OPERATIONS.)
+
 **Completion criteria:**
 - [ ] Pre-build baseline scored on primary agent (before Phase 5 begins)
 - [ ] Pre-build baseline scored on secondary agent(s) per Phase 6.7 model
@@ -1085,6 +1122,7 @@ When Phase 7.2 post-build comparison or ongoing operations reveal behavioral def
 - [ ] Pre/post results recorded in testing/ directory
 - [ ] Behavioral tuning methodology applied if validation reveals behavioral deficits (see 7.7)
 - [ ] Tuning register maintained if 2+ tuning iterations needed
+- [ ] Learning loop specification completed per Phase 7.8 (delta categories, cycle comparison, steward triggers, write-back tracking)
 
 ---
 
@@ -1128,10 +1166,11 @@ The Phase 4.10 kernel eligibility gate determines whether a FILE earns kernel sp
 
 **8.9 Data Residency Audit (after expanded API access)**
 
-When new MCP/API access is deployed (new tools, expanded write access, new service connections), audit affected domain reference files for data residency (A-025). For each significant data element in scope files, classify:
-- **Type A found in reference files** → Mark for migration. Data belongs in source system; reference file is duplicating and drifting. Validate CRUD before migrating (can the target system create, read, update, delete this data via API?).
-- **Type B confirmed** → Validate currency. If stale, enrich or flag. If accurate, leave.
-- **Type C confirmed** → No action unless interpretive layer has diverged from source system reality.
+When new MCP/API access is deployed (new tools, expanded write access, new service connections), audit affected domain reference files for data residency (A-027). Zone classification litmus tests from MOSAIC-OPERATIONS §4.8 provide the decision framework. For each significant data element in scope files, classify:
+- **Live zone data found in reference files** → Mark for migration. Data belongs in source system; reference file is duplicating and drifting. Validate CRUD before migrating (can the target system create, read, update, delete this data via API?).
+- **Curated zone confirmed** → Validate currency. If stale, enrich or flag. If accurate, leave.
+- **Interpretive zone confirmed** → No action unless framework has diverged from current organizational practice.
+- **Structural zone confirmed** → No action unless system configuration has changed.
 - **Unclassifiable** → Flag for human judgment.
 
 **Do NOT migrate during the audit session.** Audit first, confirm classifications, then plan migrations as a separate workstream. Do NOT remove reference file content before the target system field is validated and populated (CRUD validation gate).
@@ -1245,6 +1284,7 @@ The Freedom track depends on a domain expert who may never have externalized the
 
 | Version | Date | Change |
 |---------|------|--------|
+| v0.33 | 2026-03-12 | Phase 2 Data Residency Zones integration. New Phase 6.5 (Curated Zone Baseline). New Phase 7.8 (Learning Loop Specification). MOSAIC-OPERATIONS §4.8 pointers in Phases 5, 5.6, 8.9. Phase 7 completion criteria updated. Charter statement added to header. |
 | v0.1 | 2026-02-15 | Initial protocol design. Reverse-engineered from two completed domain anatomies. |
 | v0.7 | 2026-02-25 | **Three proposals integrated from Phase B evidence.** (1) Multi-agent parallel discovery: Phase 2F multi-agent note, new F2-6 (multi-agent discovery design with agent-type table and search-adapted prompts), Phase 3.0 (multi-agent discovery merge before ontology construction), Phase 2F completion criteria updated. (2) Cross-cutting file evolution: new F1-3 (scatter content classification with boundary test table), Phase 4.9 (cross-cutting file evolution pattern with guard rails), Phase 4.10 (kernel eligibility gate with epistemic type table and two-part placement test), Phase 1F and 4 completion criteria updated. (3) Domain consolidation & source pruning: new Phase 5.6 (full procedure — pre-prune scan, stub depth classification table, bidirectional routing, guard rails, cross-reference updates), Phase 5 completion criteria updated. All three discovered during Phase B Marketing & Communications bootstrap. |
 | v0.6 | 2026-02-26 | **Multi-agent validation.** Phase 7.1: added multi-agent baseline requirement — run baselines across all agents per Phase 6.7 model, with shared queries (cross-agent comparison) and agent-native queries (unique access strengths). Phase 7.2: post-build comparison now per-agent. New Phase 7.5: cross-agent parity analysis — diagnose divergence (access gap, file gap, routing gap, A2A gap), track parity improvement post-build. Completion criteria updated: secondary agent baseline, per-agent improvement, parity analysis. Phase 7.4: multi-agent conversation budget note. Discovered during Phase B (Marketing & Communications) bootstrap — organic Growth/Clients build tested both agents but the protocol didn't codify it. |

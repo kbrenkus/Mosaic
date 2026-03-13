@@ -76,7 +76,7 @@ Source of truth for file currency. Update after every edit.
 
 ## §3 Self-Check Protocol
 
-Claude.ai runs at maintenance cycle start to detect version drift.
+For self-check methodology, see MOSAIC-OPERATIONS §8. Claude.ai runs at maintenance cycle start to detect version drift.
 
 **Self-check prompt** (paste into Claude.ai):
 > "Compare the version numbers in your loaded project knowledge files against the manifest in {ORG}-MAINTENANCE §2.1 (retrieve via `get_section`). Report any files where the loaded version differs from the manifest version, or where files listed in the manifest are not loaded."
@@ -89,7 +89,7 @@ Claude.ai runs at maintenance cycle start to detect version drift.
 
 ## §4 Monthly Audit Protocol
 
-Detects source-to-reference drift via MCP. Each audit in separate Claude.ai conversation (context budget). Learning loop architecture: MOSAIC-OPERATIONS §2/§6.
+Detects source-to-reference drift via MCP. Each audit in separate Claude.ai conversation (context budget). Audit architecture: MOSAIC-OPERATIONS §9. Learning loop: §2/§6.
 
 ### §4.1 CRM / Primary System Audit
 
@@ -131,6 +131,8 @@ Detects source-to-reference drift via MCP. Each audit in separate Claude.ai conv
 ---
 
 ## §5 Claude Code Actions
+
+For editing workflow methodology, see MOSAIC-OPERATIONS §10. For tracker frameworks (open items, recommendations, metrics), see §11.
 
 ### §5A Recommendations Log
 
@@ -203,12 +205,14 @@ Summary in `pipeline/run-logs/run-summary-YYYY-MM-DD.md`. Present digest only:
 
 ## §7 Quick File Regeneration
 
+For condensation rules and regeneration steps, see MOSAIC-OPERATIONS §13. Instance-specific inventory and budget below.
 <!-- QUICK regeneration process. Architecture: MOSAIC-PRINCIPLES A-007. -->
 
 ---
 
 ## §8 Build Playbook
 
+For build phases (A/0/B/C/D), templates, and standard headers, see MOSAIC-OPERATIONS §14. Instance build history below.
 <!-- Key principles: A-007, A-008, A-009, U-011. Full catalog: MOSAIC-PRINCIPLES. -->
 
 New domain construction: follow DOMAIN-BOOTSTRAP.md. This section covers {ORG}-specific conventions.
@@ -217,7 +221,7 @@ New domain construction: follow DOMAIN-BOOTSTRAP.md. This section covers {ORG}-s
 
 ## §9 Trigger Matrix
 
-Events triggering file updates by loop. Architecture: MOSAIC-OPERATIONS §2.
+For trigger categories framework and priority definitions, see MOSAIC-OPERATIONS §15. Events triggering file updates by loop. Architecture: MOSAIC-OPERATIONS §2.
 
 ### Loop 1 — Data Events
 
@@ -248,7 +252,7 @@ Events triggering file updates by loop. Architecture: MOSAIC-OPERATIONS §2.
 
 ## §10 Full Sync Workflow
 
-Minimum-manual-steps process. Architecture: MOSAIC-OPERATIONS §6.
+For generic cycle framework, emergency protocol, and architecture diagram, see MOSAIC-OPERATIONS §16. Instance-specific monthly cycle below. Architecture: MOSAIC-OPERATIONS §6.
 
 ### §10.1 Monthly Sync Cycle
 

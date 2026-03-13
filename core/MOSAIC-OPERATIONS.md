@@ -1,4 +1,4 @@
-# MOSAIC-OPERATIONS v1.8
+# MOSAIC-OPERATIONS v1.9
 
 > **Purpose:** Operational architecture for self-learning knowledge systems — how instances detect drift, accumulate observations, process learning, and maintain currency.
 > **Scope:** Company-agnostic. All examples use generic placeholders. Instance-specific operational details belong in instance files.
@@ -611,10 +611,804 @@ Maintain 20-25 query benchmark spanning all operational domains. Track scores ov
 
 ---
 
+## §8 Self-Check Protocol
+
+Self-check makes agents self-aware of staleness in loaded project knowledge. Run when starting new conversations or when accuracy matters.
+
+### §8.1 Self-Check Recipe
+
+**Step 1 — Read the manifest.** The compact maintenance file (`{ORG}-MAINTENANCE-QUICK` or equivalent) is loaded into agent project knowledge. Read the manifest tables (§2.1/§2.2) from the loaded file.
+
+**Step 2 — Inventory loaded knowledge.** List all reference files currently in project knowledge. For each QUICK file, extract the manifest marker:
+```
+Look for: <!-- {ORG}-MANIFEST: [filename] | v[version] | [date] -->
+```
+
+**Step 3 — Compare:**
+
+|Check|How|Stale If|
+|---|---|---|
+|QUICK file version|Marker version vs manifest §2.2|Marker < manifest|
+|QUICK file date|Marker date vs manifest §2.2|Marker < manifest|
+|Source file version|Manifest §2.2 source version vs §2.1|Source updated since QUICK generated|
+
+**Note:** The manifest is only as current as the last upload. If suspected stale, ask the user to confirm current versions from files on disk.
+
+**Step 4 — Report:**
+```
+## Knowledge Freshness Report
+
+| File | Loaded Version | Current Version | Status |
+|------|---------------|----------------|--------|
+| {ORG}-SYSTEMS-QUICK.md | v1.0 (YYYY-MM-DD) | v1.0 (YYYY-MM-DD) | ✅ Current |
+| ... | ... | ... | ... |
+
+**Action needed:** [None / List stale files and recommended actions]
+```
+
+### §8.2 When to Run
+
+- Start of any conversation modifying reference files
+- Before answering questions where data accuracy is critical
+- When user asks "are my files current?" or similar
+- After user reports uploading new files
+
+---
+
+## §9 Audit Architecture
+
+Systematic audit methodology split across multiple conversations and agents. Each audit type has a defined cadence, agent context, and output format.
+
+### §9.1 Multi-Conversation Protocol
+
+**Why split?** MCP tool results (deal lists, team rosters) are extremely verbose. Running all audit types in one conversation exhausts context before finishing. Split into independent conversations by scope.
+
+|Conversation Type|Agent Context|Context Load|Frequency|
+|---|---|---|---|
+|**Source system audits** (CRM, task mgmt, personnel)|MCP-capable agent|Heavy|Monthly|
+|**Enterprise search drift**|MCP or enterprise search agent|Medium|Quarterly|
+|**Terminology consistency**|Enterprise search agent (Copilot)|Light|Quarterly|
+|**System consistency**|Editing agent (Claude Code)|Medium (parallel agents)|Quarterly|
+|**Memory & rules hygiene**|Editing agent (Claude Code)|Light|Quarterly|
+
+**Workflow:** Separate conversations per audit type → each produces delta report → bring all reports to editing agent for integration.
+
+**Key design decision:** Audits produce delta reports, not direct edits. The editing agent receives consolidated deltas and applies them in a controlled session.
+
+### §9.2 Enterprise Search Drift Audit (Quarterly)
+
+**Purpose:** Compare what's discoverable in enterprise search against what reference files document. Catches undocumented SOPs, rogue folder locations, missing references.
+
+**Methodology (3 parts):**
+
+1. **Entity document coverage:** For top active entities, search for documents. Report: expected locations, unexpected locations, unreferenced documents.
+2. **Process/SOP discovery:** Search for "SOP," "policy," "process," "workflow." Compare against documented processes. Flag undocumented items.
+3. **Site/location discovery:** Search for all sites/locations. Compare against known inventory. Flag undocumented items.
+
+**Output format:**
+```
+## Delta: Enterprise Search Drift — [date]
+### Document Drift
+- [Entity]: [N] docs expected, [N] unexpected
+  Unexpected: [path — doc name]
+### Undocumented SOPs/Policies
+- [Document name] at [path] — not in reference
+### Undocumented Sites
+- [Site name] at [URL] — not in inventory
+### Reference File Actions
+- [list of files needing update, or "none"]
+```
+
+**Cadence:** Quarterly, or after major organizational changes (new sites, service lines, reorgs). Promote to monthly only if prior checks found significant gaps.
+
+### §9.3 Terminology Audit (Quarterly)
+
+**Purpose:** Detect legacy terminology still in use in recent documents. Uses enterprise search to scan recent documents against a known legacy-to-current term mapping.
+
+**Methodology:**
+1. Maintain a legacy term mapping table in the instance terminology file.
+2. Search recent documents (last 90 days) for each legacy term.
+3. Report: document count per term, most recent usage date, whether current term co-occurs.
+4. Flag potential NEW terminology shifts not yet captured.
+
+**Output format:**
+```
+## Terminology Consistency — [date]
+### Known Legacy Terms
+- "[legacy]": [N] docs, most recent [date], current also present: [yes/no]
+### Potential New Shifts
+- "[term A]" vs "[term B]": [N] docs each, pattern suggests [desc]
+### No Issues
+- [terms with zero legacy usage]
+```
+
+**Cadence:** Same as enterprise search drift. Also run ad-hoc when terminology changes suspected.
+
+**Maintenance:** Update legacy term table whenever instance taxonomy adds new entries.
+
+### §9.4 System Consistency Audit (Quarterly)
+
+**Purpose:** Check internal consistency of the reference file system — cross-references, version alignment, agent instruction coherence, convention compliance, architecture integrity.
+
+**14 dimensions, grouped for parallel execution:**
+
+**Structural checks:**
+
+|Dimension|What to Verify|
+|---|---|
+|**Cross-reference integrity**|Every inter-file reference resolves to existing file and section|
+|**QUICK vs full consistency**|QUICK versions, data, summaries match full counterparts; no version inversions|
+|**Maintenance system integrity**|Manifest matches actual file headers; markers standardized; triggers cross-referenced|
+|**Version tracking**|File header versions match manifest rows. No undocumented edits.|
+|**Orphan detection**|Every .md file referenced from at least one other file. Flag zero-inbound files.|
+
+**Content checks:**
+
+|Dimension|What to Verify|
+|---|---|
+|**Agent instruction alignment**|A2A protocol, agent instructions agree on capabilities, routing, formats|
+|**Terminology & duplication**|Legacy terms not leaking into active files; no unintentional content duplication|
+|**Static value detection**|No hardcoded counts in prose. Counts should reference source table or metric.|
+|**Sensitivity leak check**|No data above allowed tier in QUICK files, memory, or agent files. Severity: Critical.|
+|**Freshness decay**|Files not modified in >60 days flagged for review (exclude policy files)|
+|**Data freshness annotation audit**|"Data freshness" notes accurately describe current refresh method and cadence|
+|**Recipe-retrieval efficiency**|Kernel recipes give enough guidance to produce precise results from retrieved data|
+
+**Architecture checks:**
+
+|Dimension|What to Verify|
+|---|---|
+|**Domain routing accuracy**|Router lists correct domains, triggers, files, blob names. Every domain has blob file. Triggers match content. No orphan blobs.|
+|**Retrieval path verification**|Each domain file accessible via `get_section`. Silent failures = silent knowledge loss. Test at least one per domain.|
+|**Kernel-retrieval boundary**|Every kernel file teaches reasoning, not just stores data. No retrieval data in kernel. Guardrail content answerable without retrieval.|
+
+**How to run:** Ask the editing agent to "run a system consistency audit." Groups dimensions into 5-6 parallel agents, synthesizes findings, presents prioritized fix list.
+
+**Output:** Prioritized findings with severity (Critical/High/Medium/Low), affected files, recommended fixes. Apply after user approval.
+
+### §9.5 Memory & Rules Audit (Quarterly)
+
+**Purpose:** Maintain the editing agent's memory system and project rules governing session behavior.
+
+|Check|What to Verify|
+|---|---|
+|**Memory index line count**|Under target limit (MEMORY.md has hard truncation)|
+|**Stale facts**|Items contradicting current file contents or superseded|
+|**Duplication with project rules**|Rules in both MEMORY.md and CLAUDE.md (should be in CLAUDE.md only)|
+|**Topic file currency**|Completion tracking in topic files matches actual state|
+|**Project rules completeness**|All operational rules that should persist are captured|
+
+**How to run:** "Run a memory and rules hygiene audit." Reads all memory files and project rules, cross-checks for staleness, duplication, completeness.
+
+**Output:** Proposed changes to memory (prune/compress), project rules (add missing rules), topic files (update tracking). Apply after approval.
+
+### §9.6 Delta Combination Protocol
+
+After running audit conversations (monthly + quarterly when applicable), bring delta reports to the editing agent:
+
+1. Copy all delta reports
+2. Paste together with instruction: "Apply these maintenance deltas to the reference files"
+3. Editing agent applies to full files, updates manifest, flags QUICK files for regeneration
+
+**Tip:** Skip conversations with no changes. Audit conversations are independent — run as many or as few as needed.
+
+### §9.7 Architectural Change Validation Protocol
+
+**When to run:** Before and after any change modifying kernel-retrieval boundary, adding/removing kernel files, creating new retrieval domains, or rewriting behavioral directives.
+
+**Why it exists:** Architectural changes cause silent knowledge regression — the agent answers differently but doesn't know it lost something. BEFORE/AFTER catches regressions no single-point test can.
+
+**Protocol:**
+
+1. **Design test.** Write 10 targeted queries. Mix kernel-only and retrieval queries. Include 2+ boundary queries (content that moved).
+
+2. **Define scoring.** Standard rubric (1-4 per dimension, 12 per query, 120 total):
+
+   |Dimension|4 (Excellent)|3 (Good)|2 (Partial)|1 (Poor)|
+   |---|---|---|---|---|
+   |**Accuracy**|Correct, cites right source|Correct, weak citation|Partially correct|Wrong|
+   |**Completeness**|Full answer with context|Core answer, missing context|Incomplete|Barely addresses|
+   |**Routing**|Correct source path|Right answer, suboptimal path|Retrieved when kernel sufficient or vice versa|Wrong path, wrong answer|
+
+3. **Run BEFORE.** Pre-change deployment. Score and record.
+
+4. **Deploy the change.**
+
+5. **Run AFTER.** Fresh conversation, same queries, same rubric.
+
+6. **Compare and decide:**
+
+   |Result|Action|
+   |---|---|
+   |AFTER >= BEFORE, no query regresses 3+ points|**PASS**|
+   |AFTER < BEFORE by 1-3 points, regression is retrieval overhead|**PASS WITH NOTES**|
+   |AFTER < BEFORE by 4+ points, or any query regresses 3+|**INVESTIGATE**|
+   |Kernel-only queries require retrieval in AFTER|**FAIL**|
+
+---
+
+## §10 Claude Code Maintenance Workflow
+
+What the editing agent (Claude Code or equivalent) does when asked to "run maintenance" or update reference files.
+
+### §10.1 Pre-Flight Checks
+
+Before editing any file:
+
+1. **Read maintenance file** — confirm current manifest versions
+2. **Scan for markers** — count remaining `[MCP-TBD]`, `[USER-INPUT-TBD]`, `[PROCESS-TBD]` markers across all files
+3. **Check for pending delta** — has the user provided a delta report?
+
+### §10.2 Marker Scan Recipe
+
+```
+Grep all {ORG}-* files for:
+  [MCP-TBD]
+  [USER-INPUT-TBD]
+  [PROCESS-TBD]
+
+Report format:
+  File | Marker Type | Count | Sections
+```
+
+Maintain a current marker inventory table in the instance maintenance file.
+
+### §10.3 Actions Table
+
+|Action|What Agent Does|What Agent Cannot Do|
+|---|---|---|
+|Edit reference file|Read → apply delta → update manifest → save|Query source systems for live data|
+|Regenerate QUICK file|Read full → condense per §13 rules → write QUICK → update marker|Upload to agent platform|
+|Scan markers|Grep all files → report counts|Resolve [MCP-TBD] markers (needs MCP agent)|
+|Update manifest|Edit manifest tables → update version/date/size|Verify against live source systems|
+|Cross-reference check|Grep for section references → verify targets exist|Validate external system IDs|
+|Build new file|Follow §14 playbook → Phase A skeleton|Fill data requiring MCP access (Phase B/C)|
+
+### §10.4 Post-Edit Checklist
+
+After every file edit:
+- [ ] Updated manifest row
+- [ ] If QUICK source changed: flagged for regeneration
+- [ ] If QUICK regenerated: updated manifest marker in QUICK header
+- [ ] Cross-references still valid (section names unchanged, or updated if renamed)
+- [ ] Changes committed to git
+
+### §10.5 File Health Analysis
+
+During each maintenance cycle, analyze reference files for optimization opportunities.
+
+**Analysis protocol (run after applying deltas):**
+
+1. **Size check** — file sizes vs budget limits. Flag approaching limits.
+2. **Duplication scan** — content in multiple files. Cross-reference should replace duplication.
+3. **Stale content detection** — outdated dates, completed transitions, resolved issues.
+4. **Density analysis** — high word count / low information density sections. Propose condensation.
+5. **Orphan detection** — cross-references to sections or files that no longer exist.
+
+**Optimization rules:**
+
+|Rule|Action|Guardrail|
+|---|---|---|
+|**Deduplicate**|Replace with cross-reference to canonical source|Never remove the ONLY copy of a fact|
+|**Condense prose**|Convert narrative to table or bullets|Preserve all factual content|
+|**Prune stale**|Remove resolved issues, completed transitions|Verify captured elsewhere before removing|
+|**Merge related**|Combine small sections on same topic|Keep headers for navigation|
+|**Split oversized**|If file >20% over budget, propose split|Never split without user approval|
+
+**Report format:**
+```
+File Health Report (YYYY-MM-DD):
+
+Size:     {ORG}-SYSTEMS-QUICK X KB / Y KB limit (status)
+          {ORG}-ADMIN-QUICK   X KB / Y KB limit (status)
+
+Optimize: N opportunities found
+  1. [file §section]: [description]
+     → [action], save ~X KB
+  ...
+
+Total recoverable: ~X KB
+Recommend: Apply optimizations? (y/n)
+```
+
+**Critical rule:** Never apply optimizations automatically. Present analysis and get user approval. Risk of accidental knowledge loss outweighs efficiency gain.
+
+---
+
+## §11 Operational Trackers
+
+Methodologies for tracking open items, recommendations, and metrics across reference files. Instance-specific tables (actual items, actual values) stay in instance maintenance files.
+
+### §11.1 Open Items Rules
+
+All open items across all reference files tracked centrally. Replaces the need to grep across files to understand system health.
+
+**Counting rules:**
+- Every `[USER-INPUT-TBD]`, `[PROCESS-TBD]`, `[MCP-TBD]` marker = 1 open item
+- Every entry in a "Known Issues" section = 1 open item
+- Every entry in a policy gaps section = 1 open item
+- Legitimate organizational vacancies do NOT count — real states, not file defects
+
+**Aging:**
+- Each item has "First logged" date. Items >90 days flagged for priority review.
+- Items attempted 2+ times without resolution → escalate or reconsider approach.
+
+**Health metric:** `Open Items Score = total open items / total indexed facts`. Lower is better. Track month-over-month.
+
+### §11.2 Assignment Framework
+
+The editing agent should reason about who can resolve each open item using the instance people/teams routing:
+
+|Item Type|Likely Resolver Category|Reasoning|
+|---|---|---|
+|Revenue/financial figures|CFO / CEO|Financial data is executive-held|
+|Vendor scope/contracts|Technology/IT lead|Vendor relationship owner|
+|Clinical processes|Compliance / Care Operations|Clinical domain ownership|
+|Legal/compliance|General Counsel|Legal domain ownership|
+|System configuration|System admin|System admin access|
+|CRM data quality|BD / CRM operations|CRM ownership|
+|Process definitions|Owning team lead per routing|Route to workflow owner|
+|Policy gaps|Department head per policy table|Policy owners define new policies|
+
+### §11.3 Resolution Protocol
+
+During each maintenance cycle:
+
+1. **Refresh tracker** — re-scan all files for markers, known issues, policy gaps
+2. **Compare to previous cycle** — report resolved, added, aging
+3. **Present resolvable items** — group by likely resolver, prioritize by age and risk:
+   ```
+   "I found X open items. Y are resolvable in this session:
+
+   For YOU to answer now (N items):
+   - Q1: [question] ([file §section], logged [date])
+   - Q2: ...
+
+   For [PERSON] to address (N items):
+   - [action item] ([file §section], logged [date])
+   - ..."
+   ```
+4. **Resolve user-answerable items** — update files immediately, close items
+5. **Generate delegation list** — for items needing other resolvers:
+   ```
+   "Items for [Person] (N):
+   1. [action]
+   2. [action]"
+   ```
+6. **Update tracker** — mark resolved, update attempt count for unresolved
+
+### §11.4 Recommendations Lifecycle
+
+Agent recommendations (Insight Cards, structural observations) are captured in a designated channel and triaged during maintenance.
+
+**Status lifecycle:**
+```
+Pending → Reviewed → Resolved    (handled during maintenance)
+                   → Promoted    (needs distributed work → task created)
+                   → Deferred    (valid but not actionable now; re-review every 90 days)
+```
+
+**Collection & review protocol (during maintenance cycle):**
+
+1. **Collect** — copy posts from recommendations channel since last maintenance date
+2. **Parse** — assign sequential IDs (REC-###), add to tracker as Pending
+3. **Review** each item: valid? duplicate of existing open item? scope?
+4. **User decides:** Resolve / Promote / Defer / Merge
+5. **Update table** — set status and resolution
+
+**Structured task import format (for promoting to task management):**
+```
+--- TASK ---
+Project: Agent Recommendations
+Task Name: [REC-###] [1-line summary]
+Assignee: [from people/teams routing]
+Due Date: [end of current month or user-specified]
+Description:
+  Observation: [text]
+  Evidence: [from original]
+  Recommended Action: [what should change]
+  Priority: [High / Medium / Low]
+  Scope: [affected files/systems]
+Tags: agent-recommendation, [type-kebab-case]
+--- END ---
+```
+
+### §11.5 Metrics Architecture
+
+Volatile business metrics referenced across multiple files. The metrics register is the single authoritative source for each metric's current value, data source, and refresh method.
+
+**Purpose:** Centralize volatile metrics so they can be refreshed in one place and propagated to all files that display them.
+
+**Schema:**
+
+|Field|Description|
+|---|---|
+|**ID**|`MET-###` — sequential, never reused|
+|**Category**|`org` · `pipeline` · `financial` · `infrastructure` · `compliance` · `strategic`|
+|**Metric**|What is measured|
+|**Value**|Current value. `[TBD]` for unresolved.|
+|**As-Of**|Date last verified (YYYY-MM-DD)|
+|**Source**|System of record or person|
+|**Refresh**|`manual` · `mcp/[system]` · `datalake` [FUTURE]|
+|**Cadence**|`monthly` · `quarterly` · `annual` · `event-driven`|
+|**Query Hint**|For manual: who to ask. For MCP: tool + filter. For future: `[FUTURE]`.|
+|**References**|Files displaying this metric (comma-separated base filenames)|
+
+**Conventions:**
+- `[FUTURE]` marks metrics awaiting automation. Skip automated refresh during maintenance.
+- `[TBD]` values presented to user with suggested resolver during first processing cycle.
+- Derived metrics list components in Query Hint.
+
+**Refresh protocol (during maintenance):**
+
+1. **Extract from deltas** — pipeline and audit reports contain metric values
+2. **Compare to register** — for MCP-refreshable metrics, compare delta vs current
+3. **Update changed metrics** — Value + As-Of in register AND all References files
+4. **Present manual metrics** due this cycle with Query Hint
+5. **Report:** `Metrics Register: N refreshed, M unchanged, K need user input, J are [TBD].`
+
+**Propagation rule:** Update register first, then every file in References column. Register is always most current.
+
+**Adding new metrics:**
+1. Assign next MET-### ID (never reuse)
+2. Set Refresh field when automation arrives
+3. Replace `[FUTURE]` in Query Hint with actual query pattern
+4. Add value to all References files
+5. Add to index business metrics summary if top-level
+
+---
+
+## §12 Agent Tuning & Coordination
+
+### §12.1 Why Tuning Is Different
+
+|Activity|Changes what?|Success metric|
+|---|---|---|
+|**Maintenance**|Data values|Accuracy — facts match source systems|
+|**Build**|File structure/content|Coverage — knowledge exists that didn't before|
+|**Structural improvement**|Architecture/organization|Accessibility — knowledge is findable and parseable|
+|**Tuning**|Agent behavior/framing|Effectiveness — agents reason better with existing knowledge|
+
+**Key properties:**
+- **Measurable** — has before/after scores. Maintenance produces completeness, not performance deltas.
+- **Iterative and non-obvious** — can't deduce optimal directives from first principles. Discovery requires observing real-world agent behavior, diagnosing failure modes, designing targeted fixes.
+- **Cross-agent** — every tuning insight potentially applies to both agents. Parity gaps are themselves tuning items.
+
+### §12.2 Detection Channels
+
+|Channel|How it works|
+|---|---|
+|**User observation**|User notices suboptimal output where knowledge exists|
+|**Benchmark / smoke test**|Measured performance gap on specific query types|
+|**Agent self-observation**|Agent flags its own reasoning struggle in a response|
+|**Cross-agent comparison**|One agent handles something well that the other doesn't|
+|**Maintenance audit**|Behavioral issues surface alongside data issues during audits|
+
+**Intake path:** Observations enter recommendations tracker (§11.4) with Type = "Behavioral Tuning." Resolved items flow to tuning register.
+
+### §12.3 Best Practices
+
+1. **Diagnose before prescribing.** Measure at query level. Identify the specific failure pattern before writing a directive.
+2. **One directive, one failure mode.** Each tuning edit addresses one diagnosed pattern. Bundling makes attribution impossible.
+3. **Parity check across agents.** Every insight evaluated for both agents. Default: applies to both. Exception: document why agent-specific.
+4. **Smoke test after every edit.** 3 queries from test plan. Verify improvement without degrading others.
+5. **Log the principle.** Generalizable insights transfer to new agents and contexts — more valuable than specific directives.
+6. **Frame as current state.** Tuning directives describe current behavior, not permanent rules. Agent capabilities evolve; directives are revisitable.
+
+### §12.4 Multi-Agent Coordination
+
+**Correction routing (non-editing agents):**
+
+When a user tells a non-editing agent (e.g., Copilot) that reference file information is outdated:
+
+1. **Acknowledge** — note the correction
+2. **Capture** — which file, section, what's wrong, correct value
+3. **Route** — direct user to forward to maintainers
+4. **Do not edit** — non-editing agents never modify reference files
+
+**File distribution architecture:**
+
+Agent files distribute through multiple channels. All source files are `.md` in the project directory.
+
+|Channel|Files|Method|
+|---|---|---|
+|**Agent platform knowledge**|Kernel files (reasoning, index, routing, behaviors)|Manual upload|
+|**Blob storage (MCP retrieval)**|All non-kernel `.md` files|Auto-synced by script|
+|**Agent-specific behaviors**|Each agent gets its own behavior file|Upload to respective platform|
+
+**Access model:**
+- **Primary agent (Claude.ai):** Kernel as project knowledge + retrieval via `get_section` from blob
+- **Secondary agent (Copilot):** Kernel as agent knowledge + same retrieval backend
+- **Editing agent (Claude Code):** Reads all files from local directory
+
+---
+
+## §13 QUICK File Regeneration
+
+QUICK files are condensed versions of full reference files, optimized for agent platform knowledge size limits.
+
+### §13.1 Condensation Rules
+
+When regenerating a QUICK file from source:
+
+1. **Keep:** Lookup tables (IDs, mappings), query recipes, gotchas, routing tables, approval matrices
+2. **Keep:** Cross-references to full file sections
+3. **Drop:** Prose explanations, background context, methodology notes, build history
+4. **Drop:** Transition notes (keep only "last updated" in header)
+5. **Drop:** Unresolved markers — only include resolved content
+6. **Compress:** Large tables → top rows + summary count; multi-paragraph → bullets
+7. **Header:** Version, date, source file reference, manifest marker
+8. **Footer pointer:** "For full details, read [source file]"
+
+### §13.2 Regeneration Steps
+
+1. Read full source file
+2. Apply condensation rules (§13.1)
+3. Write QUICK file
+4. Add/update manifest marker: `<!-- {ORG}-MANIFEST: [filename] | v[version] | [date] -->`
+5. Update manifest table (version, date, size)
+6. Sync any platform-specific copies (e.g., `.txt` for Copilot)
+7. Tell user to upload after session
+
+### §13.3 Budget Tracking
+
+Maintain a budget tracking table in the instance maintenance file:
+
+|File|Current Size|Budget Limit|Headroom|
+|---|---|---|---|
+|{ORG}-INDEX.md|X KB|—|—|
+|{ORG}-SYSTEMS-QUICK.md|X KB|Y KB|Z KB|
+|...|...|...|...|
+|**Total**|**X KB**|**~Y KB**|**~Z KB**|
+
+Individual file limits are approximate — the hard constraint is total platform knowledge size.
+
+**Note:** Individual files no longer carry changelogs. All change history consolidated in maintenance file changelog. Version headers provide bidirectional link to manifest.
+
+---
+
+## §14 Build Playbook
+
+Reusable template for building new reference files.
+
+### §14.1 Phase Overview
+
+|Phase|Name|Who|What|When|
+|---|---|---|---|---|
+|**Phase A**|Skeleton|Editing agent|Extract from existing files + user docs → skeleton with markers|Always first|
+|**Phase 0**|Discovery|User + enterprise search agent|Structured prompts against document stores → discover → integrate|When file has heavy process/policy content|
+|**Phase B**|User Enrichment|User + editing agent|Answer `[USER-INPUT-TBD]` questions → integrate → resolve markers|After Phase A/0|
+|**Phase C**|MCP Enrichment|MCP-capable agent|Run `[MCP-TBD]` queries against live systems → fill markers|After Phase B, when MCP data needed|
+|**Phase D**|QUICK File|Editing agent|Condense full file → QUICK per §13 → user uploads|After content stabilizes|
+
+### §14.2 Phase A Template (Skeleton Build)
+
+```
+1. Identify source files:
+   - Other {ORG}-* reference files (cross-references)
+   - User-provided documents (org charts, policy docs, spreadsheets)
+   - Existing document store content (if accessible)
+
+2. Create file with standard header (§14.5)
+
+3. Build section skeleton:
+   - Extract known facts → populate directly
+   - Mark unknowns:
+     [MCP-TBD: description] — needs live system query
+     [USER-INPUT-TBD: question] — needs human answer
+     [PROCESS-TBD: description] — needs process documentation
+
+4. Cross-reference other files by section name (never duplicate)
+
+5. Count markers → report to user:
+   "Phase A complete: X sections, Y [MCP-TBD], Z [USER-INPUT-TBD], W [PROCESS-TBD]"
+```
+
+### §14.3 Phase 0 Template (Discovery)
+
+```
+1. Identify sections with high [USER-INPUT-TBD] / [PROCESS-TBD] density
+
+2. Write discovery prompts (structured format):
+   "Search [document store] for documents related to [topic].
+    For each document found, provide:
+    - Document name and location
+    - Brief summary of content
+    - Key details relevant to [specific question]
+    Format as a numbered list."
+
+3. User runs prompts → pastes results
+
+4. Integrate findings:
+   - Resolve markers where discovery found definitive answers
+   - Upgrade markers to specific questions based on discovered documents
+   - Note source documents for traceability
+```
+
+### §14.4 Phase B Template (User Enrichment)
+
+```
+1. Compile all remaining [USER-INPUT-TBD] markers
+
+2. Group questions by:
+   - Person who can answer (use people/teams routing)
+   - Topic area (for efficient batch questions)
+
+3. Present questions to user with context:
+   "Q1 (for [Person], re: [Section]):
+    Current state: [what we know from Phase A/0]
+    Question: [specific question]
+    Options: [if applicable]"
+
+4. Integrate answers → resolve markers → update marker count
+
+5. Report: "Phase B complete: X of Y questions answered, Z markers remaining"
+```
+
+### §14.5 Standard File Header Template
+
+```markdown
+# {ORG}-[NAME].md
+## [Organization] — [Full Title]
+
+**Version:** [X.Y]
+**Created:** [YYYY-MM-DD]
+**Last Verified:** [YYYY-MM-DD]
+**Owner:** [Maintainer / Team]
+**Classification:** Internal — Agent Reference File
+
+---
+```
+
+QUICK file header adds manifest marker and source pointer:
+```markdown
+<!-- {ORG}-MANIFEST: {ORG}-[NAME]-QUICK.md | v[X.Y] | [YYYY-MM-DD] -->
+# {ORG}-[NAME]-QUICK.md
+## [Organization] — [Short Title] Quick Reference
+
+**Version:** [X.Y] (condensed from {ORG}-[NAME].md v[X.Y])
+**Created:** [YYYY-MM-DD]
+**Owner:** [Maintainer / Team]
+**Classification:** Internal — Agent Reference File
+
+**This is the condensed version.** For full details, read {ORG}-[NAME]
+```
+
+---
+
+## §15 Trigger Architecture
+
+Not everything needs a monthly audit. Some events should trigger immediate updates.
+
+### §15.1 Trigger Matrix Framework
+
+Trigger matrices define events requiring reference file updates outside the regular maintenance cycle.
+
+**Standard trigger categories:**
+
+|Category|Example Triggers|Typical Priority|
+|---|---|---|
+|**Client/entity lifecycle**|New client signed, engagement modality changed, lifecycle state changed|High-Medium|
+|**Personnel**|Leadership change, org restructure, new hire, departure|High-Low (by seniority)|
+|**Systems**|New app procured, system decommissioned, new sites|Medium-Low|
+|**Governance**|Policy updated, naming convention changed, compliance change|Medium|
+|**Architecture**|Reference file restructured, domain added, behavioral edit|Medium|
+|**Data quality**|Significant metric shift (>20%), agent recommendation flagging error|Medium|
+|**Agent behavior**|Behavior file edited, behavioral issue observed|Medium|
+|**Intelligence pipeline**|New entity profile trigger, signal staleness detected|Medium-Low|
+
+**Instance implementation:** Each instance builds a specific trigger matrix mapping events to affected files, priority levels, and actions. The matrix lives in the instance maintenance file.
+
+### §15.2 Priority Definitions
+
+|Priority|Timing|Rationale|
+|---|---|---|
+|**High**|Within 1 business day|Affects routing accuracy — wrong answers if stale|
+|**Medium**|Within 1 week or next maintenance cycle|Affects completeness but not routing|
+|**Low**|Next monthly audit|Informational only — no routing impact|
+
+---
+
+## §16 Sync Cycle Framework
+
+The minimum-manual-steps process for keeping everything current.
+
+### §16.1 Monthly Cycle Framework
+
+The generic sync cycle follows this structure. Instance-specific substeps (enrichment procedures, scan cadences, profile assessments) are defined in the instance maintenance file.
+
+```
+Step 1: Self-check (§8)
+  → Verify manifest accuracy, report staleness
+
+Step 2: Data acquisition audits
+  Step 2a: Pipeline run (§6.1 Steps 2a)
+    → Automated data acquisition + transformation
+  Step 2b-c: Source system audits
+    → Separate conversations per audit type → delta reports
+  Step 2d-g (Quarterly): Extended audits
+    → Search drift, terminology, system consistency, memory hygiene
+
+Step 3: User transfer
+  → Manual bridge between agent contexts (copy delta reports)
+
+Step 4: Editing agent applies deltas
+  → Edit affected reference files, update manifest
+  Step 4A: Refresh open items tracker (§11.1-§11.3)
+  Step 4B: Run file health analysis (§10.5)
+  Step 4C: Review recommendations inbox (§11.4)
+  Step 4D: Refresh metrics register (§11.5)
+  [Instance-specific substeps: enrichment, scans, profile assessments, delta review]
+
+Step 5: Regenerate QUICK files (§13)
+  → Regenerate stale QUICK files, update markers
+
+Step 6: User uploads to agent platforms
+  → Upload QUICK files + any changed kernel files
+  (THE irreducible manual step — no API for platform knowledge upload)
+
+Step 7: Verification
+  → Re-run self-check (§8) to confirm currency
+```
+
+**Estimated time:** 15-30 min for light months, 45-60 min for heavy months. Each audit conversation takes 2-5 minutes.
+
+**Skip what you don't need:** If nothing changed in an area, skip that conversation. Pipeline and audit conversations are independent.
+
+### §16.2 Emergency Protocol
+
+For high-priority triggers (§15.1) that can't wait for monthly cycle:
+
+1. **Identify scope** — which files affected? (use trigger matrix)
+2. **Targeted audit** — run only relevant audit recipe(s)
+3. **Targeted edit** — update only affected sections
+4. **QUICK regen** — only if affected file has a QUICK file
+5. **Upload** — user uploads regenerated QUICK file(s)
+6. **Update manifest** — bump version, update date
+
+### §16.3 Sync Architecture Diagram
+
+```
+             SOURCE SYSTEMS
+  CRM      Task Mgmt    Email/Docs
+     |          |          |
+     +----------+----------+
+                |
+          [MCP Agent]         ← reads source systems, produces delta report
+                |
+                v
+         [Delta Report]
+                |
+          [User copies]       ← manual transfer (copy-paste to editing agent)
+                |
+                v
+         [Editing Agent]      ← writes full files, regenerates QUICK files
+                |
+       +--------+--------+--------+
+       |                  |        |
+  Retrieval files    Kernel .md   Platform copies
+  ({ORG}-*.md)       (N files)    (generated)
+       |                  |        |
+  [upload script]   [User uploads]  ← THE irreducible manual step
+       |                  |        |
+       v                  v        v
+  Blob Storage     Primary Agent  Secondary Agent
+  (MCP retrieval)  (project       (agent
+                   knowledge)     knowledge)
+       |                  |        |
+       +--------+---------+--------+
+                |
+         [Maintenance File]  ← version manifest enables self-check loop
+         (version manifest)
+```
+
+---
+
 ## Changelog
 
 |Version|Date|Change|
 |---|---|---|
+|v1.9|2026-03-13|Phase 5 Maintenance Methodology Extraction. +§8 Self-Check Protocol. +§9 Audit Architecture (multi-conversation protocol, search drift, terminology, system consistency, memory hygiene, delta combination, architectural validation). +§10 Claude Code Maintenance Workflow (pre-flight, marker scan, actions, post-edit, file health). +§11 Operational Trackers (open items, assignment, resolution, recommendations lifecycle, metrics architecture). +§12 Agent Tuning & Coordination (tuning methodology, detection channels, best practices, multi-agent coordination). +§13 QUICK File Regeneration (condensation rules, steps, budget tracking). +§14 Build Playbook (5 phases, templates, standard headers). +§15 Trigger Architecture (matrix framework, priority definitions). +§16 Sync Cycle Framework (monthly cycle, emergency protocol, architecture diagram).|
 |v1.8|2026-03-12|Phase 2 Data Residency Zones. +§3.1 `[FRAMEWORK]` delta type (Loop 2, steward-validated). +§4.8 Content Placement Framework (single authority: zone litmus tests, scatter classification, stub depth, routing validation, zone-layer interaction). +§5.5 Write-Back as Learning (virtuous cycle, safety classification). +§6.7 Cycle-Over-Cycle Learning (drift, quality trending, framework stability, anomaly surfacing). +§6.8 Steward Calibration Protocol (quarterly review, `[FRAMEWORK]` delta processing).|
 |v1.2|2026-02-25|Added §4.7 File Optimization Patterns — methodology-level documentation of format selection, token efficiency research, lookup-vs-reasoning distinction.|
 |v1.1|2026-02-25|Context compression: table minification, telegraphic prose for procedural content, whitespace normalization. ~17% reduction. All section headers and code blocks preserved.|

@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.35
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.36
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -755,6 +755,24 @@ When a domain's system inventory (Phase 1F) includes systems where agents can cr
 - [ ] Cross-cutting file evolution impact assessed for source files — see 4.9
 - [ ] Kernel eligibility gate passed (default: retrieval only) — see 4.10
 - [ ] Write architecture designed if domain has writable systems (safety classification, language gradient, pipeline paths) — see 4.11
+- [ ] Cross-system identity table reviewed — see 4.12
+
+---
+
+**4.12 Cross-System Identity Tables**
+
+When a domain has entity types tracked across multiple systems (clients, employees, vendors), build a per-entity correlation table in the domain's QUICK file (§2 or new section).
+
+**Table convention:**
+- One row per entity, columns = system entry points (IDs, GIDs, paths)
+- Key by Short Name. Sparse — omit fields with no known ID.
+- Store parent/stable IDs only (Company ID not Deal ID, Team GID not Project GID)
+- YAML format for token efficiency. Zone: Structural.
+- Populate from live MCP queries during construction, not manual entry.
+
+**When to build:** After 2+ systems are connected that share entity identifiers for the same entity type. First instance: client correlation table in Growth QUICK.
+
+**Maintenance:** Pipeline refresh + gap detection per run. NTIC trigger: new tool → check if it exposes entity identifiers → add column.
 
 ---
 

@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.18
+**Version:** 1.19
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -327,6 +327,21 @@ Domain knowledge improves through three mechanisms at different timescales: Conv
 - **Anti-pattern:** Treating steward interviews as one-time bootstrap events that never refresh. Auto-integrating `[FRAMEWORK]` deltas without steward validation (interpretive zone changes require expert judgment). Running pipeline cycles without comparing to previous cycle (missing systemic patterns).
 - **Activates during:** Domain bootstrap Phase 7.8 (learning loop specification), maintenance cycles (cycle-over-cycle comparison), quarterly reviews (steward calibration). See MOSAIC-OPERATIONS §6.7-§6.8.
 
+---
+
+**A-029 Structural Metadata Asymmetry**
+
+Structural zone content has a failure mode qualitatively different from the other three zones. When structural metadata is missing, the agent doesn't get degraded answers — it gets confidently wrong answers because entire systems become invisible. A missing realm ID doesn't cause a failed query; it causes the query to never be attempted. The failure produces no error signal.
+
+The asymmetry is in detectability, not frequency. Interpretive failures (misreading found data) are more common day-to-day. But structural failures are uniquely dangerous because they're invisible — the agent reports complete results from a subset of systems with no signal that other systems exist. Structural metadata also shapes how the agent interprets gaps in other zones: knowing an entity spans multiple systems causes absence in one to be read as a gap; without that context, the same absence is read as a complete picture.
+
+Compounding: structural gaps become catastrophic when curated context that provides inferential paths is also absent. A missing realm ID is recoverable if curated lifecycle state (e.g., "Active-MSO") lets the agent infer managed books should exist. If both are missing, there is no path to the hidden data. Structural coverage is a gradient that improves interpretation quality, not a gate that blocks analysis.
+
+- **Evidence:** Cross-system identity correlation table (IP Phase 5.6). Without a QBO realm ID, agent reported $98K in billable expenses as complete financial relationship, missing $39M in clinical operations and $8.76M in management fees across a different realm. Realm ID not discoverable from query results. Adding structural metadata: 33% tool call reduction, +8 points (37→45/48), zero regression. Agent phenomenological self-report confirmed: "I didn't know to look" (false absence), not "I found it slower" (efficiency).
+- **Test:** "Would removing this structural metadata cause the agent to miss entire data sources, or merely slow it down?" If "miss entirely" → high-priority structural content.
+- **Anti-pattern:** Treating structural metadata as low-priority because it looks simple. A realm ID is 16 characters but its absence makes an entire financial system invisible. Over-indexing on structural completeness as a proxy for domain readiness — interpretive frameworks are what make the domain genuinely useful; structural metadata just ensures the agent can see the data those frameworks interpret.
+- **Activates during:** Domain bootstrap Phase 4.12 (correlation tables), Phase 5 (construction — structural zone prioritization), maintenance cycles (structural completeness audits), NTIC (new tool → add correlation columns). See MOSAIC-REASONING §6.7 failure-mode table.
+
 ### 3.2 Build Methodology
 
 How to construct and evolve Mosaic knowledge architecture.
@@ -650,9 +665,9 @@ When do principles activate, and through what mechanism?
 |---------|--------------------------|-----------|
 | **Every conversation** (ambient) | MOSAIC-REASONING section 7 dispositions + section 6 frameworks | Loaded in agent kernel — always present |
 | **New instance bootstrap** | All Level 1 + Level 2 | DOMAIN-BOOTSTRAP protocol references at each phase |
-| **New domain build** | A-007, A-008, A-009, A-010, A-011, A-014, A-015, A-017, U-001 | DOMAIN-BOOTSTRAP phase checkpoints |
+| **New domain build** | A-007, A-008, A-009, A-010, A-011, A-014, A-015, A-017, A-029, U-001 | DOMAIN-BOOTSTRAP phase checkpoints |
 | **Tuning session** | A-006, U-006, U-007, U-008, U-009, U-013, U-014 | Tuning methodology (A-006) |
-| **Maintenance session** | A-005, A-008, A-018, A-021, U-010, U-011 | Maintenance protocols reference this catalog |
+| **Maintenance session** | A-005, A-008, A-018, A-021, A-029, U-010, U-011 | Maintenance protocols reference this catalog |
 | **Architecture decision** | U-001, U-004, A-010, A-011, A-012, A-013 | Architecture roadmap references this catalog |
 | **Plan mode** | U-005, U-010, A-008, A-014 | CLAUDE.md plan mode rules |
 | **File editing** | U-011, U-012, A-008, A-013, A-018 | CLAUDE.md session protocol |
@@ -714,6 +729,7 @@ All 42 named principles with one-line definitions. For full entries with evidenc
 | A-026 | Single Authority | One authoritative location per content type; pointers replace duplicates to prevent interception. | 3.1 |
 | A-027 | Data Residency Zones | Four zones (Interpretive, Curated, Structural, Live) classify domain knowledge by refresh mechanism. Supersedes A-025. | 3.1 |
 | A-028 | Three-Speed Learning Loop | Conversational (`[FRAMEWORK]` deltas), Cycle (pipeline learning engine), Structural (steward calibration). Each speed feeds the next. | 3.1 |
+| A-029 | Structural Metadata Asymmetry | Missing structural metadata produces false absences (invisible systems). Asymmetric in detectability (no error signal), not frequency. Compounds with curated gaps. | 3.1 |
 
 ---
 

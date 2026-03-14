@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.36
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.37
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -774,6 +774,12 @@ When a domain has entity types tracked across multiple systems (clients, employe
 
 **Maintenance:** Pipeline refresh + gap detection per run. NTIC trigger: new tool → check if it exposes entity identifiers → add column.
 
+**Validation:** After building a correlation table, spot-check 3 entities across 2+ systems — confirm each ID resolves to the correct entity. Include one entity with complex identity (shared ID, multiple entries, name variant). A wrong ID is worse than a missing ID — it routes queries to the wrong entity silently.
+
+**Self-extension:** When an agent discovers a cross-system mapping during operation that isn't in the table (e.g., a secondary team GID, a new realm), emit a `[STRUCT]` delta. Pipeline picks it up next cycle. The table grows through use, not just construction.
+
+**Failure-mode priority:** Incomplete correlation tables produce false absences, not degraded quality — the agent reports complete answers missing entire systems. A table with gaps marked `MCP-TBD` is better than missing rows, because the marker makes the gap visible. See MOSAIC-REASONING §6.7 and MOSAIC-PRINCIPLES A-029.
+
 ---
 
 ### Phase 5: Artifact Construction
@@ -1129,6 +1135,10 @@ Define how this domain learns over time. This specification enables MOSAIC-OPERA
 
 4. **Write-back tracking.** What corrections does this domain's pipeline produce? What's the trending expectation? (Decreasing correction volume = improving source quality. See §5.5 in MOSAIC-OPERATIONS.)
 
+**7.9 Phenomenological Validation**
+
+After a structural change that affects how the agent plans queries (new correlation table, new system connection, new routing), ask the agent to describe how it experienced the change. Self-reports are diagnostic of which zone was affected: "I didn't know to look" = false absence (Structural). "I found it slower" = efficiency (Curated). "I misread it" = interpretation (Interpretive). Design data per MOSAIC-REASONING §7 and MOSAIC-PRINCIPLES A-019. Complement to score-based testing — reveals failure modes scores alone may miss.
+
 **Completion criteria:**
 - [ ] Pre-build baseline scored on primary agent (before Phase 5 begins)
 - [ ] Pre-build baseline scored on secondary agent(s) per Phase 6.7 model
@@ -1310,6 +1320,7 @@ The Freedom track depends on a domain expert who may never have externalized the
 
 | Version | Date | Change |
 |---------|------|--------|
+| v0.37 | 2026-03-13 | Phase 4.12: correlation table validation procedure + self-extension pattern + failure-mode priority note. New Phase 7.9: phenomenological validation pattern. Evidence: IP Phase 5.6 cross-system identity correlation table (33% tool call reduction, +8 points, false-absence discovery). See MOSAIC-PRINCIPLES A-029. |
 | v0.35 | 2026-03-13 | Phase 8.9: common live data patterns (vendor costs, contact counts, inline metrics, date-stamped state) + composite zone annotation convention for Phase 4 zone tagging and retroactive audits. Evidence: IP Phase 5B zone slimming (3 domain files) + Phase 5.5 tuning (IP-TEAMS §6 composite pattern). |
 | v0.33 | 2026-03-12 | Phase 2 Data Residency Zones integration. New Phase 6.5 (Curated Zone Baseline). New Phase 7.8 (Learning Loop Specification). MOSAIC-OPERATIONS §4.8 pointers in Phases 5, 5.6, 8.9. Phase 7 completion criteria updated. Charter statement added to header. |
 | v0.1 | 2026-02-15 | Initial protocol design. Reverse-engineered from two completed domain anatomies. |

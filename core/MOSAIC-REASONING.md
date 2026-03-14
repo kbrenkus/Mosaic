@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.18
+**Version:** 1.19
 
 ---
 
@@ -564,6 +564,23 @@ These axes interact but don't override. Example: a client lifecycle directory is
 **Zone-straddling content.** Some individual content elements legitimately occupy two zones simultaneously — not because the section is composite, but because the element itself serves dual purposes. Example: a HubSpot `NOT_IN` filter recipe is Structural (metadata needed to construct the query) AND Interpretive (encodes the judgment that unfiltered results are polluted). The litmus tests identify both zones correctly. Resolution: classify by the zone that earns kernel budget — if the element is habit-forming (must be internalized before the situation arises, not consulted mid-query), the Interpretive classification dominates per §6.2 ambient context. The Structural component can survive retrieval; the Interpretive component cannot.
 
 **Design principle.** See MOSAIC-PRINCIPLES A-027 for evidence, test, and anti-patterns.
+
+**Failure-mode asymmetry.** Each zone has a characteristic failure when its content is missing or misclassified:
+
+|Zone|Failure When Missing|Observable Signal|
+|---|---|---|
+|Interpretive|Misinterpretation — data found but misread|Agent reaches wrong conclusions from correct data|
+|Curated|Expensive reconstruction — roughly correct but costly|Agent produces adequate output burning 3-5x retrieval hops to rebuild judgment|
+|Structural|False absence — systems invisible, confident wrong answer|Agent reports complete answer missing entire data sources|
+|Live|Stale data — cached number cited as current|Agent presents outdated figure without freshness caveat|
+
+The asymmetry is in detectability, not frequency. Interpretive failures (misreading data) are the most common day-to-day error mode. Structural failures are rarer but uniquely dangerous: they produce NO error signal. The agent doesn't know what it doesn't know. A missing realm ID doesn't cause a failed query — it causes the query to never be attempted.
+
+**Secondary effect:** Structural metadata shapes interpretation of gaps in other zones. When the agent knows an entity spans multiple systems (structural), it reads absence in one system as a gap worth investigating. Without the structural context, the agent reads the same absence as a complete picture. That said, structural coverage is a gradient that improves interpretation quality, not a gate that blocks analysis — agents operate productively with sparse structural metadata, but each gap is a potential false absence.
+
+**Compounding:** Structural gaps become catastrophic when curated context that would provide inferential paths is also absent. A missing realm ID is recoverable if curated lifecycle state (e.g., "Active-MSO") lets the agent infer that managed books should exist. If both structural AND curated are missing, there is no path to the hidden data.
+
+See MOSAIC-PRINCIPLES A-029.
 
 ---
 

@@ -1,4 +1,4 @@
-# MOSAIC-OPERATIONS v1.9
+# MOSAIC-OPERATIONS v1.10
 
 > **Purpose:** Operational architecture for self-learning knowledge systems — how instances detect drift, accumulate observations, process learning, and maintain currency.
 > **Scope:** Company-agnostic. All examples use generic placeholders. Instance-specific operational details belong in instance files.
@@ -341,7 +341,7 @@ Four tests classify content by refresh mechanism. Apply to every piece of conten
 
 **Curated:** "Could a fresh agent reconstruct this output in a single query session, given interpretive frameworks + API access?" If no → Curated zone. Content encodes accumulated judgment across multiple conversations, pipeline runs, and expert interactions. Examples: lifecycle assignments, data quality diagnostics, coverage gap analysis.
 
-**Structural:** "Is this metadata needed to CONSTRUCT a query, but not present IN the query results?" If yes → Structural zone. Configuration that enables query construction. Examples: realm IDs, property names, entity pairings, pipeline stage mappings.
+**Structural:** "Is this metadata needed to CONSTRUCT a query, but not present IN the query results?" If yes → Structural zone. Configuration that enables query construction. Examples: realm IDs, property names, entity pairings, pipeline stage mappings. Structural metadata has an asymmetric failure mode — missing content produces false absences (invisible systems) rather than degraded quality. Prioritize completeness. See MOSAIC-REASONING §6.7 and MOSAIC-PRINCIPLES A-029.
 
 **Live:** "Is this a number, record, or status from a source system that changes continuously?" If yes → Live zone. Never store. Write a recipe in the API recipe file instead.
 

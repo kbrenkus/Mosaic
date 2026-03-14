@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.17
+**Version:** 1.18
 
 ---
 
@@ -554,6 +554,14 @@ These axes interact but don't override. Example: a client lifecycle directory is
 **Graduation dynamic.** Content can shift across both axes simultaneously. When a classification framework evolves from "labels I look up" to "patterns I reason from," it shifts epistemological type (ontological → hermeneutical) AND zone (curated or structural → interpretive). The two frameworks reinforce the same placement recommendation from different angles — epistemological layers name what the content became, zones name how it stays current.
 
 **Terminology.** "Zone" is deliberate — "layer" is taken by epistemological layers (§6.6) and sync layers (A-005), "tier" by data sensitivity (information governance), "level" by principle classification (MOSAIC-PRINCIPLES). See MOSAIC-PRINCIPLES A-027 for the design principle.
+
+**Composite zones.** Not every section maps to a single zone. Sections frequently contain content from multiple zones with different refresh cadences. Three rules for composite sections:
+
+1. **Dominance test:** "Which zone classification, if wrong, would cause the most harmful mistake?" A routing decision tree with embedded contact names is Interpretive-dominant — misclassifying it as Curated would trigger unnecessary rewrites of stable routing logic during personnel changes. The contact names are Curated *within* an Interpretive structure.
+2. **Refresh inheritance:** A composite section inherits the *fastest* decay rate of its components for maintenance scheduling. A routing table (Interpretive, quarterly) with contact names (Curated, per org change) needs review at the Curated cadence — but only the Curated components change.
+3. **Annotation convention:** Mark composite sections with the dominant zone first, then components: `<!-- Zone: Interpretive (routing logic) + Curated (contact names — refresh per org change) -->`. This tells maintenance which parts to check and at what cadence.
+
+**Zone-straddling content.** Some individual content elements legitimately occupy two zones simultaneously — not because the section is composite, but because the element itself serves dual purposes. Example: a HubSpot `NOT_IN` filter recipe is Structural (metadata needed to construct the query) AND Interpretive (encodes the judgment that unfiltered results are polluted). The litmus tests identify both zones correctly. Resolution: classify by the zone that earns kernel budget — if the element is habit-forming (must be internalized before the situation arises, not consulted mid-query), the Interpretive classification dominates per §6.2 ambient context. The Structural component can survive retrieval; the Interpretive component cannot.
 
 **Design principle.** See MOSAIC-PRINCIPLES A-027 for evidence, test, and anti-patterns.
 

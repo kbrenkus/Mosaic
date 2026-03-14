@@ -1,4 +1,4 @@
-# DOMAIN-BOOTSTRAP-PROTOCOL v0.34
+# DOMAIN-BOOTSTRAP-PROTOCOL v0.35
 
 > **Purpose:** A repeatable, teachable process for building new knowledge domains — whether adding a domain to an existing system or bootstrapping a new organization's knowledge architecture from scratch.
 >
@@ -1175,6 +1175,14 @@ When new MCP/API access is deployed (new tools, expanded write access, new servi
 
 **Do NOT migrate during the audit session.** Audit first, confirm classifications, then plan migrations as a separate workstream. Do NOT remove reference file content before the target system field is validated and populated (CRUD validation gate).
 
+**Common live data patterns (from retroactive audits):**
+- **Vendor costs** in system inventory YAML — pricing changes with contract renewals. Remove `cost:` fields; add pointer to Finance/vendor contracts for current pricing.
+- **Contact counts** in audience/segmentation tables — list sizes change continuously. Replace specific counts with category taxonomy + MCP query pointer.
+- **Inline deep-pull metrics** in historical reference tables — snapshot numbers from MCP pulls that decay immediately. Keep entity identifiers and relationship signals; remove counts and amounts.
+- **Date-stamped operational state** — "current version: 2026-02-05" style references that drift. Replace with "latest version on [system]".
+
+**Composite zone annotations.** When tagging sections during Phase 4 zone distribution (or retroactive audit), sections that contain content from multiple zones should use composite annotations per MOSAIC-REASONING §6.7: dominant zone first, then components with refresh cadence. Example: `<!-- Zone: Interpretive (routing logic) + Curated (contact names — refresh per org change) -->`. The zone distribution table should reflect composites: `Interpretive + Curated` in the Zone column.
+
 **8.10 Process Improvement Register (optional)**
 
 Bootstrap work is inherently diagnostic — it reveals organizational maturity gaps as a byproduct. Optionally maintain a Process Improvement Register during the bootstrap, classifying gaps as: UNDOCUMENTED (process exists informally), FRAGMENTED (spread across systems), MISSING (no process exists), INFORMAL (relies on individual knowledge). Synthesize into an Organizational Intelligence Brief at Phase 7.5. Evidence: IP Finance PIR produced 10 items with 2 critical; review at Phase 3 took ~5 minutes.
@@ -1284,6 +1292,7 @@ The Freedom track depends on a domain expert who may never have externalized the
 
 | Version | Date | Change |
 |---------|------|--------|
+| v0.35 | 2026-03-13 | Phase 8.9: common live data patterns (vendor costs, contact counts, inline metrics, date-stamped state) + composite zone annotation convention for Phase 4 zone tagging and retroactive audits. Evidence: IP Phase 5B zone slimming (3 domain files) + Phase 5.5 tuning (IP-TEAMS §6 composite pattern). |
 | v0.33 | 2026-03-12 | Phase 2 Data Residency Zones integration. New Phase 6.5 (Curated Zone Baseline). New Phase 7.8 (Learning Loop Specification). MOSAIC-OPERATIONS §4.8 pointers in Phases 5, 5.6, 8.9. Phase 7 completion criteria updated. Charter statement added to header. |
 | v0.1 | 2026-02-15 | Initial protocol design. Reverse-engineered from two completed domain anatomies. |
 | v0.7 | 2026-02-25 | **Three proposals integrated from Phase B evidence.** (1) Multi-agent parallel discovery: Phase 2F multi-agent note, new F2-6 (multi-agent discovery design with agent-type table and search-adapted prompts), Phase 3.0 (multi-agent discovery merge before ontology construction), Phase 2F completion criteria updated. (2) Cross-cutting file evolution: new F1-3 (scatter content classification with boundary test table), Phase 4.9 (cross-cutting file evolution pattern with guard rails), Phase 4.10 (kernel eligibility gate with epistemic type table and two-part placement test), Phase 1F and 4 completion criteria updated. (3) Domain consolidation & source pruning: new Phase 5.6 (full procedure — pre-prune scan, stub depth classification table, bidirectional routing, guard rails, cross-reference updates), Phase 5 completion criteria updated. All three discovered during Phase B Marketing & Communications bootstrap. |

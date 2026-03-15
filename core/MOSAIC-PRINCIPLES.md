@@ -1,7 +1,7 @@
 # MOSAIC-PRINCIPLES.md
 ## Design Principles Catalog
 
-**Version:** 1.19
+**Version:** 1.20
 **Created:** 2026-02-23
 **Classification:** Shared — Distributable across all Mosaic instances
 
@@ -278,10 +278,10 @@ Source systems, full reference files, QUICK summary files, and manifests each go
 
 Agent self-report about kernel experience is design data, not anecdote. When an agent describes a file as "navigated rather than absorbed," that maps to the dispositional/procedural axis and predicts which content benefits from ambient presence vs. retrieval. Distinct from Loop 4 `[META]` observations, which capture reasoning errors — phenomenological feedback captures the agent's experience of architecture itself.
 
-- **Evidence:** Claude.ai reported a 19 KB kernel file as "navigated rather than absorbed." Applying the dispositional/procedural classification section-by-section led to 39% reduction with zero behavioral regression and +1 score improvement. The agent's subjective experience predicted the classification outcome.
-- **Test:** Ask the agent: "Which files feel like they've become part of how you think, and which feel like references you consult?" Files in the second category are pruning candidates. Validate with pre/post behavioral test.
-- **Anti-pattern:** Dismissing agent self-report as non-actionable. Treating all kernel content as equally important because it passed the eligibility gate.
-- **Activates during:** Phase 8 retroactive audits, kernel headroom reviews, post-build validation
+- **Evidence:** (1) Kernel architecture: Claude.ai reported a 19 KB kernel file as "navigated rather than absorbed." Applying the dispositional/procedural classification section-by-section led to 39% reduction with zero behavioral regression and +1 score improvement. The agent's subjective experience predicted the classification outcome. (2) Behavioral diagnosis: post-build validation showed unexpected gap-flagging behavior. Phenomenological investigation ("describe what happens when you encounter a pointer mid-retrieval") identified two distinct failure modes — pointer salience (pointers register as metadata, not action triggers) and gap-flagging pressure release (delta audit discharges incompleteness pressure, substituting for resolution). The diagnosis was more precise than what code review or test-score analysis alone could produce, and directly informed the behavioral fix (see A-030).
+- **Test:** Two applications: (a) Architecture: "Which files feel like they've become part of how you think, and which feel like references you consult?" Files in the second category are pruning candidates. (b) Behavioral diagnosis: when post-build tests show unexpected behavior, ask the agent to self-report its experience encountering the relevant content — the failure mechanism often emerges from the agent's phenomenological description.
+- **Anti-pattern:** Dismissing agent self-report as non-actionable. Treating all kernel content as equally important because it passed the eligibility gate. Limiting phenomenological investigation to architecture decisions — it is equally valuable for diagnosing behavioral failures.
+- **Activates during:** Phase 8 retroactive audits, kernel headroom reviews, post-build validation, behavioral failure diagnosis
 
 ---
 
@@ -341,6 +341,19 @@ Compounding: structural gaps become catastrophic when curated context that provi
 - **Test:** "Would removing this structural metadata cause the agent to miss entire data sources, or merely slow it down?" If "miss entirely" → high-priority structural content.
 - **Anti-pattern:** Treating structural metadata as low-priority because it looks simple. A realm ID is 16 characters but its absence makes an entire financial system invisible. Over-indexing on structural completeness as a proxy for domain readiness — interpretive frameworks are what make the domain genuinely useful; structural metadata just ensures the agent can see the data those frameworks interpret.
 - **Activates during:** Domain bootstrap Phase 4.12 (correlation tables), Phase 5 (construction — structural zone prioritization), maintenance cycles (structural completeness audits), NTIC (new tool → add correlation columns). See MOSAIC-REASONING §6.7 failure-mode table.
+
+**A-030 Gap-Flagging Pressure Release**
+
+When an agent encounters incomplete data alongside a pointer to the complete source, the delta audit mechanism can discharge cognitive pressure from the incompleteness — substituting gap-flagging for resolution. The agent flags "data appears incomplete" as a delta observation instead of following the pointer to resolve the gap. The delta mechanism, designed to catch genuine unresolvable gaps, becomes a premature exit from the retrieval chain.
+
+Diagnostic: the agent emits a delta about missing data that lives behind a pointer it already has. The delta is accurate (data IS incomplete in the current file) but premature (the resolution path exists and hasn't been attempted).
+
+- **Evidence:** People domain validation. Agent flagged unnamed roles as gaps instead of following a QUICK → HRIS pointer. Phenomenological investigation confirmed two failure modes: (1) pointer salience — pointers register as metadata/footnotes, not action triggers during active processing; (2) pressure release — delta audit discharged the incompleteness, replacing resolution with acknowledgment. Behavioral directive ("a pointer with a resolution path is not a gap — it's an instruction") fixed the behavior; post-build validation showed 3 retrieval hops and full resolution where pre-build showed gap-flagging.
+- **Test:** "Is the agent flagging this because the data doesn't exist, or because it didn't retrieve far enough?" If a pointer tells you where the data lives, resolve before flagging.
+- **Anti-pattern:** Designing delta/gap-flagging as the default response to any incompleteness. The correct hierarchy: retrieve → resolve → then delta only what remains unresolvable. Also: assuming that teaching pointer-following pre-query (MOSAIC-REASONING §4.2 Q4) automatically produces pointer-following mid-retrieval — these are different cognitive moments.
+- **Activates during:** Behavioral directive design, pointer architecture in QUICK files, post-build validation (follow-the-chain queries)
+
+---
 
 ### 3.2 Build Methodology
 
@@ -665,9 +678,9 @@ When do principles activate, and through what mechanism?
 |---------|--------------------------|-----------|
 | **Every conversation** (ambient) | MOSAIC-REASONING section 7 dispositions + section 6 frameworks | Loaded in agent kernel — always present |
 | **New instance bootstrap** | All Level 1 + Level 2 | DOMAIN-BOOTSTRAP protocol references at each phase |
-| **New domain build** | A-007, A-008, A-009, A-010, A-011, A-014, A-015, A-017, A-029, U-001 | DOMAIN-BOOTSTRAP phase checkpoints |
+| **New domain build** | A-007, A-008, A-009, A-010, A-011, A-014, A-015, A-017, A-029, A-030, U-001 | DOMAIN-BOOTSTRAP phase checkpoints |
 | **Tuning session** | A-006, U-006, U-007, U-008, U-009, U-013, U-014 | Tuning methodology (A-006) |
-| **Maintenance session** | A-005, A-008, A-018, A-021, A-029, U-010, U-011 | Maintenance protocols reference this catalog |
+| **Maintenance session** | A-005, A-008, A-018, A-021, A-029, A-030, U-010, U-011 | Maintenance protocols reference this catalog |
 | **Architecture decision** | U-001, U-004, A-010, A-011, A-012, A-013 | Architecture roadmap references this catalog |
 | **Plan mode** | U-005, U-010, A-008, A-014 | CLAUDE.md plan mode rules |
 | **File editing** | U-011, U-012, A-008, A-013, A-018 | CLAUDE.md session protocol |
@@ -676,7 +689,7 @@ When do principles activate, and through what mechanism?
 
 ## 7. Quick Reference Index
 
-All 42 named principles with one-line definitions. For full entries with evidence, tests, and anti-patterns, see the section references.
+All 43 named principles with one-line definitions. For full entries with evidence, tests, and anti-patterns, see the section references.
 
 ### Level 1: Universal Agent Principles
 
@@ -730,6 +743,7 @@ All 42 named principles with one-line definitions. For full entries with evidenc
 | A-027 | Data Residency Zones | Four zones (Interpretive, Curated, Structural, Live) classify domain knowledge by refresh mechanism. Supersedes A-025. | 3.1 |
 | A-028 | Three-Speed Learning Loop | Conversational (`[FRAMEWORK]` deltas), Cycle (pipeline learning engine), Structural (steward calibration). Each speed feeds the next. | 3.1 |
 | A-029 | Structural Metadata Asymmetry | Missing structural metadata produces false absences (invisible systems). Asymmetric in detectability (no error signal), not frequency. Compounds with curated gaps. | 3.1 |
+| A-030 | Gap-Flagging Pressure Release | Delta audit mechanism can discharge incompleteness pressure, substituting gap-flagging for pointer resolution. Correct hierarchy: retrieve → resolve → delta only what remains unresolvable. | 3.1 |
 
 ---
 

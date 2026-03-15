@@ -254,6 +254,7 @@ For retroactive audits of existing domains, follow DOMAIN-BOOTSTRAP Phase 8. Aud
 **During a session:**
 - When editing reference files, bump the version number in the file's header. **Every version bump is a 2-part atomic operation:** (1) increment header version, (2) update {ORG}-MAINTENANCE §2.1/§2.2 manifest row. Change history is tracked in git — no separate changelog entry needed.
 - **Manifest discipline:** When bumping a file version, always update {ORG}-MAINTENANCE §2.1 (and §2.2 if a QUICK file) in the same edit session. Don't defer manifest updates — this is the #1 source of system drift.
+- **QUICK propagation check:** When a full-file edit changes organizational ownership, governance chain, department assignment, or approval status — not just a name swap — check whether the QUICK derivative carries any of the changed data (category, owner, status, department). Add QUICK updates to the plan scope when the answer is yes. Any structural/governance change needs this check, not just name replacements. (See MOSAIC-OPERATIONS §10.4, MOSAIC-PRINCIPLES A-005/A-030.)
 - **File structure discipline:** When creating, renaming, or moving files, update all three locations: `scripts/prepare_upload.ps1` (upload script manifest), {ORG}-MAINTENANCE §5F Upload Manifest table, and {ORG}-INDEX §Related Reference Files (if the change affects a layer or category). Then verify no cross-references broke with a grep for the old name/path.
 - **New tool introduction checklist.** When a new MCP connection or service becomes available, follow this sequence in a single session:
   - **Discovery first:** (1) Fetch full API docs. (2) Build complete endpoint inventory classified: Active (use now) | Future-[Domain] (relevant later) | Not applicable. (3) **Applicability review checkpoint** — present catalog to user, get sign-off before encoding recipe file.
@@ -311,6 +312,8 @@ Every plan that modifies reference files, restructures content, or changes agent
 - File splits, merges, or restructuring — always
 - Behavioral directive changes — always (extends the Agent Behavior Regression Rule)
 - Single-file content additions — use judgment; skip for trivial additions
+
+**Test timing relative to deployment:** The test target is the deployed agent (with uploaded kernel files and synced retrieval files), not the local file system. Pre-tests run before commit/push/sync — keeping the deployed system in its current state for baseline measurement. Post-tests run after commit/push/sync + upload — testing the new deployed state. Do not commit before pre-tests are recorded.
 
 **Test design principles:**
 - Design tests during planning, when you understand the *intent* of the changes. Post-hoc tests only verify what was built, not whether the build achieved its goal.

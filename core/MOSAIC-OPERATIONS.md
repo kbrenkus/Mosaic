@@ -377,6 +377,16 @@ When creating any cross-reference:
 - Route, don't summarize — stubs point to domain file sections, don't re-summarize content
 - After any pruning or migration, grep for the old location to verify no broken references
 
+#### Entity Attribute Centralization
+
+When an entity type (person, system, client) has attributes that change over time (title, department, status, lifecycle), store mutable attributes in one authoritative file and reference the entity by identifier elsewhere. Satellite files carry the entity identifier only — the agent resolves current attributes from the authority at query time. This prevents attribute drift across the file system when titles change, departments reorganize, or statuses update.
+
+**Pattern:** Strip mutable attributes (titles, department labels) from satellite references. Keep only the entity name or ID. The authoritative source (e.g., a People QUICK file for personnel, a Clients QUICK for client lifecycle) is the single location for current attribute values.
+
+**Exceptions:** Structural identity attributes that rarely change and define the entity's category (e.g., "CEO" as a role type, not a title) may be retained in satellite files. Historical context describing transitions ("appointed VP in 2024") stays as narrative fact.
+
+**Test:** "If this attribute changed tomorrow, how many files would need updating?" If >1, centralize the attribute in the authoritative source and strip it from satellites.
+
 #### Zone + Epistemological Layer Interaction
 
 Zones (how it refreshes) and epistemological layers (what type, MOSAIC-REASONING §6.6) are orthogonal. Both apply simultaneously:
@@ -587,6 +597,8 @@ Every significant change follows this validation sequence:
 4. **Accept/Reject:** No regressions allowed. Improvements expected on targeted dimensions.
 
 **Why pre-test matters:** Post-hoc tests verify what was built, not whether it achieved its *intent*. Pre-test reveals current ceiling; post-test reveals whether you raised it.
+
+**Test timing relative to deployment:** The test target is the deployed agent (with uploaded kernel files and synced retrieval files), not the local file system. Pre-tests run before commit/push/sync — keeping the deployed system in its current state for baseline measurement. Post-tests run after commit/push/sync + upload — testing the new deployed state. Do not commit before pre-tests are recorded.
 
 ### §7.2 Scoring Rubric Design
 
@@ -870,6 +882,7 @@ After every file edit:
 - [ ] Updated manifest row
 - [ ] If QUICK source changed: flagged for regeneration
 - [ ] If QUICK regenerated: updated manifest marker in QUICK header
+- [ ] **QUICK propagation check:** If this edit changes ownership, department, governance chain, or approval status — not just a name swap — check whether the QUICK derivative carries any of the changed data (category, owner, status). Add QUICK updates to scope when the answer is yes. (A-005, A-030)
 - [ ] Cross-references still valid (section names unchanged, or updated if renamed)
 - [ ] Changes committed to git
 

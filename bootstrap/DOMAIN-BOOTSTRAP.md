@@ -1139,6 +1139,8 @@ Define how this domain learns over time. This specification enables MOSAIC-OPERA
 
 After a structural change that affects how the agent plans queries (new correlation table, new system connection, new routing), ask the agent to describe how it experienced the change. Self-reports are diagnostic of which zone was affected: "I didn't know to look" = false absence (Structural). "I found it slower" = efficiency (Curated). "I misread it" = interpretation (Interpretive). Design data per MOSAIC-REASONING §7 and MOSAIC-PRINCIPLES A-019. Complement to score-based testing — reveals failure modes scores alone may miss.
 
+**Behavioral failure diagnosis:** Phenomenological investigation also applies when post-build validation reveals unexpected agent behavior — not just structural changes. When a score drops or a behavioral expectation is violated, ask the agent to self-report its experience encountering the relevant content: "Describe what happens when you encounter a pointer in a retrieved section" or "Walk me through how you decided to flag this as a gap." The agent's phenomenological description often identifies the failure mechanism more precisely than test-score analysis alone. Example: pointer salience failure (pointers register as metadata, not action triggers) and gap-flagging pressure release (delta audit substituting for resolution) were both identified through phenomenological investigation, not score comparison. See MOSAIC-PRINCIPLES A-019, A-030.
+
 **Completion criteria:**
 - [ ] Pre-build baseline scored on primary agent (before Phase 5 begins)
 - [ ] Pre-build baseline scored on secondary agent(s) per Phase 6.7 model

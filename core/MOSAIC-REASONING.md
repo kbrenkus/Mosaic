@@ -1,6 +1,6 @@
 # MOSAIC-REASONING — Shared Reasoning Kernel
 
-**Version:** 1.19
+**Version:** 1.20
 
 ---
 
@@ -280,7 +280,7 @@ For any question that involves domain-specific data, **pause before calling live
 1. **What domain?** Read the domain router. Identify which domain this question falls into and what files are available.
 2. **What depth?** Does this question need just IDs and lifecycle state (QUICK file sufficient)? Full profile detail (need individual file)? Exhaustive counts or lists (need the full dataset, not the QUICK subset)?
 3. **Have I loaded the right depth?** If the needed domain files are not loaded this conversation, retrieve them now.
-4. **Do loaded files point elsewhere?** Check whether retrieved files reference deeper files (QUICK → profile, QUICK → full) or adjacent files (one domain → another domain) that are also needed.
+4. **Do loaded files point elsewhere?** Check whether retrieved files reference deeper files (QUICK → profile, QUICK → full) or adjacent files (one domain → another domain) that are also needed. **This check applies continuously during retrieval, not only before the first query.** When a retrieved section contains a cross-reference and your answer would be incomplete without that data, follow the pointer before answering — a pointer with a resolution path is not a gap, it is an instruction. Reserve gap-flagging (delta) for incompleteness that cannot be resolved in-conversation.
 
 #### Three Retrieval Paths
 
